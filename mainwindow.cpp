@@ -1,10 +1,12 @@
 #include <QtWidgets>
+#include <QMessageBox>
 #include <QtDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "painterarea.h"
 #include "dialog/dialogms.h"
 #include "dialog/dialogmm.h"
+#include "data/mypathdata.h"
 
 
 MainWindow::MainWindow() :
@@ -49,6 +51,7 @@ void MainWindow::on_action_M_S_triggered()
 
 void MainWindow::on_action_F_S_triggered()
 {
+    //截取painterArea
     int aLeft = painterArea->startPoint.x()-40, aTop = painterArea->startPoint.y()-40,
         aRight = aLeft+440+painterArea->pantsH/4, aBottom = aTop+painterArea->pantsL+50;
     qreal oldScalingMulti = painterArea->scalingMulti;
@@ -62,14 +65,23 @@ void MainWindow::on_action_F_S_triggered()
     painterArea->scalingMulti = oldScalingMulti;
     painterArea->intUp = oldIntUp;
     painterArea->intLeft = oldIntLeft;
-    QString initialPath = QDir::currentPath() + "/untitled.jpg";
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                               initialPath,
-                               tr("%1 Files (*.%2);;All Files (*)")
-                               .arg(QString::fromLatin1("JPG"))
-                               .arg(QString::fromLatin1("jpg")));
-    qDebug()<<fileName;
-    pixMap.save(fileName,"JPG");
+
+    //保获取路径，存成jpg文件
+    QString filePath = QDir::currentPath() + "/" + painterArea->myPathData->name;
+//    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+//                               filePath + ".jpg",
+//                               tr("%1 Files (*.%2);;All Files (*)")
+//                               .arg(QString::fromLatin1("JPG"))
+//                               .arg(QString::fromLatin1("jpg")));
+//    qDebug()<<"save to: "<<fileName;
+//    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
+    bool boolPixMapSaved = pixMap.save(filePath+".jpg","JPG");
+
+    //输出txt文件
+    if(painterArea->myPathData->saveTo(filePath+".txt") && boolPixMapSaved)
+        QMessageBox::information(nullptr,"Save","The jpg and txt files have saved successfully.");
+    else
+        QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
 }
 
 void MainWindow::on_action_M_M_triggered()

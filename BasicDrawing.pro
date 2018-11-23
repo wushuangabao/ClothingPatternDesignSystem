@@ -29,7 +29,8 @@ SOURCES += \
     mypath.cpp \
     dialog/dialogms.cpp \
     dialog/dialogmm.cpp \
-    data/mypathdata.cpp
+    data/mypathdata.cpp \
+    data/curvepoint.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -37,7 +38,8 @@ HEADERS += \
     mypath.h \
     dialog/dialogms.h \
     dialog/dialogmm.h \
-    data/mypathdata.h
+    data/mypathdata.h \
+    data/curvepoint.h
 
 FORMS += \
         mainwindow.ui \

@@ -13,13 +13,17 @@ class MyPath
 public:
     MyPath(PainterArea *parent);
     PainterArea *parent;
+    QPainterPath *myPath;
 
     QPainterPath auxiliaryLinesH_1(const QPointF startPoint);
     QPainterPath auxiliaryLinesH_2(const QPointF startPoint);
     QPainterPath outlineH_1(const QPointF startPoint,int typeSang);
     QPainterPath outlineH_2(const QPointF startPoint,int typeSang);
+
     QPainterPath smallCroCurve(const QPointF startPoint);
     QPainterPath bigCroCurve();
+
+
     QPainterPath sang_1(int intCase,QList<QPointF> *points);
     QPainterPath sang_2(int intCase,QList<QPointF> *points);
     QPainterPath waist_1(int wCase,int sangCase,QList<QPointF> *points);
@@ -88,6 +92,15 @@ private:
 
     qreal distanceBetween(QPointF p1,QPointF p2);
 //    qreal distanceBetween(QPointF p1,QPointF p2,QPointF p3,QPointF p4);
+
+    QPainterPath lineThrough2P(QPointF startPoint,QPointF endPoint);
+    void brokenLineThrough(QList<QPointF> points);
+    QPainterPath curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,QPointF ctrl4);
+    void curveThrough(QList<QPointF> points);
+    void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint);
+    void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
+
+    void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);
 
 private slots:
 

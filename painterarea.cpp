@@ -10,7 +10,7 @@
 //构造函数
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
-    myPathDatas = new QList<MyPathData>;
+    myPathData = new MyPathData("myPath");
 
     pantsHeight=1650;
     pantsL=1020;
@@ -57,7 +57,7 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 
 PainterArea::~PainterArea()
 {
-    delete myPathDatas;
+    delete myPathData;
 }
 
 //绘制事件
@@ -65,6 +65,8 @@ void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
+    QBrush brush(Qt::green,Qt::CrossPattern);
+    painter.setBrush(brush);
     QPen pen;
     MyPath path(this);
 

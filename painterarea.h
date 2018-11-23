@@ -20,7 +20,6 @@ private:
     bool isMoving=false;
     int xBeforeMoving;
     int yBeforeMoving;
-    //QPixmap pixMap;
 
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -34,7 +33,7 @@ public:
     explicit PainterArea(QWidget *parent = nullptr);
     ~PainterArea();
 
-    QList<MyPathData> *myPathDatas;
+    MyPathData *myPathData;
 
     int pantsHeight;
     int pantsL;

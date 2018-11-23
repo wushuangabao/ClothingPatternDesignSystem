@@ -8,6 +8,7 @@
 MyPath::MyPath(PainterArea *parent)
 {
     this->parent = parent;
+    myPath = new QPainterPath;
 
     pantsHeight = parent->pantsHeight;
     pantsL = parent->pantsL;
@@ -107,28 +108,6 @@ QPainterPath MyPath::outlineH_1(const QPointF startPoint,int typeSang)
     qreal tempL = knee_height-w_h_height;
 
     wPath.moveTo(rightUpPoint1);
-
-    PathData pathData={
-        0,
-        false,
-        0,
-        1,
-        QPointF(0,0),
-        QPointF(0,0)
-    };
-    PointData pointData={
-        0,
-        rightUpPoint1.x(),
-        rightUpPoint1.y()
-    };
-    MyPathData myPathData;
-    myPathData.pathData[myPathData.number]=pathData;
-    myPathData.pointData[myPathData.number]=pointData;
-    myPathData.number++;
-
-    myPathData.name="outlineH_1";
-    parent->myPathDatas->append(myPathData);
-
     //右边
     wPath.cubicTo(tempPoint1,QPointF(tempPoint2.x(),tempPoint2.y()-w_h_height*0.25),tempPoint2);
     tempPoint1.setX(tempPoint2.x()-halfCroWidth1+feetWidth/2.0+deltaKneeWidth);
@@ -426,6 +405,97 @@ QPainterPath MyPath::drawSang2(QPointF point,QPointF vertex,qreal ls,qreal sang,
     return path;
 }
 
+QPainterPath MyPath::lineThrough2P(QPointF A,QPointF B)
+{
+    QPainterPath path;
+    path.moveTo(A);
+    path.lineTo(B);
+    parent->myPathData->addLine(A,B);
+    return path;
+}
+
+void MyPath::brokenLineThrough(QList<QPointF> points)
+{
+    if(points.size()<2)
+        return;
+    QPointF point;
+    point = points.takeAt(0);
+    myPath->moveTo(point);
+    myPath->lineTo(points.at(0));
+    parent->myPathData->addLine(point,points.takeAt(0));
+    while(!points.isEmpty())
+    {
+        point = points.takeAt(0);
+        myPath->lineTo(point);
+        parent->myPathData->addLineTo(point);
+    }
+}
+
+QPainterPath MyPath::curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,QPointF ctrl4)
+{
+    QPointF E((A.x()+B.x())/2.0,(A.y()+B.y())/2.0);
+    QPointF F((B.x()+C.x())/2.0,(B.y()+C.y())/2.0);
+    qreal d1 =  distanceBetween(A,B),    d2 = distanceBetween(B,C),    scale = d1/(d1+d2);
+    QPointF D = getPointOfSang_P(E,F,scale);
+    qreal dx = B.x()-D.x(),    dy = B.y()-D.y();
+    QPointF ctrl2(E.x()+dx,E.y()+dy);
+    QPointF ctrl3(F.x()+dx,F.y()+dy);
+    QPainterPath path;
+    path.moveTo(A);    path.cubicTo(ctrl1,ctrl2,B);    path.cubicTo(ctrl3,ctrl4,C);
+    return path;
+}
+
+void MyPath::addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints)
+{
+    QPointF E((A.x()+B.x())/2.0,(A.y()+B.y())/2.0);
+    QPointF F((B.x()+C.x())/2.0,(B.y()+C.y())/2.0);
+    qreal d1 =  distanceBetween(A,B),    d2 = distanceBetween(B,C),    scale = d1/(d1+d2);
+    QPointF D = getPointOfSang_P(E,F,scale);
+    qreal dx = B.x()-D.x(),    dy = B.y()-D.y();
+    QPointF ctrl2(E.x()+dx,E.y()+dy);
+    QPointF ctrl3(F.x()+dx,F.y()+dy);
+    ctrlPoints->insert(1,ctrl2);
+    ctrlPoints->insert(2,ctrl3);
+}
+
+void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
+{
+    QList<QPointF> *ctrlPoints = new QList<QPointF>;
+    ctrlPoints->append(firstCtrlPoint);
+    ctrlPoints->append(lastCtrlPoint);
+    int num=points.size(), i=3;
+    if(num>0){
+        myPath->moveTo(points.at(0));
+        while(i<=num){
+            addCtrlPoints(points.at(0),points.at(1),points.at(2),ctrlPoints);
+            myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1)); //绘制到第2个端点的三次贝塞尔曲线
+            points.takeAt(0); //删除第1个端点
+            i++;
+        }
+        myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1));
+        points.takeAt(0);
+    }
+    delete ctrlPoints;
+
+    parent->myPathData->addCurve(points,firstCtrlPoint,lastCtrlPoint);
+}
+
+void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint)
+{
+    if(!points.isEmpty())
+        curveThrough(points,firstCtrlPoint,points.last());
+    else
+        return;
+}
+
+void MyPath::curveThrough(QList<QPointF> points)
+{
+    if(!points.isEmpty())
+        curveThrough(points,points.first(),points.last());
+    else
+        return;
+}
+
 //画小裆：求辅助点函数
 QPointF MyPath::getIntersection(qreal nA1,qreal x1,qreal y1,qreal nA2,qreal x2,qreal y2,qreal scale)
 {
@@ -440,17 +510,7 @@ QPointF MyPath::getIntersection(qreal nA1,qreal x1,qreal y1,qreal nA2,qreal x2,q
 qreal MyPath::distanceBetween(QPointF p1,QPointF p2)
 {
     qreal x1=p1.x(), y1=p1.y(), x2=p2.x(),y2=p2.y();
-    if(x1==x2)
-        if(y1>y2)
-            return y1-y2;
-        else
-            return y2-y1;
-    else if(y1==y2)
-        if(x1>x2)
-            return x1-x2;
-        else return x2-x1;
-    else
-        return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+    return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 }
 
 //求长度：两平行线间距

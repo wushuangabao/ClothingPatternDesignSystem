@@ -1,0 +1,17 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "cppdbg",
+      "name": "E:\\MyCodes\\Cpp\\Qt\\BasicDrawing\\BasicDrawing",
+      "project": "",
+      "cwd": "${workspaceRoot}",
+      "program": "${debugInfo.target}",
+      "processId": 0,
+      "MIMode": "gdb",
+      "miDebuggerPath": "${env.MINGW_PREFIX}\\bin\\gdb.exe",
+      "externalConsole": true
+    }
+  ]
+}
