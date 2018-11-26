@@ -81,7 +81,6 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
 
     MyPath path(this);
-    if(old_typePants!=typePants)
     {
         path.setStartPoint(500.0,100.0);
         painter.drawPath(path.auxiliaryLinesH_1());
@@ -91,7 +90,6 @@ void PainterArea::paintEvent(QPaintEvent *event)
         painter.drawPath(path.auxiliaryLinesH_2());
         //path->drawOutline2(typeSang2);
 
-        old_typePants = typePants;
     }
 
     pen.setWidthF(0);
@@ -99,8 +97,8 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawPath(*(path.myPath));
 
-//    QString filePath = QDir::currentPath() + "/" + myPathData->name;
-//    myPathData->saveTo(filePath+".txt");
+    QString filePath = QDir::currentPath() + "/" + myPathData->name;
+    myPathData->saveTo(filePath+".txt");
 }
 
 //鼠标事件
