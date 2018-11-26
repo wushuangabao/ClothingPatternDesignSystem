@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QList>
+#include <QDockWidget>
+#include <QTableView>
+#include <QStandardItemModel>
 
 namespace Ui {
     class MainWindow;
@@ -21,7 +24,8 @@ public:
     explicit MainWindow();
     ~MainWindow();
 
-
+    void removeAllDock();
+    void showDock(const QList<int>& index = QList<int>());
 
 public slots:
     void setStatusMouseCoordinate();
@@ -35,7 +39,11 @@ private slots:
 private:
     Ui::MainWindow *ui;
     PainterArea *painterArea;
+    QList<QDockWidget*> m_docks; //记录所有dockWidget的指针
+    int numberDocks;
     QLabel *labelScaling;
+    QStandardItemModel* modelPoints;
+    QStandardItemModel* modelPaths;
     DialogMS *dialogMS;
     DialogMM *dialogMM;
 

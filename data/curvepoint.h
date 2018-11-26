@@ -6,7 +6,6 @@
 class CurvePoint
 {
 public:
-    CurvePoint(CurvePoint *pre=nullptr);
     CurvePoint(qreal x,qreal y,CurvePoint *pre=nullptr);
     ~CurvePoint();
 
@@ -16,9 +15,9 @@ public:
     qreal x=0;
     qreal y=0;
 
-    bool isFirst=false;
-    bool isLast=false;
-    bool isCtrlPoint=false;
+    bool isFirst;
+    bool isLast;
+    bool isCtrlPoint;
 
     void setFirst();
     void setFirst(CurvePoint *pre); //设置为曲线的第一个点，且有控制点

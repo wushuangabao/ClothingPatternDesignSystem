@@ -5,10 +5,18 @@
 #include <QPainter>
 #include <QDebug>
 
+MyPath::~MyPath()
+{
+    delete myPath;
+    delete startPoint;
+    parent->myPathData->clear();
+}
+
 MyPath::MyPath(PainterArea *parent)
 {
     this->parent = parent;
     myPath = new QPainterPath;
+    startPoint = new QPointF(0,0);
 
     pantsHeight = parent->pantsHeight;
     pantsL = parent->pantsL;
@@ -26,159 +34,233 @@ MyPath::MyPath(PainterArea *parent)
     halfCroWidth1 = (hWidth1+smallCro)/2;
     xMidVerticalLine2 = (smallCro+hWidth2)/2;
     feetWidth = pantsH/5-20;
-    sang1 = (hWidth1-rightWaist)/2.0-pantsW/8.0;
+    sang1 = (hWidth1-rightWaist1)/2.0-pantsW/8.0;
     sang2 = (hWidth2-pantsW/4.0)/3.0*2;
 }
 
-//辅助线：H型前片
-QPainterPath MyPath::auxiliaryLinesH_1(const QPointF startPoint)
+void MyPath::setStartPoint(qreal x,qreal y)
 {
-    smallCroPoint = QPointF(startPoint.x()-smallCro,startPoint.y()+pantsCrotchH);
-    leftUpPoint1 = QPointF(startPoint.x()+rightWaist,startPoint.y()+downWaist);
-    rightUpPoint1 =QPointF(startPoint.x()+hWidth1-sang1,startPoint.y());
+    startPoint->setX(x);
+    startPoint->setY(y);
+}
 
-    qreal x = startPoint.x()+hWidth1, y = startPoint.y();
-    QPainterPath myPath;
-    myPath.moveTo(startPoint);
-    myPath.lineTo(x,y);
-    y = startPoint.y()+w_h_height;
-    myPath.moveTo(startPoint.x(),y);
-    myPath.lineTo(x,y);
-    myPath.moveTo(smallCroPoint);
-    myPath.lineTo(x,smallCroPoint.y());
-    y = startPoint.y()+knee_height;
-    myPath.moveTo(startPoint.x(),y);
-    myPath.lineTo(x,y);
-    y = startPoint.y()+pantsL;
-    myPath.moveTo(startPoint.x(),y);
-    myPath.lineTo(x,y);
-    x = startPoint.x();
-    myPath.moveTo(startPoint);
-    myPath.lineTo(x,y);
-    x = x-smallCro+halfCroWidth1;
-    myPath.moveTo(x,startPoint.y());
-    myPath.lineTo(x,y);
-    x = startPoint.x()+hWidth1;
-    myPath.moveTo(x,startPoint.y());
-    myPath.lineTo(x,y);
+void MyPath::setStartPoint(QPointF point)
+{
+    startPoint->setX(point.x());
+    startPoint->setY(point.y());
+}
 
-    return myPath;
+//辅助线：H型前片
+QPainterPath MyPath::auxiliaryLinesH_1()
+{
+    qreal sx = startPoint->x(),
+          sy = startPoint->y();
+    smallCroPoint = QPointF(sx-smallCro,sy+pantsCrotchH);
+    leftUpPoint1 = QPointF(sx+rightWaist1,sy+downWaist1);
+    rightUpPoint1 = QPointF(sx+hWidth1-sang1,sy);
+    addPoint(smallCroPoint,"theCro1");
+    addPoint(leftUpPoint1,"leftUp1");
+    addPoint(rightUpPoint1,"rightUp1");
+
+    qreal x = sx+hWidth1, y = sy;
+    QPainterPath path;
+    path.moveTo(sx,sy);
+    path.lineTo(x,y);
+
+    y = sy+w_h_height;
+    QPointF point(sx,y);
+    addPoint(point,"leftH1");
+    path.moveTo(point);
+    point.setX(x);
+    addPoint(point,"rightH1");
+    path.lineTo(point);
+
+    path.moveTo(smallCroPoint);
+    point = QPointF(x,smallCroPoint.y());
+    path.lineTo(point);
+
+    y = sy+knee_height;
+    point = QPointF(sx,y);
+    path.moveTo(sx,y);
+    point.setX(x);
+    path.lineTo(x,y);
+
+    y = sy+pantsL;
+    point = QPointF(sx,y);
+    path.moveTo(point);
+    point.setX(x);
+    path.lineTo(point);
+
+    path.moveTo(sx,sy);
+    path.lineTo(sx,y);
+    x = sx-smallCro+halfCroWidth1;
+    path.moveTo(x,sy);
+    path.lineTo(x,y);
+    x = sx+hWidth1;
+    path.moveTo(x,sy);
+    path.lineTo(x,y);
+
+    return path;
 }
 
 //辅助线：H型后片
-QPainterPath MyPath::auxiliaryLinesH_2(const QPointF startPoint)
+QPainterPath MyPath::auxiliaryLinesH_2()
 {
-    qreal x = startPoint.x(), y = startPoint.y();
-    bigCroPoint = QPointF(x+hWidth2+bigCro,y+pantsCrotchH+downCro);
+    qreal sx = startPoint->x(),
+          sy = startPoint->y();
+    bigCroPoint = QPointF(sx+hWidth2+bigCro,sy+pantsCrotchH+downCro2);
+    addPoint(bigCroPoint,"theCro2");
 
     QPainterPath myPath;
-    x += hWidth2;
-    myPath.moveTo(startPoint);
+    qreal x = sx+hWidth2;
+    myPath.moveTo(sx,sy);
+    myPath.lineTo(x,sy);
+
+    qreal y = sy+w_h_height;
+    myPath.moveTo(sx,y);
     myPath.lineTo(x,y);
-    y = startPoint.y()+w_h_height;
-    myPath.moveTo(startPoint.x(),y);
-    myPath.lineTo(x,y);
-    myPath.moveTo(startPoint.x(),bigCroPoint.y());
+
+    myPath.moveTo(sx,bigCroPoint.y());
     myPath.lineTo(bigCroPoint);
-    y = startPoint.y()+knee_height;
-    myPath.moveTo(startPoint.x(),y);
+
+    y = sy+knee_height;
+    myPath.moveTo(sx,y);
     myPath.lineTo(x,y);
-    y = startPoint.y()+pantsL;
-    myPath.moveTo(startPoint.x(),y);
+
+    y = sy+pantsL;
+    myPath.moveTo(sx,y);
     myPath.lineTo(x,y);
-    x = startPoint.x();
-    myPath.moveTo(startPoint);
+
+    myPath.moveTo(sx,sy);
+    myPath.lineTo(sx,y);
+    x = sx+xMidVerticalLine2;
+    myPath.moveTo(x,sy);
     myPath.lineTo(x,y);
-    x = x+xMidVerticalLine2;
-    myPath.moveTo(x,startPoint.y());
-    myPath.lineTo(x,y);
-    x = startPoint.x()+hWidth2;
-    myPath.moveTo(x,startPoint.y());
+    x = sx+hWidth2;
+    myPath.moveTo(x,sy);
     myPath.lineTo(x,y);
 
     return myPath;
 }
 
-//轮廓线：H型前片
-QPainterPath MyPath::outlineH_1(const QPointF startPoint,int typeSang)
+void MyPath::addPoint(QPointF point,QString name)
 {
-    QPainterPath wPath;
-    QPointF tempPoint1 = rightUpPoint1;
-    QPointF tempPoint2(startPoint.x()+hWidth1,startPoint.y()+w_h_height);
-    qreal tempL = knee_height-w_h_height;
+    parent->myPathData->addPoint(point,name);
+}
 
-    wPath.moveTo(rightUpPoint1);
-    //右边
-    wPath.cubicTo(tempPoint1,QPointF(tempPoint2.x(),tempPoint2.y()-w_h_height*0.25),tempPoint2);
-    tempPoint1.setX(tempPoint2.x()-halfCroWidth1+feetWidth/2.0+deltaKneeWidth);
-    tempPoint1.setY(startPoint.y()+knee_height);
-    wPath.cubicTo(QPointF(tempPoint2.x(),tempPoint2.y()+tempL*0.3183),QPointF(tempPoint1.x(),tempPoint1.y()-tempL*0.2957),tempPoint1);
-    tempPoint2.setX(tempPoint1.x()-deltaKneeWidth);
-    tempPoint2.setY(startPoint.y()+pantsL);
-    wPath.lineTo(tempPoint2);
-    //底边
-    tempPoint1.setX(tempPoint2.x()-feetWidth);
-    tempPoint1.setY(tempPoint2.y());
-    wPath.lineTo(tempPoint1);
-    //左边
-    tempPoint2.setX(tempPoint1.x()-deltaKneeWidth);
-    tempPoint2.setY(startPoint.y()+knee_height);
-    wPath.lineTo(tempPoint2);
-    tempL = knee_height-pantsCrotchH;
-    tempPoint2.setY(tempPoint2.y()-tempL*0.17);
-    tempPoint1 = QPointF(smallCroPoint.x()+(tempPoint2.x()-smallCroPoint.x())*0.395,smallCroPoint.y()+tempL*0.22);
-    wPath.cubicTo(tempPoint1,tempPoint2,smallCroPoint);
+void MyPath::drawOutline1(int typeSang)
+{
+    qreal sx = startPoint->x(),
+          sy = startPoint->y();
+    QList<QPointF> points;
+    QPointF point(sx,sy+w_h_height); //"leftH1"，已加入pointMap
+    points<<point<<leftUpPoint1<<rightUpPoint1;
+    brokenLineThrough(points);
 
-    wPath.addPath(this->smallCroCurve(startPoint));
-    wPath.addPath(this->drawWaist1(1,typeSang));
+    points.clear();
+    points.append(rightUpPoint1);
+    point = QPointF(sx+hWidth1,point.y());
+    addPoint(point,"rightH1");
+    points.append(point);
+    point = QPointF(point.x()-leftCro1,sy+pantsCrotchH);
+    addPoint(point,"rightCro1");
+    points.append(point);
+    QPointF point2(sx+hWidth1-halfCroWidth1+feetWidth/2.0+deltaKneeWidth,sy+knee_height);
+    addPoint(point2,"rightMid1");
+    point = getPointOfSang_P(point,point2,2.0/3.0);
+    point = getVertexOfSang_Up(point2,point,2);
+    addPoint(point,"rightCtM1");
+    points<<point<<point2;
+    curveThrough(points);
+}
 
-    return wPath;
+//轮廓线：H型前片
+//QPainterPath MyPath::outlineH_1(const QPointF startPoint,int typeSang)
+//{
+//    QPainterPath wPath;
+//    QPointF tempPoint1 = rightUpPoint1;
+//    QPointF tempPoint2(startPoint.x()+hWidth1,startPoint.y()+w_h_height);
+//    qreal tempL = knee_height-w_h_height;
+
+//    wPath.moveTo(rightUpPoint1);
+//    //右边
+//    wPath.cubicTo(tempPoint1,QPointF(tempPoint2.x(),tempPoint2.y()-w_h_height*0.25),tempPoint2);
+//    tempPoint1.setX(tempPoint2.x()-halfCroWidth1+feetWidth/2.0+deltaKneeWidth);
+//    tempPoint1.setY(startPoint.y()+knee_height);
+//    wPath.cubicTo(QPointF(tempPoint2.x(),tempPoint2.y()+tempL*0.3183),QPointF(tempPoint1.x(),tempPoint1.y()-tempL*0.2957),tempPoint1);
+//    tempPoint2.setX(tempPoint1.x()-deltaKneeWidth);
+//    tempPoint2.setY(startPoint.y()+pantsL);
+//    wPath.lineTo(tempPoint2);
+//    //底边
+//    tempPoint1.setX(tempPoint2.x()-feetWidth);
+//    tempPoint1.setY(tempPoint2.y());
+//    wPath.lineTo(tempPoint1);
+//    //左边
+//    tempPoint2.setX(tempPoint1.x()-deltaKneeWidth);
+//    tempPoint2.setY(startPoint.y()+knee_height);
+//    wPath.lineTo(tempPoint2);
+//    tempL = knee_height-pantsCrotchH;
+//    tempPoint2.setY(tempPoint2.y()-tempL*0.17);
+//    tempPoint1 = QPointF(smallCroPoint.x()+(tempPoint2.x()-smallCroPoint.x())*0.395,smallCroPoint.y()+tempL*0.22);
+//    wPath.cubicTo(tempPoint1,tempPoint2,smallCroPoint);
+
+//    wPath.addPath(this->smallCroCurve(startPoint));
+//    wPath.addPath(this->drawWaist1(1,typeSang));
+
+//    return wPath;
+//}
+
+void MyPath::drawOutline2(int typeSang)
+{
+
+   // brokenLineThrough();
 }
 
 //轮廓线：H型后片
-QPainterPath MyPath::outlineH_2(const QPointF startPoint,int typeSang)
+//QPainterPath MyPath::outlineH_2(const QPointF startPoint,int typeSang)
+//{
+//    QPainterPath wPath;
+//    rightUpPoint2 = QPointF(startPoint.x()+xMidVerticalLine2/2.0+hWidth2/2.0,startPoint.y()-upWaist);
+//    leftUpPoint2 = QPointF(getIntersection_L(rightUpPoint2,hWidth2,0,startPoint.y()));
+//    leftUpPoint2 = getPointOnRadial(leftUpPoint2,rightUpPoint2,sang2/2.0);
+//    QPointF vertexPoint(startPoint.x()+hWidth2-leftCro,startPoint.y()+pantsCrotchH);
+//    //wPath.addEllipse(vertexPoint,2,2);
+//    cubicStartPoint2 = getIntersection(rightUpPoint2,vertexPoint,0,startPoint.y()+w_h_height);
+//    bigCroPoint = QPointF(startPoint.x()+hWidth2+bigCro,startPoint.y()+pantsCrotchH+downCro);
+//    leftH = qRound(startPoint.x())+hWidth2-qRound(cubicStartPoint2.x());
+//    qreal tempL = knee_height-w_h_height;
+
+//    wPath.moveTo(leftUpPoint2);
+//    //左边
+//    QPointF tempPoint1(leftUpPoint2.x()-2,leftUpPoint2.y()+8); //数值待定
+//    QPointF tempPoint2(startPoint.x()-leftH,startPoint.y()+w_h_height);
+//    leftHPoint2 = tempPoint2;
+//    wPath.cubicTo(tempPoint1,tempPoint2,tempPoint2);
+//    tempPoint1 = QPointF(tempPoint2.x(),tempPoint2.y()+tempL*0.17143);
+//    tempPoint2 = QPointF(startPoint.x()+(xMidVerticalLine2-(feetWidth+60)/2),startPoint.y()+knee_height);
+//    wPath.cubicTo(tempPoint1,QPointF(tempPoint2.x(),tempPoint2.y()-tempL*0.22857),tempPoint2);
+//    tempPoint1 = QPointF(tempPoint2.x()+deltaKneeWidth,startPoint.y()+pantsL);
+//    wPath.lineTo(tempPoint1);
+//    //底边
+//    tempPoint1.setX(tempPoint1.x()+feetWidth+40);
+//    wPath.lineTo(tempPoint1);
+//    //右边
+//    tempPoint2.setX(tempPoint1.x()+deltaKneeWidth);
+//    wPath.lineTo(tempPoint2);
+//    tempL = knee_height-pantsCrotchH-downCro;
+//    tempPoint1 = QPointF(tempPoint2.x(),tempPoint2.y()-tempL*0.2349);
+//    tempPoint2 = QPointF(bigCroPoint.x()-bigCro*0.34965,bigCroPoint.y()+tempL*0.18078);
+//    wPath.cubicTo(tempPoint1,tempPoint2,bigCroPoint);
+
+//    wPath.addPath(this->bigCroCurve());
+//    wPath.addPath(this->drawWaist2(1,typeSang));
+
+//    return wPath;
+//}
+
+QPainterPath MyPath::smallCroCurve()
 {
-    QPainterPath wPath;
-    rightUpPoint2 = QPointF(startPoint.x()+xMidVerticalLine2/2.0+hWidth2/2.0,startPoint.y()-upWaist);
-    leftUpPoint2 = QPointF(getIntersection_L(rightUpPoint2,hWidth2,0,startPoint.y()));
-    leftUpPoint2 = getPointOnRadial(leftUpPoint2,rightUpPoint2,sang2/2.0);
-    QPointF vertexPoint(startPoint.x()+hWidth2-leftCro,startPoint.y()+pantsCrotchH);
-    //wPath.addEllipse(vertexPoint,2,2);
-    cubicStartPoint2 = getIntersection(rightUpPoint2,vertexPoint,0,startPoint.y()+w_h_height);
-    bigCroPoint = QPointF(startPoint.x()+hWidth2+bigCro,startPoint.y()+pantsCrotchH+downCro);
-    leftH = qRound(startPoint.x())+hWidth2-qRound(cubicStartPoint2.x());
-    qreal tempL = knee_height-w_h_height;
-
-    wPath.moveTo(leftUpPoint2);
-    //左边
-    QPointF tempPoint1(leftUpPoint2.x()-2,leftUpPoint2.y()+8); //数值待定
-    QPointF tempPoint2(startPoint.x()-leftH,startPoint.y()+w_h_height);
-    leftHPoint2 = tempPoint2;
-    wPath.cubicTo(tempPoint1,tempPoint2,tempPoint2);
-    tempPoint1 = QPointF(tempPoint2.x(),tempPoint2.y()+tempL*0.17143);
-    tempPoint2 = QPointF(startPoint.x()+(xMidVerticalLine2-(feetWidth+60)/2),startPoint.y()+knee_height);
-    wPath.cubicTo(tempPoint1,QPointF(tempPoint2.x(),tempPoint2.y()-tempL*0.22857),tempPoint2);
-    tempPoint1 = QPointF(tempPoint2.x()+deltaKneeWidth,startPoint.y()+pantsL);
-    wPath.lineTo(tempPoint1);
-    //底边
-    tempPoint1.setX(tempPoint1.x()+feetWidth+40);
-    wPath.lineTo(tempPoint1);
-    //右边
-    tempPoint2.setX(tempPoint1.x()+deltaKneeWidth);
-    wPath.lineTo(tempPoint2);
-    tempL = knee_height-pantsCrotchH-downCro;
-    tempPoint1 = QPointF(tempPoint2.x(),tempPoint2.y()-tempL*0.2349);
-    tempPoint2 = QPointF(bigCroPoint.x()-bigCro*0.34965,bigCroPoint.y()+tempL*0.18078);
-    wPath.cubicTo(tempPoint1,tempPoint2,bigCroPoint);
-
-    wPath.addPath(this->bigCroCurve());
-    wPath.addPath(this->drawWaist2(1,typeSang));
-
-    return wPath;
-}
-
-QPainterPath MyPath::smallCroCurve(const QPointF startPoint)
-{
+    QPointF startPoint = QPointF(this->startPoint->x(),this->startPoint->y());
     QPointF cubicStartPoint(startPoint.x(),startPoint.y()+w_h_height);
     qreal nAngle1=qAtan(1.0*smallCro/(pantsCrotchH-w_h_height)); //单位为弧度
     qreal nAngle2=M_PI-nAngle1;
@@ -247,8 +329,8 @@ QPainterPath MyPath::drawWaist1(int wCase,int sangCase)
     path1 = this->waist_1(wCase,sangCase,points);
     path.addPath(path1);
     qreal l=distanceBetween(leftUpPoint1,rightUpPoint1), scale = 1.0*waistBandWidth/l;
-    qreal dy=scale*sqrt(l*l-downWaist*downWaist);
-    qreal dx=scale*downWaist;
+    qreal dy=scale*sqrt(l*l-downWaist1*downWaist1);
+    qreal dx=scale*downWaist1;
     path2 = path1; path2.translate(dx,dy);
 
     QPainterPath intersection = path2-path;
@@ -256,6 +338,7 @@ QPainterPath MyPath::drawWaist1(int wCase,int sangCase)
     path.addPath(intersection);
 
     //path.addPath(path2);
+    delete points;
     return path;
 }
 
@@ -297,12 +380,12 @@ QPainterPath MyPath::drawWaist2(int pCase,int sangCase)
     {
         midHPoint = QPointF(leftHPoint2.x()+(rightUpPoint2.x()-leftUpPoint2.x())/2.0,leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
         midPocketPoint = getVertexOfSang_Up(leftHPoint2,midHPoint,55);
-        angle = qAsin(1.0*upWaist/hWidth2);
+        angle = qAsin(1.0*upWaist2/hWidth2);
         dx = qCos(angle)*60; dy = qSin(angle)*60;
         path1.moveTo(QPointF(midPocketPoint.x()-dx,midPocketPoint.y()+dy));
         path1.lineTo(QPointF(midPocketPoint.x()+dx,midPocketPoint.y()-dy));
         path.addPath(path1);
-        scale = 7.5/hWidth2;    dy = scale*sqrt(hWidth2*hWidth2+upWaist*upWaist);    dx = scale*upWaist;
+        scale = 7.5/hWidth2;    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);    dx = scale*upWaist2;
         path2 = path1;    path2.translate(dx,dy);    path.addPath(path2);
         path1.translate(-dx,-dy);    path.addPath(path1);
     }
@@ -311,11 +394,12 @@ QPainterPath MyPath::drawWaist2(int pCase,int sangCase)
     path1 = this->waist_2(pCase,sangCase,points);
     path.addPath(path1);
     scale = 1.0*waistBandWidth/hWidth2;
-    dy = scale*sqrt(hWidth2*hWidth2+upWaist*upWaist);
-    dx = scale*upWaist;
+    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);
+    dx = scale*upWaist2;
     path2 = path1; path2.translate(dx,dy);
     path.addPath(path2);
 
+    delete points;
     return path;
 }
 
@@ -463,6 +547,7 @@ void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
     QList<QPointF> *ctrlPoints = new QList<QPointF>;
     ctrlPoints->append(firstCtrlPoint);
     ctrlPoints->append(lastCtrlPoint);
+    QList<QPointF> old_points = points;
     int num=points.size(), i=3;
     if(num>0){
         myPath->moveTo(points.at(0));
@@ -477,7 +562,7 @@ void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
     }
     delete ctrlPoints;
 
-    parent->myPathData->addCurve(points,firstCtrlPoint,lastCtrlPoint);
+    parent->myPathData->addCurve(old_points,firstCtrlPoint,lastCtrlPoint);
 }
 
 void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint)

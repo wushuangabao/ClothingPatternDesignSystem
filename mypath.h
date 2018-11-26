@@ -12,17 +12,18 @@ class MyPath
 {
 public:
     MyPath(PainterArea *parent);
+    ~MyPath();
     PainterArea *parent;
     QPainterPath *myPath;
+    QPointF *startPoint;
 
-    QPainterPath auxiliaryLinesH_1(const QPointF startPoint);
-    QPainterPath auxiliaryLinesH_2(const QPointF startPoint);
-    QPainterPath outlineH_1(const QPointF startPoint,int typeSang);
-    QPainterPath outlineH_2(const QPointF startPoint,int typeSang);
+    void setStartPoint(qreal x,qreal y);
+    void setStartPoint(QPointF point);
 
-    QPainterPath smallCroCurve(const QPointF startPoint);
+    QPainterPath auxiliaryLinesH_1();
+    QPainterPath auxiliaryLinesH_2();
+    QPainterPath smallCroCurve();
     QPainterPath bigCroCurve();
-
 
     QPainterPath sang_1(int intCase,QList<QPointF> *points);
     QPainterPath sang_2(int intCase,QList<QPointF> *points);
@@ -32,6 +33,9 @@ public:
     QPainterPath drawWaist2(int wCase,int sangCase);
     QPainterPath drawSang1(QPointF pointSang,QPointF vertexSang,qreal ls,qreal sang,QList<QPointF> *points);
     QPainterPath drawSang2(QPointF pointSang,QPointF vertexSang,qreal ls,qreal sang,QList<QPointF> *points);
+
+    void drawOutline1(int typeSang);
+    void drawOutline2(int typeSang);
 
 private:
     int pantsHeight;
@@ -52,13 +56,14 @@ private:
     qreal sang1;
     qreal sang2;
 
-    int rightWaist = 7;
-    int downWaist = 9;
+    int rightWaist1 = 7;
+    int downWaist1 = 9;
+    int leftCro1 = 5;
 
-    int leftH;
-    int downCro = 15;
-    int leftCro = 12;
-    int upWaist = 28;
+    int leftH2;
+    int downCro2 = 15;
+    int leftCro2 = 12;
+    int upWaist2 = 28;
 
     int deltaKneeWidth = 10;
     int waistBandWidth = 30;
@@ -100,6 +105,7 @@ private:
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint);
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
+    void addPoint(QPointF point,QString name="");
     void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);
 
 private slots:

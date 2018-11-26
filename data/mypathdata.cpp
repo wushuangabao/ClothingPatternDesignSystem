@@ -7,17 +7,93 @@ MyPathData::MyPathData(QString name)
     this->name = name;
 }
 
+QString MyPathData::stringOf(CurvePoint *point)
+{
+    qreal x = point->x,
+          y = point->y;
+
+    QString str = findName(QPointF(x,y))+"("+QString::number(point->x,'f',2)+","+QString::number(point->y,'f',2)+")";
+    if(point->isCtrlPoint)
+    {
+        if(point->next!=nullptr)
+            str = str+"--";
+    }
+    else if(point->isLast)
+    {
+        if(point->next!=nullptr)
+            str = str+"--";
+    }
+    else if(point->next!=nullptr)
+    {
+        str = str+"->";
+    }
+    return str;
+}
+
+QString MyPathData::stringsOf(CurvePoint *point)
+{
+    QString str="";
+    if(point->isFirst)
+    {
+        if(point->pre!=nullptr)
+            str=stringOf(point->pre);
+        str = str+stringOf(point);
+        while(point->next!=nullptr)
+        {
+            point = point->next;
+            str = str+stringOf(point);
+        }
+    }
+    else
+    {
+        str=stringOf(point);
+    }
+    return str;
+}
+
+CurvePoint MyPathData::pointOf(QString str)
+{
+    int id1=str.indexOf("("),
+        id2=str.indexOf(","),
+        id3=str.indexOf(")"),
+        n1=id2-id1+1,
+        n2=id3-id2+1;
+    QString xs=str.mid(id1,n1),
+            ys=str.mid(id2,n2);
+    qreal x=xs.toDouble(),
+          y=ys.toDouble();
+    CurvePoint point(x,y);
+    return point;
+}
+
 bool MyPathData::saveTo(QString filePath)
 {
-//    QFile file(QDir::currentPath()+"/data.txt");
+    //QFile file(QDir::currentPath()+"/pathData.txt");
     QFile file(filePath);
-    QString content = "";
+    QString content = "--paths--\n";
+    int i;
+    for(i=0;i<numberPath;i++)
+    {
+        QString id = QString::number(pathData[i].id);
+        QString isLine = "false";
+        if(pathData[i].isLine)
+            isLine = "true";
+        QString p1 = QString::number(pathData[i].startPoint);
+        QString p2 = QString::number(pathData[i].endPoint);
+        content = content + id +" "+ isLine +" "+p1+" "+p2+"\n";
+    }
+    content = content+"--points--\n";
+    for(i=0;i<numberPoint;i++)
+    {
+        QString id = QString::number(pointData[i].id);
+        content = content + id +" "+ stringsOf(pointData[i].point) +"\n";
+    }
 
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     QByteArray str = content.toUtf8();
     file.write(str);
 
-    file.close();
+    //file.close();已经在析构函数里面调用了
 
 //    QTextStream out(&file);
 //    QTextCodec *code = QTextCodec::codecForName("utf8");
@@ -50,10 +126,10 @@ MyPathData::~MyPathData()
 
 void MyPathData::addLineTo(QPointF endPoint)
 {
-    CurvePoint point(endPoint.x(),endPoint.y());
+    CurvePoint *point = new CurvePoint(endPoint.x(),endPoint.y());
     PointData pointDataStruct={
         numberPoint,
-        &point
+        point
     };
     pointData[numberPoint]=pointDataStruct;
     PathData pathDataStruct={
@@ -69,14 +145,14 @@ void MyPathData::addLineTo(QPointF endPoint)
 
 void MyPathData::addLine(QPointF startPoint,QPointF endPoint)
 {
-    CurvePoint curvepoint(startPoint.x(),startPoint.y());
-    if(numberPoint>0 && equal(pointData[numberPoint-1].point,&curvepoint))
+    CurvePoint *curvepoint = new CurvePoint(startPoint.x(),startPoint.y());
+    if(numberPoint>0 && equal(pointData[numberPoint-1].point,curvepoint))
         addLineTo(endPoint); //如果起点与pointData[numberPoint-1]是同一点，就不添加进pointData数组了
     else
     {
         PointData pointDataStruct={
             numberPoint,
-            &curvepoint
+            curvepoint
         };
         pointData[numberPoint]=pointDataStruct;
         numberPoint++;
@@ -86,8 +162,8 @@ void MyPathData::addLine(QPointF startPoint,QPointF endPoint)
 
 void MyPathData::addCurve(QList<QPointF> points)
 {
-    CurvePoint *pFirstCPoint = new CurvePoint;
-    CurvePoint *pCPoint = new CurvePoint;
+    CurvePoint *pFirstCPoint = new CurvePoint(0,0);
+    CurvePoint *pCPoint = new CurvePoint(0,0);
     PointData pointDataStruct;
     //取出并删除points中的第一个点
     QPointF point = points.takeAt(0);
@@ -110,19 +186,21 @@ void MyPathData::addCurve(QList<QPointF> points)
     };
     pointData[numberPoint]=pointDataStruct;
     numberPoint++;
-    //将终点加入pointData数组
-    pointDataStruct={
-        numberPoint,
-        pCPoint
-    };
-    pointData[numberPoint]=pointDataStruct;
-    numberPoint++;
+//    //将终点加入pointData数组
+//    pointDataStruct={
+//        numberPoint,
+//        pCPoint
+//    };
+//    pointData[numberPoint]=pointDataStruct;
+//    numberPoint++;
     //创建新的PathData，加入pathData数组
     PathData pathDataStruct={
         numberPath,
         false,
-        numberPoint-2,
-        numberPoint-1
+        numberPoint-1,
+        -1 //没有记录终点
+        //numberPoint-2,
+        //numberPoint-1
     };
     pathData[numberPath]=pathDataStruct;
     numberPath++;
@@ -130,26 +208,19 @@ void MyPathData::addCurve(QList<QPointF> points)
 
 void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
 {
-    CurvePoint *pFirstCPoint = new CurvePoint;
-    CurvePoint *pCPoint = new CurvePoint;
-    CurvePoint *ctrlPoint1 = new CurvePoint;
-    CurvePoint *ctrlPoint2 = new CurvePoint;
-    CurvePoint curvePoint(firstCtrlPoint.x(),firstCtrlPoint.y());
-    ctrlPoint1 = &curvePoint;
-    curvePoint = CurvePoint(lastCtrlPoint.x(),lastCtrlPoint.y());
-    ctrlPoint2 = &curvePoint;
+    CurvePoint *ctrlPoint1 = new CurvePoint(firstCtrlPoint.x(),firstCtrlPoint.y());
+    CurvePoint *ctrlPoint2 = new CurvePoint(lastCtrlPoint.x(),lastCtrlPoint.y());
     PointData pointDataStruct;
     //取出并删除points中的第一个点
     QPointF point = points.takeAt(0);
-    CurvePoint curvePoint1(point.x(),point.y());
-    pFirstCPoint = &curvePoint1;
-    pCPoint = &curvePoint1;
+    CurvePoint *pFirstCPoint = new CurvePoint(point.x(),point.y());
+    CurvePoint *pCPoint = pFirstCPoint;
     //将points中其余的点在之前取出的第一个点后面串成链表
     int numOfPoints = points.size();
     for(int i=0;i<numOfPoints;i++)
     {
-        CurvePoint curvePoint2(points.at(i).x(),points.at(i).y(),pCPoint);
-        pCPoint = &curvePoint2;
+        CurvePoint *curvePoint2=new CurvePoint(points.at(i).x(),points.at(i).y(),pCPoint);
+        pCPoint = curvePoint2;
     }
     pFirstCPoint->setFirst(ctrlPoint1);
     pCPoint->setLast(ctrlPoint2);
@@ -160,19 +231,21 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
     };
     pointData[numberPoint]=pointDataStruct;
     numberPoint++;
-    //将终点加入pointData数组
-    pointDataStruct={
-        numberPoint,
-        pCPoint
-    };
-    pointData[numberPoint]=pointDataStruct;
-    numberPoint++;
+//    //将终点加入pointData数组
+//    pointDataStruct={
+//        numberPoint,
+//        pCPoint
+//    };
+//    pointData[numberPoint]=pointDataStruct;
+//    numberPoint++;
     //创建新的PathData，加入pathData数组
     PathData pathDataStruct={
         numberPath,
         false,
-        numberPoint-2,
-        numberPoint-1
+        numberPoint-1,
+        -1 //没有记录终点
+        //numberPoint-2,
+        //numberPoint-1
     };
     pathData[numberPath]=pathDataStruct;
     numberPath++;
@@ -198,28 +271,52 @@ bool MyPathData::equal(CurvePoint p1,CurvePoint p2)
 
 void MyPathData::addPoint(QPointF point,QString name)
 {
-    CurvePoint curvePoint(point.x(),point.y());
-    PointData pointDataS={
-        numberPoint,
-        &curvePoint
-    };
-    pointData[numberPoint]=pointDataS;
     if(name!="")
-        pointMap.insert(name,numberPoint);
-    numberPoint++;
+        pointMap.insert(name,point);
+}
+
+bool MyPathData::pointMapHas(QPointF point)
+{
+    qreal x=point.x(), y=point.y();
+    QMap<QString,QPointF>::iterator i;
+    for( i=pointMap.begin(); i!=pointMap.end(); ++i)
+    {
+        qreal dx = i.value().x()-x,
+              dy = i.value().y()-y;
+        if(dx<E && dx>-E && dy<E && dy>-E)
+            return true;
+    }
+    return false;
+}
+
+QString MyPathData::findName(QPointF point)
+{
+    qreal x=point.x(), y=point.y();
+    QMap<QString,QPointF>::iterator i;
+    for( i=pointMap.begin(); i!=pointMap.end(); ++i)
+    {
+        qreal dx = i.value().x()-x,
+              dy = i.value().y()-y;
+        if(dx<E && dx>-E && dy<E && dy>-E)
+            return i.key();
+    }
+    return "";
 }
 
 QPointF MyPathData::findPoint(QString name)
 {
-    QMap<QString,int>::iterator i;
+    QMap<QString,QPointF>::iterator i;
     i = pointMap.find(name);
     if(i==pointMap.end())
         return QPointF(0,0); //如果没有找到对应点，就返回(0,0)
     else
     {
-        int id = i.value();
-        qreal xx = pointData[id].point->x;
-        qreal yy = pointData[id].point->y;
-        return QPointF(xx,yy);
+        return i.value();
     }
+}
+
+void MyPathData::clear()
+{
+    numberPath=0; numberPoint=0;
+    pointMap.clear();
 }

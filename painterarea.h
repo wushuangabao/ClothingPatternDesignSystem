@@ -34,6 +34,8 @@ public:
     ~PainterArea();
 
     MyPathData *myPathData;
+    int typePants;
+    int old_typePants;
 
     int pantsHeight;
     int pantsL;

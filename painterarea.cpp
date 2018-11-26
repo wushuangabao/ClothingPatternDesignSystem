@@ -11,6 +11,8 @@
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
     myPathData = new MyPathData("myPath");
+    old_typePants = -1;
+    typePants = 0;
 
     pantsHeight=1650;
     pantsL=1020;
@@ -67,26 +69,38 @@ void PainterArea::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QBrush brush(Qt::green,Qt::CrossPattern);
     painter.setBrush(brush);
-    QPen pen;
-    MyPath path(this);
 
     QSize painterAreaSize=this->size();
     qDebug()<<"painterAreaSize = "<<painterAreaSize<<endl;
     painter.setWindow(intLeft,intUp,qRound(painterAreaSize.width()/scalingMulti),qRound(painterAreaSize.height()/scalingMulti));
     painter.setRenderHint(QPainter::Antialiasing);
-    QPointF startPoint2=startPoint;
-    QPointF startPoint1(startPoint2.x()+400,startPoint2.y());
 
+    QPen pen;
     pen.setWidthF(0);
     pen.setColor(Qt::red);
     painter.setPen(pen);
-    painter.drawPath(path.auxiliaryLinesH_1(startPoint1));
-    painter.drawPath(path.auxiliaryLinesH_2(startPoint2));
+
+    MyPath path(this);
+    if(old_typePants!=typePants)
+    {
+        path.setStartPoint(500.0,100.0);
+        painter.drawPath(path.auxiliaryLinesH_1());
+        path.drawOutline1(typeSang1);
+
+        path.setStartPoint(100.0,100.0);
+        painter.drawPath(path.auxiliaryLinesH_2());
+        //path->drawOutline2(typeSang2);
+
+        old_typePants = typePants;
+    }
+
     pen.setWidthF(0);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-    painter.drawPath(path.outlineH_1(startPoint1,typeSang1));
-    painter.drawPath(path.outlineH_2(startPoint2,typeSang2));
+    painter.drawPath(*(path.myPath));
+
+//    QString filePath = QDir::currentPath() + "/" + myPathData->name;
+//    myPathData->saveTo(filePath+".txt");
 }
 
 //鼠标事件

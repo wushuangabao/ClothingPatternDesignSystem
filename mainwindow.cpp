@@ -9,6 +9,7 @@
 #include "data/mypathdata.h"
 
 
+
 MainWindow::MainWindow() :
     QMainWindow(),
     ui(new Ui::MainWindow)
@@ -16,11 +17,28 @@ MainWindow::MainWindow() :
     ui->setupUi(this);
     dialogMS = new DialogMS;
     dialogMM = new DialogMM;
+
+    setWindowTitle(tr("BasicDrawing Test"));
+
     painterArea = new PainterArea(this);
     setCentralWidget(painterArea);
-    setWindowTitle(tr("BasicDrawing Test"));
+
+    setDockNestingEnabled(true); //允许嵌套dock
+    //记录所有的dock指针
+    m_docks.append(ui->dockPointData);
+    m_docks.append(ui->dockPathData);
+    numberDocks = 2;
+
     labelScaling = new QLabel(tr("放大倍数 %1 ").arg(painterArea->scalingMulti));
     statusBar()->addPermanentWidget(labelScaling);
+
+    modelPoints = new QStandardItemModel(this);
+    modelPaths = new QStandardItemModel(this);
+//    model->setItem(0, 0, new QStandardItem("张三"));
+//    model->setItem(0, 1, new QStandardItem("3"));
+//    model->setItem(0, 2, new QStandardItem("men"));
+//    ui->tablePoints->setModel(modelPoints);
+
 
     connect(painterArea,SIGNAL(mouseCoordinateChanged()),this,SLOT(setStatusMouseCoordinate()));
     connect(painterArea,SIGNAL(scalingMultiChanged()),this,SLOT(setStatusScalingMulti()));
@@ -34,6 +52,37 @@ MainWindow::~MainWindow()
     delete dialogMS;
     delete dialogMM;
 
+}
+
+///
+/// \brief 移除并隐藏所有的dock
+///
+void MainWindow::removeAllDock()
+{
+    for(int i=0;i<numberDocks;++i)
+    {
+        removeDockWidget(m_docks[i]);
+    }
+}
+///
+/// \brief 显示指定序号的dock
+/// \param index 指定序号，如果不指定，则会显示所有
+///
+void MainWindow::showDock(const QList<int> &index)
+{
+    if (index.isEmpty())
+    {
+        for(int i=0;i<9;++i)
+        {
+            m_docks[i]->show();
+        }
+    }
+    else
+    {
+        foreach (int i, index) {
+            m_docks[i]->show();
+        }
+    }
 }
 
 void MainWindow::setStatusMouseCoordinate(){

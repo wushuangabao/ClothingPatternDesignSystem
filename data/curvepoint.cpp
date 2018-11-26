@@ -1,18 +1,12 @@
 #include "curvepoint.h"
 
-CurvePoint::CurvePoint(CurvePoint* pre)
-{
-    if(pre!=nullptr)
-    {
-        pre->next=this;
-        this->pre=pre;
-    }
-}
-
 CurvePoint::CurvePoint(qreal x,qreal y,CurvePoint* pre)
 {
     this->x=x;
     this->y=y;
+    isFirst=false;
+    isLast=false;
+    isCtrlPoint=false;
     if(pre!=nullptr)
     {
         pre->next=this;
@@ -22,8 +16,6 @@ CurvePoint::CurvePoint(qreal x,qreal y,CurvePoint* pre)
 
 CurvePoint::~CurvePoint()
 {
-    delete pre;
-    delete next;
 }
 
 void CurvePoint::setFirst()
