@@ -126,6 +126,13 @@
      <item>
       <widget class="QTableView" name="tablePaths"/>
      </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>length:</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
   </widget>

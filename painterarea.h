@@ -11,6 +11,7 @@
 #include <QPixmap>
 
 class MyPathData;
+class MyPath;
 
 class PainterArea : public QWidget
 {
@@ -34,6 +35,8 @@ public:
     ~PainterArea();
 
     MyPathData *myPathData;
+    MyPath *myPath;
+    QPainterPath auxiliaryLines;
     int typePants;
     int old_typePants;
 
@@ -66,6 +69,7 @@ public slots:
 signals:
     void mouseCoordinateChanged();
     void scalingMultiChanged();
+    void resetModel();
 };
 
 #endif // PAINTERAREA_H

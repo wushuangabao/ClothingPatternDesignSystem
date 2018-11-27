@@ -50,6 +50,10 @@ public:
     bool pointMapHas(QPointF point);
     QPointF findPoint(QString name);
     QString findName(QPointF point);
+    QString stringOf(CurvePoint *point);
+    QString stringsOf(CurvePoint *point);
+    CurvePoint pointOf(QString str);
+    CurvePoint pointsOf(QString str);
 
     bool saveTo(QString path);
     void clear(); //清空所有数据
@@ -59,11 +63,6 @@ private:
 
     bool equal(CurvePoint *p1,CurvePoint *p2); //判断两点是否相等（对应坐标相差不超过(E)mm）
     bool equal(CurvePoint p1,CurvePoint p2);
-
-    QString stringOf(CurvePoint *point);
-    QString stringsOf(CurvePoint *point);
-    CurvePoint pointOf(QString str);
-    CurvePoint pointsOf(QString str);
 };
 
 #endif // MYPATHDATA_H

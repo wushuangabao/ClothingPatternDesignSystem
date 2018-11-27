@@ -7,7 +7,7 @@
 #include "dialog/dialogms.h"
 #include "dialog/dialogmm.h"
 #include "data/mypathdata.h"
-
+//#include <QHeaderView>
 
 
 MainWindow::MainWindow() :
@@ -34,14 +34,22 @@ MainWindow::MainWindow() :
 
     modelPoints = new QStandardItemModel(this);
     modelPaths = new QStandardItemModel(this);
-//    model->setItem(0, 0, new QStandardItem("张三"));
-//    model->setItem(0, 1, new QStandardItem("3"));
-//    model->setItem(0, 2, new QStandardItem("men"));
-//    ui->tablePoints->setModel(modelPoints);
 
+    modelPoints->setItem(0, 0, new QStandardItem(" "));
+    modelPoints->setItem(0, 1, new QStandardItem(" "));
+    modelPoints->setItem(0, 2, new QStandardItem(" "));
+    modelPoints->setItem(0, 3, new QStandardItem(" "));
+    ui->tablePoints->setModel(modelPoints);
+    modelPoints->setHeaderData(0,Qt::Horizontal, tr("x坐标"));
+    modelPoints->setHeaderData(1,Qt::Horizontal, tr("y坐标"));
+    modelPoints->setHeaderData(2,Qt::Horizontal, tr("别名"));
+    modelPoints->setHeaderData(3,Qt::Horizontal, tr("备注"));
+    ui->tablePaths->setModel(modelPaths);
+    ui->tablePaths->horizontalHeader()->hide();
 
     connect(painterArea,SIGNAL(mouseCoordinateChanged()),this,SLOT(setStatusMouseCoordinate()));
     connect(painterArea,SIGNAL(scalingMultiChanged()),this,SLOT(setStatusScalingMulti()));
+    connect(painterArea,SIGNAL(resetModel()),this,SLOT(resetModel()));
     connect(dialogMS,SIGNAL(typeSangChanged(int,int)),painterArea,SLOT(setTypeSang(int,int)));
 }
 
@@ -93,6 +101,48 @@ void MainWindow::setStatusScalingMulti(){
     labelScaling->setText(tr("放大倍数 %1 ").arg(painterArea->scalingMulti));
 }
 
+void MainWindow::resetModel(){
+    MyPathData *data = painterArea->myPathData;
+    int nPaths = data->numberPath, i,j=0,
+        nPoints = data->numberPoint;
+    for(i=0;i<nPoints;++i)
+    {
+        CurvePoint *curvePoint = data->pointData[i].point;
+        if(curvePoint->pre!=nullptr)
+        {
+            setPointModel(j,curvePoint->pre); j++;
+        }
+        setPointModel(j,curvePoint); j++;
+        while(curvePoint->next!=nullptr)
+        {
+            curvePoint = curvePoint->next;
+            setPointModel(j,curvePoint);j++;
+        }
+    }
+    for(i=0;i<nPaths;i++)
+    {
+        PathData path = data->pathData[i];
+        QString type = path.isLine?tr("直线"):tr("曲线");
+        QString point = data->stringOf(data->pointData[path.startPoint].point);
+        modelPaths->setItem(i, 0, new QStandardItem(type));
+        modelPaths->setItem(i, 1, new QStandardItem(point));
+    }
+    ui->tablePoints->resizeColumnsToContents();  //根据内容自动调整所有列的列宽
+    ui->tablePaths->resizeColumnsToContents();
+}
+
+void MainWindow::setPointModel(int i,CurvePoint *curvePoint){
+    MyPathData *data = painterArea->myPathData;
+    QString x = QString::number(curvePoint->x,'f',2);
+    QString y = QString::number(curvePoint->y,'f',2);
+    QString name = data->findName(QPointF(curvePoint->x,curvePoint->y));
+    QString note = curvePoint->isFirst?tr("起点"):(curvePoint->isLast?tr("终点"):(curvePoint->isCtrlPoint?tr("锚点"):""));
+    modelPoints->setItem(i, 0, new QStandardItem(x));
+    modelPoints->setItem(i, 1, new QStandardItem(y));
+    modelPoints->setItem(i, 2, new QStandardItem(name));
+    modelPoints->setItem(i, 3, new QStandardItem(note));
+}
+
 void MainWindow::on_action_M_S_triggered()
 {
     dialogMS->exec();
@@ -126,11 +176,11 @@ void MainWindow::on_action_F_S_triggered()
 //    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
     bool boolPixMapSaved = pixMap.save(filePath+".jpg","JPG");
 
-    //输出txt文件
-    if(painterArea->myPathData->saveTo(filePath+".txt") && boolPixMapSaved)
-        QMessageBox::information(nullptr,"Save","The jpg and txt files have saved successfully.");
-    else
-        QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
+//    //输出txt文件
+//    if(painterArea->myPathData->saveTo(filePath+".txt") && boolPixMapSaved)
+//        QMessageBox::information(nullptr,"Save","The jpg and txt files have saved successfully.");
+//    else
+//        QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
 }
 
 void MainWindow::on_action_M_M_triggered()

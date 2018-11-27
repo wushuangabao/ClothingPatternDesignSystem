@@ -7,6 +7,7 @@
 #include <QList>
 
 class PainterArea;
+class CurvePoint;
 
 class MyPath
 {
@@ -22,7 +23,7 @@ public:
 
     QPainterPath auxiliaryLinesH_1();
     QPainterPath auxiliaryLinesH_2();
-    QPainterPath smallCroCurve();
+    QPainterPath outLines_data();
     QPainterPath bigCroCurve();
 
     QPainterPath sang_1(int intCase,QList<QPointF> *points);
@@ -76,6 +77,7 @@ private:
     QPointF rightUpPoint2;
     QPointF cubicStartPoint2;
     QPointF leftHPoint2;
+    QPointF getSymmetryPoint(QPointF point,QPointF center);
     QPointF getIntersection(qreal nA1,qreal x1,qreal y1,qreal nA2,qreal x2,qreal y2,qreal scale);
     QPointF getIntersection(qreal x1,qreal y1,qreal x2,qreal y2,qreal k,qreal b);
     QPointF getIntersection(QPointF p1,QPointF p2,qreal k,qreal b);
@@ -104,9 +106,11 @@ private:
     void curveThrough(QList<QPointF> points);
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint);
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
+    void curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
     void addPoint(QPointF point,QString name="");
     void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);
+    bool currentPositionequal(QPainterPath path,CurvePoint *cp);
 
 private slots:
 

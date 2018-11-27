@@ -9,7 +9,7 @@ MyPath::~MyPath()
 {
     delete myPath;
     delete startPoint;
-    parent->myPathData->clear();
+    //parent->myPathData->clear();
 }
 
 MyPath::MyPath(PainterArea *parent)
@@ -143,6 +143,38 @@ QPainterPath MyPath::auxiliaryLinesH_2()
     return myPath;
 }
 
+//根据myPathData画轮廓线
+QPainterPath MyPath::outLines_data()
+{
+    MyPath path(parent);
+    MyPathData *data = parent->myPathData;
+    int numPaths = data->numberPath, i;
+    for(i=0;i<numPaths;++i)
+    {
+        PathData pathData = data->pathData[i];
+        CurvePoint *startPoint = data->pointData[pathData.startPoint].point;
+        if(!currentPositionequal(*(path.myPath),startPoint))
+            path.myPath->moveTo(startPoint->x,startPoint->y);
+        if(pathData.isLine)
+        {
+            CurvePoint *endPoint = data->pointData[pathData.endPoint].point;
+            path.myPath->lineTo(endPoint->x,endPoint->y);
+        }
+        else //如果pathData表示曲线
+        {
+            QList<QPointF> points;
+            CurvePoint *p = startPoint->pre; QPointF firstCtrlPoint(p->x,p->y);
+            while(p->next->isCtrlPoint!=true)
+            {
+                p=p->next; points<<QPointF(p->x,p->y);
+            }
+            p=p->next; QPointF lastCtrlPoint(p->x,p->y);
+            path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
+        }
+    }
+    return *(path.myPath);
+}
+
 void MyPath::addPoint(QPointF point,QString name)
 {
     parent->myPathData->addPoint(point,name);
@@ -160,55 +192,63 @@ void MyPath::drawOutline1(int typeSang)
     points.clear();
     points.append(rightUpPoint1);
     point = QPointF(sx+hWidth1,point.y());
-    addPoint(point,"rightH1");
-    points.append(point);
+    QPointF point2 = rightUpPoint1;
+    point2 = getPointOfSang_P(point2,point,0.5);
+    point2 = getVertexOfSang_Up(point,point2,3);
+    addPoint(point2,"rightUtH1");
+    points.append(point2); //"rightUtH1"
+    points.append(point);  //"rightH1"，辅助线时已加入pointMap
     point = QPointF(point.x()-leftCro1,sy+pantsCrotchH);
     addPoint(point,"rightCro1");
     points.append(point);
-    QPointF point2(sx+hWidth1-halfCroWidth1+feetWidth/2.0+deltaKneeWidth,sy+knee_height);
+    point2 = QPointF(sx+hWidth1-halfCroWidth1+feetWidth/2.0+deltaKneeWidth,sy+knee_height);
     addPoint(point2,"rightMid1");
     point = getPointOfSang_P(point,point2,2.0/3.0);
     point = getVertexOfSang_Up(point2,point,2);
     addPoint(point,"rightCtM1");
     points<<point<<point2;
     curveThrough(points);
+
+    points.clear();
+    points.append(point2); //"rightMid1"
+    point = QPointF(point2.x()-deltaKneeWidth,sy+pantsL);
+    addPoint(point,"rightDown1");
+    points.append(point);
+    point.setX(point.x()-feetWidth);
+    addPoint(point,"leftDown1");
+    points.append(point);
+    point2.setX(point.x()-deltaKneeWidth);
+    addPoint(point2,"leftMid1");
+    points.append(point2);
+    brokenLineThrough(points);
+
+    points.clear();
+    point = getPointOfSang_P(point2,smallCroPoint,2.0/3.0);
+    point = getVertexOfSang_Up(point2,point,5);
+    addPoint(point,"leftMtC1");
+    points<<point2<<point<<smallCroPoint;
+    curveThrough(points);
+
+    points.clear();
+    point = QPointF(sx,sy+w_h_height); //"leftH1"，已加入pointMap
+//    qreal nAngle1=qAtan(1.0*smallCro/(pantsCrotchH-w_h_height)); //单位为弧度
+//    qreal nAngle2=M_PI-nAngle1;
+//    nAngle1=M_PI_2-nAngle1;
+//    point2 = getIntersection(nAngle1,sx,point.y(),
+//                             nAngle2,sx,smallCroPoint.y(),
+//                             1.0/3);
+//    myPath->addEllipse(point2,1,1);
+//    以上方法画的辅助点不适合用贝塞尔插值来画曲线
+    point2 = QPointF(sx-11*sqrt(2.0),sy+pantsCrotchH-11*sqrt(2.0));
+    addPoint(point2,"CtH1");
+    myPath->addEllipse(point2,1,1);
+    points<<smallCroPoint<<point2<<point;
+    curveThrough(points,smallCroPoint,getPointOfSang_P(point,leftUpPoint1,0.02));
+
+        myPath->addPath(this->drawWaist1(1,typeSang));
 }
 
-//轮廓线：H型前片
-//QPainterPath MyPath::outlineH_1(const QPointF startPoint,int typeSang)
-//{
-//    QPainterPath wPath;
-//    QPointF tempPoint1 = rightUpPoint1;
-//    QPointF tempPoint2(startPoint.x()+hWidth1,startPoint.y()+w_h_height);
-//    qreal tempL = knee_height-w_h_height;
 
-//    wPath.moveTo(rightUpPoint1);
-//    //右边
-//    wPath.cubicTo(tempPoint1,QPointF(tempPoint2.x(),tempPoint2.y()-w_h_height*0.25),tempPoint2);
-//    tempPoint1.setX(tempPoint2.x()-halfCroWidth1+feetWidth/2.0+deltaKneeWidth);
-//    tempPoint1.setY(startPoint.y()+knee_height);
-//    wPath.cubicTo(QPointF(tempPoint2.x(),tempPoint2.y()+tempL*0.3183),QPointF(tempPoint1.x(),tempPoint1.y()-tempL*0.2957),tempPoint1);
-//    tempPoint2.setX(tempPoint1.x()-deltaKneeWidth);
-//    tempPoint2.setY(startPoint.y()+pantsL);
-//    wPath.lineTo(tempPoint2);
-//    //底边
-//    tempPoint1.setX(tempPoint2.x()-feetWidth);
-//    tempPoint1.setY(tempPoint2.y());
-//    wPath.lineTo(tempPoint1);
-//    //左边
-//    tempPoint2.setX(tempPoint1.x()-deltaKneeWidth);
-//    tempPoint2.setY(startPoint.y()+knee_height);
-//    wPath.lineTo(tempPoint2);
-//    tempL = knee_height-pantsCrotchH;
-//    tempPoint2.setY(tempPoint2.y()-tempL*0.17);
-//    tempPoint1 = QPointF(smallCroPoint.x()+(tempPoint2.x()-smallCroPoint.x())*0.395,smallCroPoint.y()+tempL*0.22);
-//    wPath.cubicTo(tempPoint1,tempPoint2,smallCroPoint);
-
-//    wPath.addPath(this->smallCroCurve(startPoint));
-//    wPath.addPath(this->drawWaist1(1,typeSang));
-
-//    return wPath;
-//}
 
 void MyPath::drawOutline2(int typeSang)
 {
@@ -257,30 +297,6 @@ void MyPath::drawOutline2(int typeSang)
 
 //    return wPath;
 //}
-
-QPainterPath MyPath::smallCroCurve()
-{
-    QPointF startPoint = QPointF(this->startPoint->x(),this->startPoint->y());
-    QPointF cubicStartPoint(startPoint.x(),startPoint.y()+w_h_height);
-    qreal nAngle1=qAtan(1.0*smallCro/(pantsCrotchH-w_h_height)); //单位为弧度
-    qreal nAngle2=M_PI-nAngle1;
-    nAngle1=M_PI_2-nAngle1;
-    QPointF cubicMidPoint=getIntersection(nAngle1,cubicStartPoint.x(),cubicStartPoint.y(),
-                                          nAngle2,cubicStartPoint.x(),smallCroPoint.y(),
-                                          1.0/3);
-    QPainterPath myPath;
-    myPath.moveTo(leftUpPoint1);
-    myPath.lineTo(cubicStartPoint);
-
-    QPointF ctrlPoint1 = QPointF(startPoint.x(),startPoint.y()+qRound((pantsCrotchH+w_h_height)/2.0)-3);
-    QPointF ctrlPoint2 = QPointF(qRound(cubicMidPoint.x()+11),qRound(cubicMidPoint.y()-9));
-    QPointF ctrlPoint3 = QPointF(cubicMidPoint.x()-7,qRound(cubicMidPoint.y()+7));
-    QPointF ctrlPoint4 = QPointF(qRound(smallCroPoint.x()+8),qRound(smallCroPoint.y()-3));
-    myPath.cubicTo(ctrlPoint1,ctrlPoint2,cubicMidPoint);
-    myPath.cubicTo(ctrlPoint3,ctrlPoint4,smallCroPoint);
-
-    return myPath;
-}
 
 QPainterPath MyPath::bigCroCurve()
 {
@@ -504,7 +520,10 @@ void MyPath::brokenLineThrough(QList<QPointF> points)
         return;
     QPointF point;
     point = points.takeAt(0);
-    myPath->moveTo(point);
+    qreal dx=point.x()-myPath->currentPosition().x(),
+          dy=point.y()-myPath->currentPosition().y();
+    if(dx>0.1 || dx<-0.1 || dy<-0.1 ||dy>0.1)
+        myPath->moveTo(point);
     myPath->lineTo(points.at(0));
     parent->myPathData->addLine(point,points.takeAt(0));
     while(!points.isEmpty())
@@ -542,15 +561,17 @@ void MyPath::addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoi
     ctrlPoints->insert(2,ctrl3);
 }
 
-void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
+void MyPath::curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
 {
-    QList<QPointF> *ctrlPoints = new QList<QPointF>;
-    ctrlPoints->append(firstCtrlPoint);
-    ctrlPoints->append(lastCtrlPoint);
-    QList<QPointF> old_points = points;
     int num=points.size(), i=3;
+    QList<QPointF> *ctrlPoints = new QList<QPointF>;
+    ctrlPoints->append(getSymmetryPoint(firstCtrlPoint,points.at(0)));
+    ctrlPoints->append(getSymmetryPoint(lastCtrlPoint,points.at(num-1)));
     if(num>0){
-        myPath->moveTo(points.at(0));
+        qreal dx = myPath->currentPosition().x()-points.at(0).x(),
+              dy = myPath->currentPosition().y()-points.at(0).y();
+        if(dx<-0.1 || dx>0.1 || dy<-0.1 || dy>0.1)
+            myPath->moveTo(points.at(0));
         while(i<=num){
             addCtrlPoints(points.at(0),points.at(1),points.at(2),ctrlPoints);
             myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1)); //绘制到第2个端点的三次贝塞尔曲线
@@ -558,7 +579,29 @@ void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
             i++;
         }
         myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1));
-        points.takeAt(0);
+    }
+    delete ctrlPoints;
+}
+
+void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
+{
+    int num=points.size(), i=3;
+    QList<QPointF> *ctrlPoints = new QList<QPointF>;
+    ctrlPoints->append(getSymmetryPoint(firstCtrlPoint,points.at(0)));
+    ctrlPoints->append(getSymmetryPoint(lastCtrlPoint,points.at(num-1)));
+    QList<QPointF> old_points = points;
+    if(num>0){
+        qreal dx = myPath->currentPosition().x()-points.at(0).x(),
+              dy = myPath->currentPosition().y()-points.at(0).y();
+        if(dx<-0.1 || dx>0.1 || dy<-0.1 || dy>0.1)
+            myPath->moveTo(points.at(0));
+        while(i<=num){
+            addCtrlPoints(points.at(0),points.at(1),points.at(2),ctrlPoints);
+            myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1)); //绘制到第2个端点的三次贝塞尔曲线
+            points.takeAt(0); //删除第1个端点
+            i++;
+        }
+        myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1));
     }
     delete ctrlPoints;
 
@@ -735,3 +778,23 @@ QPointF MyPath::getIntersection_R(QPointF p,qreal l,qreal k,qreal b)
     return QPointF(xx,yy);
 }
 
+//求点：点point关于点center的对称点
+QPointF MyPath::getSymmetryPoint(QPointF point,QPointF center)
+{
+    qreal px=point.x(), py=point.y(),
+          cx=center.x(), cy=center.y(),
+          x=2*cx-px, y=2*cy-py;
+    return QPointF(x,y);
+}
+
+//path的currentPosition是否和cp的位置相符
+bool MyPath::currentPositionequal(QPainterPath path,CurvePoint *cp)
+{
+    QPointF p = path.currentPosition();
+    qreal px=p.x(), py=p.y(),
+          dx=px-cp->x, dy=py-cp->y;
+    if(dx>-0.1 && dx<0.1 && dy>-0.1 && dy<0.1)
+        return true;
+    else
+        return false;
+}

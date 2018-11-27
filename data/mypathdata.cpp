@@ -108,19 +108,16 @@ MyPathData::~MyPathData()
     file.close();
     for(int i=0;i<numberPoint;i++)
     {
-        CurvePoint *curvePoint=pointData[i].point, *curvePoint2=curvePoint;
-        while(curvePoint->pre!=nullptr)
+        CurvePoint *curvePoint=pointData[i].point;
+        if(curvePoint->pre!=nullptr)
+            delete  curvePoint->pre;
+        while(curvePoint->next!=nullptr)
         {
-            curvePoint=curvePoint->pre;
-            delete  curvePoint->next;
+            CurvePoint *p = curvePoint;
+            curvePoint=curvePoint->next;
+            delete  p;
         }
         delete curvePoint;
-        while(curvePoint2->next!=nullptr)
-        {
-            curvePoint2=curvePoint2->next;
-            delete  curvePoint2->pre;
-        }
-        delete curvePoint2;
     }
 }
 

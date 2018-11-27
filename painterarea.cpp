@@ -38,23 +38,15 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 //    ctrlLabel1->setStyleSheet("QLabel{background-color:yellow;}");
 //    ctrlLabel1->move(0, 0);
 
-//    ctrlLabel2=new QLabel(this);
-//    ctrlLabel2->resize(4, 4);
-//    ctrlLabel2->setStyleSheet("QLabel{background-color:yellow;}");
-//    ctrlLabel2->move(0, 0);
-
-//    ctrlLabel3=new QLabel(this);
-//    ctrlLabel3->resize(4, 4);
-//    ctrlLabel3->setStyleSheet("QLabel{background-color:yellow;}");
-//    ctrlLabel3->move(0, 0);
-
-//    ctrlLabel4=new QLabel(this);
-//    ctrlLabel4->resize(4, 4);
-//    ctrlLabel4->setStyleSheet("QLabel{background-color:yellow;}");
-//    ctrlLabel4->move(0, 0);
+    myPath = new MyPath(this);
+    myPath->setStartPoint(500.0,100.0);
+    auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
+    myPath->drawOutline1(typeSang1);
+    myPath->setStartPoint(100.0,100.0);
+    auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
+    //myPath->drawOutline2(typeSang2);
 
     selectedWidget=nullptr;
-    startPoint=QPoint(40,40);
 }
 
 PainterArea::~PainterArea()
@@ -67,8 +59,8 @@ void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-    QBrush brush(Qt::green,Qt::CrossPattern);
-    painter.setBrush(brush);
+//    QBrush brush(Qt::green);
+//    painter.setBrush(brush);
 
     QSize painterAreaSize=this->size();
     qDebug()<<"painterAreaSize = "<<painterAreaSize<<endl;
@@ -79,26 +71,26 @@ void PainterArea::paintEvent(QPaintEvent *event)
     pen.setWidthF(0);
     pen.setColor(Qt::red);
     painter.setPen(pen);
+    painter.drawPath(auxiliaryLines);
 
-    MyPath path(this);
+    if(old_typePants!=typePants)
     {
-        path.setStartPoint(500.0,100.0);
-        painter.drawPath(path.auxiliaryLinesH_1());
-        path.drawOutline1(typeSang1);
-
-        path.setStartPoint(100.0,100.0);
-        painter.drawPath(path.auxiliaryLinesH_2());
-        //path->drawOutline2(typeSang2);
-
+        QString filePath = QDir::currentPath() + "/" + myPathData->name;
+        myPathData->saveTo(filePath+".txt");
+        old_typePants = typePants;
+        emit resetModel();
     }
 
     pen.setWidthF(0);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-    painter.drawPath(*(path.myPath));
-
-    QString filePath = QDir::currentPath() + "/" + myPathData->name;
-    myPathData->saveTo(filePath+".txt");
+//    if(typePants==0)
+//        painter.drawPath(*(myPath->myPath));
+//    else
+    {
+        //如果myPathData有改动（typePants!=0），则按照myPathData绘图
+        painter.drawPath(myPath->outLines_data());
+    }
 }
 
 //鼠标事件
