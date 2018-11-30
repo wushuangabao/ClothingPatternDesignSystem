@@ -127,7 +127,7 @@
       <widget class="QTableView" name="tablePaths"/>
      </item>
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="labelPathLen">
        <property name="text">
         <string>length:</string>
        </property>

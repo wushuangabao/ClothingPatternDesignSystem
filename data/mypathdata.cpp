@@ -12,7 +12,7 @@ QString MyPathData::stringOf(CurvePoint *point)
     qreal x = point->x,
           y = point->y;
 
-    QString str = findName(QPointF(x,y))+"("+QString::number(point->x,'f',2)+","+QString::number(point->y,'f',2)+")";
+    QString str = findName(x,y)+"("+QString::number(point->x,'f',2)+","+QString::number(point->y,'f',2)+")";
     if(point->isCtrlPoint)
     {
         if(point->next!=nullptr)
@@ -183,21 +183,12 @@ void MyPathData::addCurve(QList<QPointF> points)
     };
     pointData[numberPoint]=pointDataStruct;
     numberPoint++;
-//    //将终点加入pointData数组
-//    pointDataStruct={
-//        numberPoint,
-//        pCPoint
-//    };
-//    pointData[numberPoint]=pointDataStruct;
-//    numberPoint++;
     //创建新的PathData，加入pathData数组
     PathData pathDataStruct={
         numberPath,
         false,
         numberPoint-1,
-        -1 //没有记录终点
-        //numberPoint-2,
-        //numberPoint-1
+        numOfPoints+1 //endPoint不是记录终点，而是记录points的元素个数
     };
     pathData[numberPath]=pathDataStruct;
     numberPath++;
@@ -228,21 +219,13 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
     };
     pointData[numberPoint]=pointDataStruct;
     numberPoint++;
-//    //将终点加入pointData数组
-//    pointDataStruct={
-//        numberPoint,
-//        pCPoint
-//    };
-//    pointData[numberPoint]=pointDataStruct;
-//    numberPoint++;
     //创建新的PathData，加入pathData数组
     PathData pathDataStruct={
         numberPath,
         false,
         numberPoint-1,
-        -1 //没有记录终点
-        //numberPoint-2,
-        //numberPoint-1
+        numOfPoints+1 //endPoint不是记录终点，而是记录points的元素个数
+
     };
     pathData[numberPath]=pathDataStruct;
     numberPath++;
@@ -251,6 +234,15 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
 bool MyPathData::equal(CurvePoint *p1,CurvePoint *p2)
 {
     qreal dx=p1->x-p2->x, dy=p1->y-p2->y;
+    if(dx<E && dx>-E && dy<E && dy>-E)
+        return true;
+    else
+        return false;
+}
+
+bool MyPathData::equal(QPointF p1,CurvePoint *p2,qreal E)
+{
+    qreal dx=p1.x()-p2->x, dy=p1.y()-p2->y;
     if(dx<E && dx>-E && dy<E && dy>-E)
         return true;
     else
@@ -289,6 +281,10 @@ bool MyPathData::pointMapHas(QPointF point)
 QString MyPathData::findName(QPointF point)
 {
     qreal x=point.x(), y=point.y();
+    findName(x,y);
+}
+QString MyPathData::findName(qreal x,qreal y)
+{
     QMap<QString,QPointF>::iterator i;
     for( i=pointMap.begin(); i!=pointMap.end(); ++i)
     {

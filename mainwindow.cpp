@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "painterarea.h"
+#include "mypath.h"
 #include "dialog/dialogms.h"
 #include "dialog/dialogmm.h"
 #include "data/mypathdata.h"
@@ -43,14 +44,17 @@ MainWindow::MainWindow() :
     modelPoints->setHeaderData(0,Qt::Horizontal, tr("x坐标"));
     modelPoints->setHeaderData(1,Qt::Horizontal, tr("y坐标"));
     modelPoints->setHeaderData(2,Qt::Horizontal, tr("别名"));
-    modelPoints->setHeaderData(3,Qt::Horizontal, tr("备注"));
+    modelPoints->setHeaderData(3,Qt::Horizontal, tr("曲线相关"));
     ui->tablePaths->setModel(modelPaths);
     ui->tablePaths->horizontalHeader()->hide();
+    ui->tablePaths->setEditTriggers(QAbstractItemView::NoEditTriggers);//设为只读
+    ui->tablePaths->setSelectionMode(QAbstractItemView::SingleSelection);//只能单选
 
     connect(painterArea,SIGNAL(mouseCoordinateChanged()),this,SLOT(setStatusMouseCoordinate()));
     connect(painterArea,SIGNAL(scalingMultiChanged()),this,SLOT(setStatusScalingMulti()));
     connect(painterArea,SIGNAL(resetModel()),this,SLOT(resetModel()));
     connect(dialogMS,SIGNAL(typeSangChanged(int,int)),painterArea,SLOT(setTypeSang(int,int)));
+    connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
 }
 
 MainWindow::~MainWindow()
@@ -94,13 +98,15 @@ void MainWindow::showDock(const QList<int> &index)
 }
 
 void MainWindow::setStatusMouseCoordinate(){
-    this->statusBar()->showMessage(painterArea->mouseCoordinate,0);
+    this->statusBar()->showMessage(painterArea->stringTempStatus,0);
 }
 
 void MainWindow::setStatusScalingMulti(){
     labelScaling->setText(tr("放大倍数 %1 ").arg(painterArea->scalingMulti));
+    this->statusBar()->showMessage("",0);
 }
 
+//根据myPathData修改tablePoints和tablePaths---------------
 void MainWindow::resetModel(){
     MyPathData *data = painterArea->myPathData;
     int nPaths = data->numberPath, i,j=0,
@@ -135,8 +141,12 @@ void MainWindow::setPointModel(int i,CurvePoint *curvePoint){
     MyPathData *data = painterArea->myPathData;
     QString x = QString::number(curvePoint->x,'f',2);
     QString y = QString::number(curvePoint->y,'f',2);
-    QString name = data->findName(QPointF(curvePoint->x,curvePoint->y));
+    QString name = data->findName(curvePoint->x,curvePoint->y);
     QString note = curvePoint->isFirst?tr("起点"):(curvePoint->isLast?tr("终点"):(curvePoint->isCtrlPoint?tr("锚点"):""));
+    if(note==""){
+        if(curvePoint->next!=nullptr)
+            note=tr("途经点");
+    }
     modelPoints->setItem(i, 0, new QStandardItem(x));
     modelPoints->setItem(i, 1, new QStandardItem(y));
     modelPoints->setItem(i, 2, new QStandardItem(name));
@@ -151,7 +161,7 @@ void MainWindow::on_action_M_S_triggered()
 void MainWindow::on_action_F_S_triggered()
 {
     //截取painterArea
-    int aLeft = painterArea->startPoint.x()-40, aTop = painterArea->startPoint.y()-40,
+    int aLeft = painterArea->myPath->startPoint->x()-40, aTop = painterArea->myPath->startPoint->y()-40,
         aRight = aLeft+440+painterArea->pantsH/4, aBottom = aTop+painterArea->pantsL+50;
     qreal oldScalingMulti = painterArea->scalingMulti;
     int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
@@ -193,5 +203,115 @@ void MainWindow::on_action_M_M_triggered()
         painterArea->pantsL=dialogMM->L;
         painterArea->pantsW=dialogMM->W;
         painterArea->update();
+    }
+}
+
+void MainWindow::on_tablePaths_clicked(const QModelIndex &index)
+{
+    int id = index.row();
+    showPath(id);
+}
+
+void MainWindow::showPath(int id)
+{
+    PathData pathData = painterArea->myPathData->pathData[id];
+    QPainterPath yellowPath;
+    QList<QPointF> points;
+    if(pathData.isLine)
+    {
+        CurvePoint *sp = painterArea->myPathData->pointData[pathData.startPoint].point;
+        CurvePoint *ep = painterArea->myPathData->pointData[pathData.endPoint].point;
+        yellowPath.moveTo(QPointF(sp->x,sp->y));
+        yellowPath.lineTo(QPointF(ep->x,ep->y));
+        points<<QPointF(sp->x,sp->y)<<QPointF(ep->x,ep->y);
+        showPoints_L(points);
+    }
+    else
+    {
+        painterArea->clearLabelPoints();  //*
+        ui->tablePoints->clearSelection();  //*
+        CurvePoint *p = painterArea->myPathData->pointData[pathData.startPoint].point;
+        CurvePoint *c1 = p->pre;
+        QList<QPointF> points;
+        points.append(QPointF(p->x,p->y));
+        painterArea->setLabelPoint(-1,p);  //*
+        selectTablePoint(QPointF(p->x,p->y),2);  //*
+        while(!p->next->isCtrlPoint)
+        {
+            p=p->next;
+            points.append(QPointF(p->x,p->y));
+            painterArea->setLabelPoint(-1,p);  //*
+            selectTablePoint(QPointF(p->x,p->y),2);  //*
+        }
+        MyPath path(painterArea);
+        path.curveThrough_data(points,QPointF(c1->x,c1->y),QPointF(p->next->x,p->next->y));
+        yellowPath = *(path.myPath);
+//        showPoints_C(points); //*标记的这几行简单地实现showPoints_C(points);
+    }
+    ui->labelPathLen->setText("Length:"+QString::number(yellowPath.length())+"mm");
+    painterArea->yellowPath = yellowPath;
+    //todo:根据painterArea.size()和yellowPath上的点位置，改动intUp\intLeft使yellowPath处于可见区域
+    painterArea->update();
+}
+
+void MainWindow::on_tablePaths_activated(const QModelIndex &index)
+{
+    qDebug()<<"on_tablePaths_activated";
+}
+
+//从tablePoints中选择与点point对应的点。type:0所有位置符合的点，1直线上的点，2曲线上的点
+void MainWindow::selectTablePoint(QPointF point,int type)
+{
+    ui->tablePoints->setSelectionMode(QAbstractItemView::MultiSelection);
+    int i, numRows=modelPoints->rowCount();
+    for(i=0;i<numRows;i++)
+    {
+        qreal x=modelPoints->item(i,0)->text().toDouble();
+        qreal y=modelPoints->item(i,1)->text().toDouble();
+        QString note=modelPoints->item(i,3)->text();
+        qreal dx=x-point.x(), dy=y-point.y(), E=0.1;
+        if(dx<E && dx>-E && dy>-E && dy<E)
+        {
+            if(type==1 && note==""){
+                ui->tablePoints->selectRow(i);
+                break;
+            }
+            else if(type==2 && note!=""){
+                ui->tablePoints->selectRow(i);
+//                if(note==tr("锚点")&&i>0&&modelPoints->item(i-1,3)->text()==tr("终点"))
+//                    break;  //此方法选取小裆弧线时还是有问题
+            }
+            else if(type==0)
+                ui->tablePoints->selectRow(i);
+        }
+    }
+    ui->tablePoints->setSelectionMode(QAbstractItemView::ExtendedSelection);
+}
+
+void MainWindow::showPoints_L(QList<QPointF> points)
+{
+    painterArea->clearLabelPoints();
+    ui->tablePoints->clearSelection();
+    int numList=points.size(), i, j,
+        numPointsData=painterArea->myPathData->numberPoint;
+    bool b_equal=false;
+    for(i=0;i<numList;i++)
+    {
+        QPointF p1 = points.takeAt(0);
+        //寻找pointData中与p1相等的点
+        for(j=0;j<numPointsData;j++)
+        {
+            CurvePoint *p2 = painterArea->myPathData->pointData[j].point;
+            if(p2->isFirst==false && MyPathData::equal(p1,p2,1.0)) //设置寻点的误差为1.0mm
+            {
+                b_equal=true; break;
+            }
+        }
+        if(b_equal)
+        {
+            CurvePoint *cp=painterArea->myPathData->pointData[j].point;
+            painterArea->setLabelPoint(j,cp);
+            selectTablePoint(QPointF(cp->x,cp->y),1);
+        }
     }
 }

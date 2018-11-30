@@ -37,6 +37,7 @@ public:
 
     void drawOutline1(int typeSang);
     void drawOutline2(int typeSang);
+    void curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
 private:
     int pantsHeight;
@@ -106,7 +107,6 @@ private:
     void curveThrough(QList<QPointF> points);
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint);
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
-    void curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
     void addPoint(QPointF point,QString name="");
     void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);

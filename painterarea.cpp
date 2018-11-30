@@ -6,6 +6,7 @@
 #include "painterarea.h"
 #include "mypath.h"
 #include "data/mypathdata.h"
+#include "data/labelpoint.h"
 
 //构造函数
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
@@ -28,16 +29,6 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
     this->setAutoFillBackground(true);
     this->setPalette(pal);
 
-//    startLabel=new QLabel(this);
-//    startLabel->resize(4, 4);
-//    startLabel->setStyleSheet("QLabel{background-color:red;}");
-//    startLabel->move(40, 40);
-
-//    ctrlLabel1=new QLabel(this);
-//    ctrlLabel1->resize(4, 4);
-//    ctrlLabel1->setStyleSheet("QLabel{background-color:yellow;}");
-//    ctrlLabel1->move(0, 0);
-
     myPath = new MyPath(this);
     myPath->setStartPoint(500.0,100.0);
     auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
@@ -46,7 +37,8 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
     auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
     //myPath->drawOutline2(typeSang2);
 
-    selectedWidget=nullptr;
+    setMouseTracking(true);//始终跟踪鼠标
+    selectedLabelPoint=nullptr;
 }
 
 PainterArea::~PainterArea()
@@ -59,12 +51,14 @@ void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-//    QBrush brush(Qt::green);
-//    painter.setBrush(brush);
+    QBrush brush(Qt::green);
+    painter.setBrush(brush);
 
     QSize painterAreaSize=this->size();
-    qDebug()<<"painterAreaSize = "<<painterAreaSize<<endl;
-    painter.setWindow(intLeft,intUp,qRound(painterAreaSize.width()/scalingMulti),qRound(painterAreaSize.height()/scalingMulti));
+    painter.setWindow(qRound(intLeft/scalingMulti),
+                      qRound(intUp/scalingMulti),
+                      qRound(painterAreaSize.width()/scalingMulti),
+                      qRound(painterAreaSize.height()/scalingMulti));
     painter.setRenderHint(QPainter::Antialiasing);
 
     QPen pen;
@@ -81,39 +75,66 @@ void PainterArea::paintEvent(QPaintEvent *event)
         emit resetModel();
     }
 
-    pen.setWidthF(0);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-//    if(typePants==0)
-//        painter.drawPath(*(myPath->myPath));
-//    else
+    if(typePants==0)
+        painter.drawPath(*(myPath->myPath));
+    else
     {
         //如果myPathData有改动（typePants!=0），则按照myPathData绘图
         painter.drawPath(myPath->outLines_data());
     }
+
+    pen.setWidthF(1.5);
+    pen.setColor(Qt::yellow);
+    painter.setPen(pen);
+    painter.drawPath(yellowPath);
+}
+
+int PainterArea::xLogical(int xPhysical)
+{
+    return qRound((xPhysical+intLeft)/scalingMulti);
+}
+int PainterArea::yLogical(int yPhysical)
+{
+    return qRound((yPhysical+intUp)/scalingMulti);
+}
+int PainterArea::xPhysical(int xLogical)
+{
+    return qRound(xLogical*scalingMulti-intLeft);
+}
+int PainterArea::yPhysical(int yLogical)
+{
+    return qRound(yLogical*scalingMulti-intUp);
 }
 
 //鼠标事件
 void PainterArea::mousePressEvent(QMouseEvent *event)
 {
-    QWidget *w=this->childAt(event->pos());
-    if(w!=nullptr && w->inherits("QLabel") && event->button()==Qt::LeftButton){
-        selectedWidget=w;
-    }else if(event->button()==Qt::MidButton){
-        isMoving=true;
-        xBeforeMoving=event->pos().x();
-        yBeforeMoving=event->pos().y();
-        qDebug()<<"(x,y)beforeMoving = "<<xBeforeMoving<<","<<yBeforeMoving<<endl;
+    QPoint pos=event->pos();
+    QWidget *w=this->childAt(pos);
+    if(w!=nullptr && w->inherits("LabelPoint") && event->button()==Qt::LeftButton)
+    {   //拖动labelPoint
+        selectedLabelPoint=reinterpret_cast<LabelPoint *>(w);
+        selectedLabelPoint->setHandlerPos(pos);
     }
-    //状态栏显示selectedWidget的坐标
-    mouseCoordinate = QString::number(event->x()) + "," + QString::number(event->y());
+    else if(event->button()==Qt::MidButton)
+    {   //拖动画布
+        isMoving=true;
+        xBeforeMoving=pos.x();
+        yBeforeMoving=pos.y();
+    }
+    //状态栏显示坐标
+    stringTempStatus = tr("物理(")+QString::number(event->x()) + "," + QString::number(event->y()) +
+                       tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
     emit mouseCoordinateChanged();
 }
 void PainterArea::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button()==Qt::LeftButton)
-        selectedWidget=nullptr;
-    else if(event->button()==Qt::MidButton){
+        selectedLabelPoint=nullptr;
+    else if(event->button()==Qt::MidButton)
+    {
         isMoving=false;
         intLeft=intLeft-event->pos().x()+xBeforeMoving;
         intUp=intUp-event->pos().y()+yBeforeMoving;
@@ -122,34 +143,93 @@ void PainterArea::mouseReleaseEvent(QMouseEvent *event)
 }
 void PainterArea::mouseMoveEvent(QMouseEvent *event)
 {
-    //移动selectedWidget
-    if(selectedWidget!=nullptr){
-        selectedWidget->move(event->pos());
+    QPoint pos=event->pos();
+    if(selectedLabelPoint!=nullptr)
+    {   //拖动labelPoint
+        selectedLabelPoint->moveTo(pos);
         this->update();
     }
-    //拖动画布
-    else if(isMoving){
-        intLeft=intLeft-event->pos().x()+xBeforeMoving;
-        intUp=intUp-event->pos().y()+yBeforeMoving;
-        xBeforeMoving=event->pos().x();
-        yBeforeMoving=event->pos().y();
+    else if(isMoving)
+    {   //拖动画布
+        intLeft=intLeft-pos.x()+xBeforeMoving;
+        intUp=intUp-pos.y()+yBeforeMoving;
+        xBeforeMoving=pos.x();
+        yBeforeMoving=pos.y();
         this->update();
+        updateLabelPoints();
     }
-    //状态栏显示selectedWidget的坐标
-    mouseCoordinate = QString::number(event->x()) + "," + QString::number(event->y());
+    stringTempStatus = tr("物理(")+QString::number(event->x()) + "," + QString::number(event->y()) +
+                       tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
     emit mouseCoordinateChanged();
 }
 void PainterArea::wheelEvent(QWheelEvent *event)
 {
-    //int x = event->x();
-    //int y = event->y();
+    int x = event->x();
+    int y = event->y();
     //当滚轮远离使用者时进行放大，当滚轮向使用者方向旋转时进行缩小
     if(event->delta() > 0)
-        scalingMulti = scalingMulti+0.1;
+    {
+        if(scalingMulti<2)
+        {
+            scalingMulti = scalingMulti+0.1;
+            intLeft+=qRound(0.1*x);
+            intUp+=qRound(0.1*y);
+        }
+        else
+        {
+            scalingMulti = scalingMulti+0.5;
+            intLeft+=qRound(0.5*x);
+            intUp+=qRound(0.5*y);
+        }
+    }
     else
-        scalingMulti = scalingMulti-0.1;
+    {
+        if(scalingMulti>0.1)
+        {
+            scalingMulti = scalingMulti-0.1;
+            intLeft-=0.1*x;
+            intUp-=0.1*y;
+        }
+    }
     this->update();
+    updateLabelPoints();
     emit scalingMultiChanged();
+}
+
+void PainterArea::setLabelPoint(int id,CurvePoint *point)
+{
+    qreal px=point->x, py=point->y,
+          lpx=xPhysical(px),lpy=yPhysical(py);
+    LabelPoint *lp=new LabelPoint(this);
+    lp->setText(myPathData->findName(px,py));
+    lp->setStyleSheet("QLabel{background-color:green;}");
+    lp->move(lpx,lpy);
+    lp->show();
+    lp->id=id;
+    lp->point=point;
+    labelPoints.append(lp);
+}
+
+void PainterArea::clearLabelPoints()
+{
+    int num=labelPoints.size(),i;
+    for(i=0;i<num;i++)
+    {
+        delete labelPoints.at(i);
+    }
+    labelPoints.clear();
+}
+
+void PainterArea::updateLabelPoints()
+{
+    int num=labelPoints.size(),i;
+    for(i=0;i<num;i++)
+    {
+        LabelPoint* lp=labelPoints.at(i);
+        qreal px=lp->point->x, py=lp->point->y,
+              lpx=xPhysical(px),lpy=yPhysical(py);
+        lp->move(lpx,lpy);
+    }
 }
 
 void PainterArea::setTypeSang(int frontOrBack,int intCase)
@@ -160,4 +240,8 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
         typeSang2 = intCase;
     qDebug()<<"typeSang changed"<<endl;
     this->update();
+}
+
+void PainterArea::changePath()
+{
 }

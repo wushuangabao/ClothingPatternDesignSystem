@@ -241,19 +241,19 @@ void MyPath::drawOutline1(int typeSang)
 //    以上方法画的辅助点不适合用贝塞尔插值来画曲线
     point2 = QPointF(sx-11*sqrt(2.0),sy+pantsCrotchH-11*sqrt(2.0));
     addPoint(point2,"CtH1");
-    myPath->addEllipse(point2,1,1);
     points<<smallCroPoint<<point2<<point;
     curveThrough(points,smallCroPoint,getPointOfSang_P(point,leftUpPoint1,0.02));
 
-        myPath->addPath(this->drawWaist1(1,typeSang));
+    myPath->addPath(this->drawWaist1(1,typeSang));
 }
-
-
 
 void MyPath::drawOutline2(int typeSang)
 {
-
-   // brokenLineThrough();
+    qreal sx = startPoint->x(),
+          sy = startPoint->y();
+    QList<QPointF> points;
+    //QPointF point(sx+xMidVerticalLine2/2.0+hWidth2/2.0,sy-upWaist);
+    //addPoint(point,"rightUp");
 }
 
 //轮廓线：H型后片
@@ -343,14 +343,28 @@ QPainterPath MyPath::drawWaist1(int wCase,int sangCase)
     QList<QPointF> *points = new QList<QPointF>;
     path.addPath(this->sang_1(sangCase,points)); //画省，并添加腰线关键点到points
     path1 = this->waist_1(wCase,sangCase,points);
+//    qDebug()<<"path1="<<path1;
     path.addPath(path1);
     qreal l=distanceBetween(leftUpPoint1,rightUpPoint1), scale = 1.0*waistBandWidth/l;
     qreal dy=scale*sqrt(l*l-downWaist1*downWaist1);
     qreal dx=scale*downWaist1;
     path2 = path1; path2.translate(dx,dy);
+//    qDebug()<<"path2="<<path2;
+//    qDebug()<<"path="<<path;
+
+//    //test
+//    QPainterPath p;
+//    p.moveTo(560,100);
+//    p.lineTo(570,200);
+//    p.lineTo(571,200);
+//    p.lineTo(561,100);
+//    QPainterPath i = p&path2;
+//    qDebug()<<"p&path2="<<i;
+//    QPainterPath::Element e=i.elementAt(0);
+//    qDebug()<<"e[0]="<<e<<e.type;
 
     QPainterPath intersection = path2-path;
-    //qDebug()<<"intersection="<<intersection<<intersection.elementAt(0)<<intersection.elementAt(2);
+    qDebug()<<"path2-path="<<intersection<<intersection.elementAt(0)<<intersection.elementAt(2);
     path.addPath(intersection);
 
     //path.addPath(path2);

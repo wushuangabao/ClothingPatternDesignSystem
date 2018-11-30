@@ -50,18 +50,20 @@ public:
     bool pointMapHas(QPointF point);
     QPointF findPoint(QString name);
     QString findName(QPointF point);
+    QString findName(qreal x,qreal y);
     QString stringOf(CurvePoint *point);
     QString stringsOf(CurvePoint *point);
     CurvePoint pointOf(QString str);
     CurvePoint pointsOf(QString str);
 
     bool saveTo(QString path);
+    static bool equal(QPointF p1,CurvePoint *p2,qreal E); //判断两点是否相等（对应坐标相差不超过变量(E)mm）
     void clear(); //清空所有数据
 
 private:
     const qreal E=0.1;
 
-    bool equal(CurvePoint *p1,CurvePoint *p2); //判断两点是否相等（对应坐标相差不超过(E)mm）
+    bool equal(CurvePoint *p1,CurvePoint *p2); //判断两点是否相等（对应坐标相差不超过常量(E)mm）
     bool equal(CurvePoint p1,CurvePoint p2);
 };
 

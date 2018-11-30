@@ -30,7 +30,10 @@ SOURCES += \
     dialog/dialogms.cpp \
     dialog/dialogmm.cpp \
     data/mypathdata.cpp \
-    data/curvepoint.cpp
+    data/curvepoint.cpp \
+    splash/splash.cpp \
+    data/labelpoint.cpp \
+    data/mypainterpath.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -39,14 +42,21 @@ HEADERS += \
     dialog/dialogms.h \
     dialog/dialogmm.h \
     data/mypathdata.h \
-    data/curvepoint.h
+    data/curvepoint.h \
+    splash/splash.h \
+    data/labelpoint.h \
+    data/mypainterpath.h
 
 FORMS += \
         mainwindow.ui \
     dialog/dialogms.ui \
-    dialog/dialogmm.ui
+    dialog/dialogmm.ui \
+    splash/splash.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    images/images.qrc

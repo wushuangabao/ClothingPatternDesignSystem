@@ -12,6 +12,8 @@
 
 class MyPathData;
 class MyPath;
+class CurvePoint;
+class LabelPoint;
 
 class PainterArea : public QWidget
 {
@@ -21,6 +23,10 @@ private:
     bool isMoving=false;
     int xBeforeMoving;
     int yBeforeMoving;
+    int xLogical(int xPhysical);
+    int yLogical(int yPhysical);
+    int xPhysical(int xLogical);
+    int yPhysical(int yLogical);
 
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -37,6 +43,7 @@ public:
     MyPathData *myPathData;
     MyPath *myPath;
     QPainterPath auxiliaryLines;
+    QPainterPath yellowPath;
     int typePants;
     int old_typePants;
 
@@ -48,23 +55,21 @@ public:
     int typeSang1;
     int typeSang2;
 
-    QString mouseCoordinate; //鼠标坐标，与painter坐标系不同
+    QString stringTempStatus; //显示在状态栏的临时字符串
     qreal scalingMulti=1.0; //缩放倍数，数值越大图形越大
     int intUp=0; //原点向上偏移值
     int intLeft=0; //原点向左偏移值
 
-    QPoint startPoint;
-
     //鼠标拖动点:
-    QLabel *startLabel;
-    QLabel *ctrlLabel1;
-    QLabel *ctrlLabel2;
-    QLabel *ctrlLabel3;
-    QLabel *ctrlLabel4;
-    QWidget *selectedWidget;
+    LabelPoint *selectedLabelPoint;
+    QList<LabelPoint*> labelPoints;
+    void setLabelPoint(int id,CurvePoint *point);
+    void clearLabelPoints();
+    void updateLabelPoints();
 
 public slots:
     void setTypeSang(int frontOrBack,int intCase);
+    void changePath();
 
 signals:
     void mouseCoordinateChanged();
