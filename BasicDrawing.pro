@@ -33,7 +33,10 @@ SOURCES += \
     data/curvepoint.cpp \
     splash/splash.cpp \
     data/labelpoint.cpp \
-    data/mypainterpath.cpp
+    dialog/dialogdesign.cpp \
+    dialog/dialogdesign/dialogpantsh.cpp \
+    ui/stackedwidget.cpp \
+    dialog/dialogsize.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -45,13 +48,19 @@ HEADERS += \
     data/curvepoint.h \
     splash/splash.h \
     data/labelpoint.h \
-    data/mypainterpath.h
+    dialog/dialogdesign.h \
+    dialog/dialogdesign/dialogpantsh.h \
+    ui/stackedwidget.h \
+    dialog/dialogsize.h
 
 FORMS += \
         mainwindow.ui \
     dialog/dialogms.ui \
     dialog/dialogmm.ui \
-    splash/splash.ui
+    splash/splash.ui \
+    dialog/dialogdesign.ui \
+    dialog/dialogdesign/dialogpantsh.ui \
+    dialog/dialogsize.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -60,3 +69,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     images/images.qrc
+
+DISTFILES += \
+    images/ico.rc
+
+RC_FILE = images/ico.rc

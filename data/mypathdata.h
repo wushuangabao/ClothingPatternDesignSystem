@@ -11,11 +11,14 @@
 #include <QString>
 #include "curvepoint.h"
 
+class QPainterPath;
+
 struct PathData{
     int id;
     bool isLine;
     int startPoint; //起点在pointData数组中的id
     int endPoint; //终点在pointData数组中的id
+    QPainterPath *path;
 };
 
 struct PointData{
@@ -42,9 +45,7 @@ public:
 
     void addLineTo(QPointF endPoint);
     void addLine(QPointF startPoint,QPointF endPoint);
-
-    void addCurve(QList<QPointF> points);
-    void addCurve(QList<QPointF> points,QPointF ctrlPoint1,QPointF ctrlPoint2);
+    void addCurve(QList<QPointF> points,QPointF ctrlPoint1,QPointF ctrlPoint2,QPainterPath path);
 
     void addPoint(QPointF point,QString name="");
     bool pointMapHas(QPointF point);

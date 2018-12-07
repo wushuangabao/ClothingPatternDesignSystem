@@ -60,6 +60,8 @@ public:
     int intUp=0; //原点向上偏移值
     int intLeft=0; //原点向左偏移值
 
+    void setMyPath();
+
     //鼠标拖动点:
     LabelPoint *selectedLabelPoint;
     QList<LabelPoint*> labelPoints;

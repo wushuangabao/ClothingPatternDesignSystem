@@ -16,6 +16,7 @@ class DialogMS;
 class DialogMM;
 class QLabel;
 class CurvePoint;
+class DialogDesign;
 
 class MainWindow:public QMainWindow{
     Q_OBJECT
@@ -23,6 +24,8 @@ class MainWindow:public QMainWindow{
 public:
     explicit MainWindow();
     ~MainWindow();
+
+    PainterArea *painterArea;
 
     void removeAllDock();
     void showDock(const QList<int>& index = QList<int>());
@@ -46,9 +49,10 @@ private slots:
     void on_tablePaths_clicked(const QModelIndex &index);
     void on_tablePaths_activated(const QModelIndex &index);
 
+    void on_action_Design_triggered();
+
 private:
     Ui::MainWindow *ui;
-    PainterArea *painterArea;
     QList<QDockWidget*> m_docks; //记录所有dockWidget的指针
     int numberDocks;
     QLabel *labelScaling;
@@ -56,6 +60,7 @@ private:
     QStandardItemModel* modelPaths;
     DialogMS *dialogMS;
     DialogMM *dialogMM;
+    DialogDesign *dialogDesign;
 
 signals:
 };

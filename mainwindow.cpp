@@ -7,6 +7,7 @@
 #include "mypath.h"
 #include "dialog/dialogms.h"
 #include "dialog/dialogmm.h"
+#include "dialog/dialogdesign.h"
 #include "data/mypathdata.h"
 //#include <QHeaderView>
 
@@ -16,10 +17,11 @@ MainWindow::MainWindow() :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    dialogMS = new DialogMS;
-    dialogMM = new DialogMM;
+    dialogMS = new DialogMS(this);
+    dialogMM = new DialogMM(this);
+    dialogDesign = new DialogDesign(this);
 
-    setWindowTitle(tr("BasicDrawing Test"));
+    setWindowTitle(tr("Lancy PDS 2018"));
 
     painterArea = new PainterArea(this);
     setCentralWidget(painterArea);
@@ -314,4 +316,9 @@ void MainWindow::showPoints_L(QList<QPointF> points)
             selectTablePoint(QPointF(cp->x,cp->y),1);
         }
     }
+}
+
+void MainWindow::on_action_Design_triggered()
+{
+    dialogDesign->exec();
 }

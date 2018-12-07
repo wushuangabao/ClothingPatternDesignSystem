@@ -21,7 +21,9 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
     pantsH=940;
     pantsCrotchH=245;
     typeSang1=0;
-    typeSang2=0;
+    typeSang2=1;
+
+    myPath = new MyPath(this); //必须等设置完上面的一系列尺寸再构造
 
     //设置背景为黑色
     QPalette pal(this->palette());
@@ -29,16 +31,12 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
     this->setAutoFillBackground(true);
     this->setPalette(pal);
 
-    myPath = new MyPath(this);
-    myPath->setStartPoint(500.0,100.0);
-    auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
-    myPath->drawOutline1(typeSang1);
-    myPath->setStartPoint(100.0,100.0);
-    auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
-    //myPath->drawOutline2(typeSang2);
-
     setMouseTracking(true);//始终跟踪鼠标
     selectedLabelPoint=nullptr;
+
+    //下面代码用于测试
+    //setMyPath();
+
 }
 
 PainterArea::~PainterArea()
@@ -46,13 +44,32 @@ PainterArea::~PainterArea()
     delete myPathData;
 }
 
+void PainterArea::setMyPath()
+{
+    myPath->initializeSize();
+    if(!myPath->myPath->isEmpty()){
+        delete myPath->myPath;
+        myPath->myPath=new QPainterPath;
+    }
+    QPainterPath path;
+    auxiliaryLines=path;
+
+    myPath->setStartPoint(500.0,100.0);
+        auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
+    myPath->drawOutline1(typeSang1);
+
+    myPath->setStartPoint(100.0,100.0);
+        auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
+    myPath->drawOutline2(typeSang2);
+}
+
 //绘制事件
 void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-    QBrush brush(Qt::green);
-    painter.setBrush(brush);
+//    QBrush brush(Qt::green);
+//    painter.setBrush(brush);
 
     QSize painterAreaSize=this->size();
     painter.setWindow(qRound(intLeft/scalingMulti),
@@ -77,13 +94,13 @@ void PainterArea::paintEvent(QPaintEvent *event)
 
     pen.setColor(Qt::white);
     painter.setPen(pen);
-    if(typePants==0)
+//    if()
         painter.drawPath(*(myPath->myPath));
-    else
-    {
-        //如果myPathData有改动（typePants!=0），则按照myPathData绘图
-        painter.drawPath(myPath->outLines_data());
-    }
+//    else
+//    {
+//        //如果myPathData有改动，则按照myPathData绘图
+//        painter.drawPath(myPath->outLines_data());
+//    }
 
     pen.setWidthF(1.5);
     pen.setColor(Qt::yellow);
@@ -169,22 +186,22 @@ void PainterArea::wheelEvent(QWheelEvent *event)
     //当滚轮远离使用者时进行放大，当滚轮向使用者方向旋转时进行缩小
     if(event->delta() > 0)
     {
-        if(scalingMulti<2)
+        if(scalingMulti<3)
         {
             scalingMulti = scalingMulti+0.1;
             intLeft+=qRound(0.1*x);
             intUp+=qRound(0.1*y);
         }
-        else
-        {
-            scalingMulti = scalingMulti+0.5;
-            intLeft+=qRound(0.5*x);
-            intUp+=qRound(0.5*y);
-        }
+//        else
+//        {
+//            scalingMulti = scalingMulti+0.5;
+//            intLeft+=qRound(0.5*x);
+//            intUp+=qRound(0.5*y);
+//        }
     }
     else
     {
-        if(scalingMulti>0.1)
+        if(scalingMulti>0.101)
         {
             scalingMulti = scalingMulti-0.1;
             intLeft-=0.1*x;
@@ -239,7 +256,8 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
     else if(frontOrBack==2)
         typeSang2 = intCase;
     qDebug()<<"typeSang changed"<<endl;
-    this->update();
+    setMyPath();
+    update();
 }
 
 void PainterArea::changePath()

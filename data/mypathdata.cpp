@@ -1,5 +1,6 @@
 #include "mypathdata.h"
 #include <QtDebug>
+#include <QPainterPath>
 //#include <QTextCodec>
 
 MyPathData::MyPathData(QString name)
@@ -93,7 +94,7 @@ bool MyPathData::saveTo(QString filePath)
     QByteArray str = content.toUtf8();
     file.write(str);
 
-    //file.close();已经在析构函数里面调用了
+    file.close();
 
 //    QTextStream out(&file);
 //    QTextCodec *code = QTextCodec::codecForName("utf8");
@@ -105,7 +106,10 @@ bool MyPathData::saveTo(QString filePath)
 
 MyPathData::~MyPathData()
 {
-    file.close();
+    for(int i=0;i<numberPath;i++)
+    {
+        delete pathData[i].path;
+    }
     for(int i=0;i<numberPoint;i++)
     {
         CurvePoint *curvePoint=pointData[i].point;
@@ -123,7 +127,13 @@ MyPathData::~MyPathData()
 
 void MyPathData::addLineTo(QPointF endPoint)
 {
+    if(numberPoint<1)
+        return;
     CurvePoint *point = new CurvePoint(endPoint.x(),endPoint.y());
+    QPainterPath *path = new QPainterPath;
+    CurvePoint *firstPoint = pointData[numberPoint-1].point;
+    path->moveTo(firstPoint->x,firstPoint->y);
+    path->lineTo(endPoint);
     PointData pointDataStruct={
         numberPoint,
         point
@@ -134,6 +144,7 @@ void MyPathData::addLineTo(QPointF endPoint)
         true,
         numberPoint-1,
         numberPoint,
+        path
     };
     pathData[numberPath]=pathDataStruct;
     numberPath++;
@@ -157,47 +168,11 @@ void MyPathData::addLine(QPointF startPoint,QPointF endPoint)
     }
 }
 
-void MyPathData::addCurve(QList<QPointF> points)
-{
-    CurvePoint *pFirstCPoint = new CurvePoint(0,0);
-    CurvePoint *pCPoint = new CurvePoint(0,0);
-    PointData pointDataStruct;
-    //取出并删除points中的第一个点
-    QPointF point = points.takeAt(0);
-    CurvePoint curvePoint1(point.x(),point.y());
-    pFirstCPoint = &curvePoint1;
-    pCPoint = &curvePoint1;
-    //将points中其余的点在之前取出的第一个点后面串成链表
-    int numOfPoints = points.size();
-    for(int i=0;i<numOfPoints;i++)
-    {
-        CurvePoint curvePoint2(points.at(i).x(),points.at(i).y(),pCPoint);
-        pCPoint = &curvePoint2;
-    }
-    pFirstCPoint->setFirst();
-    pCPoint->setLast();
-    //将起点加入pointData数组（不管数组中是否已经存在同一点）
-    pointDataStruct={
-        numberPoint,
-        pFirstCPoint
-    };
-    pointData[numberPoint]=pointDataStruct;
-    numberPoint++;
-    //创建新的PathData，加入pathData数组
-    PathData pathDataStruct={
-        numberPath,
-        false,
-        numberPoint-1,
-        numOfPoints+1 //endPoint不是记录终点，而是记录points的元素个数
-    };
-    pathData[numberPath]=pathDataStruct;
-    numberPath++;
-}
-
-void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
+void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint,QPainterPath path)
 {
     CurvePoint *ctrlPoint1 = new CurvePoint(firstCtrlPoint.x(),firstCtrlPoint.y());
     CurvePoint *ctrlPoint2 = new CurvePoint(lastCtrlPoint.x(),lastCtrlPoint.y());
+    QPainterPath *pathPointer = new QPainterPath(path);
     PointData pointDataStruct;
     //取出并删除points中的第一个点
     QPointF point = points.takeAt(0);
@@ -224,8 +199,8 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
         numberPath,
         false,
         numberPoint-1,
-        numOfPoints+1 //endPoint不是记录终点，而是记录points的元素个数
-
+        numOfPoints+1, //endPoint不是记录终点，而是记录points的元素个数
+        pathPointer
     };
     pathData[numberPath]=pathDataStruct;
     numberPath++;

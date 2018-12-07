@@ -31,9 +31,14 @@
     <addaction name="action_O"/>
     <addaction name="action_F_S"/>
     <addaction name="action_A"/>
+    <addaction name="action_B"/>
+    <addaction name="action_E"/>
     <addaction name="separator"/>
     <addaction name="action_U"/>
+    <addaction name="separator"/>
     <addaction name="action_P"/>
+    <addaction name="action_V_2"/>
+    <addaction name="action_R"/>
     <addaction name="separator"/>
     <addaction name="action_X"/>
    </widget>
@@ -42,6 +47,7 @@
      <string>编辑(&amp;E)</string>
     </property>
     <addaction name="action_Z"/>
+    <addaction name="action_R_2"/>
     <addaction name="separator"/>
     <addaction name="action_T"/>
     <addaction name="action_C"/>
@@ -49,6 +55,11 @@
     <addaction name="action_L"/>
     <addaction name="separator"/>
     <addaction name="action_A_2"/>
+    <addaction name="separator"/>
+    <addaction name="action_3"/>
+    <addaction name="action_4"/>
+    <addaction name="action_5"/>
+    <addaction name="action_6"/>
    </widget>
    <widget class="QMenu" name="menu_V">
     <property name="title">
@@ -58,21 +69,25 @@
     <addaction name="action_P_2"/>
     <addaction name="separator"/>
     <addaction name="action_T_2"/>
+    <addaction name="separator"/>
+    <addaction name="action_8"/>
+    <addaction name="action_9"/>
    </widget>
    <widget class="QMenu" name="menu_I">
     <property name="title">
-     <string>插入(&amp;I)</string>
+     <string>设计(&amp;D)</string>
     </property>
-    <addaction name="actionH_H"/>
-    <addaction name="action_A_3"/>
-    <addaction name="actionY_Y"/>
-    <addaction name="actionO_O"/>
-    <addaction name="actionX_X"/>
+    <addaction name="action_Design"/>
+    <addaction name="action_14"/>
+    <addaction name="action_A_5"/>
    </widget>
    <widget class="QMenu" name="menu_M">
     <property name="title">
      <string>修改(&amp;M)</string>
     </property>
+    <addaction name="action_11"/>
+    <addaction name="action_12"/>
+    <addaction name="separator"/>
     <addaction name="action_M_M"/>
     <addaction name="action_M_S"/>
    </widget>
@@ -83,14 +98,30 @@
     <addaction name="action_H"/>
     <addaction name="action_A_4"/>
    </widget>
+   <widget class="QMenu" name="menu_T">
+    <property name="title">
+     <string>工具(&amp;T)</string>
+    </property>
+    <addaction name="action_15"/>
+    <addaction name="action_16"/>
+    <addaction name="separator"/>
+    <addaction name="action_18"/>
+   </widget>
    <addaction name="menudraw"/>
    <addaction name="menu_E"/>
    <addaction name="menu_V"/>
    <addaction name="menu_I"/>
    <addaction name="menu_M"/>
+   <addaction name="menu_T"/>
    <addaction name="menu_H"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -136,19 +167,9 @@
     </layout>
    </widget>
   </widget>
-  <action name="action01">
-   <property name="text">
-    <string>01</string>
-   </property>
-  </action>
   <action name="action_N">
    <property name="text">
     <string>新建(&amp;N)</string>
-   </property>
-  </action>
-  <action name="action_O">
-   <property name="text">
-    <string>打开(&amp;O)</string>
    </property>
   </action>
   <action name="action_F_S">
@@ -264,6 +285,114 @@
   <action name="action_M_M">
    <property name="text">
     <string>尺寸(&amp;M)</string>
+   </property>
+  </action>
+  <action name="action_O">
+   <property name="text">
+    <string>打开(&amp;O)</string>
+   </property>
+   <property name="toolTip">
+    <string>打开一个文件</string>
+   </property>
+  </action>
+  <action name="action_B">
+   <property name="text">
+    <string>保存到图库(&amp;B)</string>
+   </property>
+  </action>
+  <action name="action_dxf">
+   <property name="text">
+    <string>打开.dxf文件</string>
+   </property>
+  </action>
+  <action name="action_E">
+   <property name="text">
+    <string>导出...(&amp;E)</string>
+   </property>
+  </action>
+  <action name="action_V_2">
+   <property name="text">
+    <string>打印预览(&amp;V)</string>
+   </property>
+  </action>
+  <action name="action_R">
+   <property name="text">
+    <string>打印设置(&amp;R)</string>
+   </property>
+  </action>
+  <action name="action_R_2">
+   <property name="text">
+    <string>恢复(&amp;R)</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>平移</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string>旋转</string>
+   </property>
+  </action>
+  <action name="action_5">
+   <property name="text">
+    <string>翻转</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>删除辅助线</string>
+   </property>
+  </action>
+  <action name="action_8">
+   <property name="text">
+    <string>款式图</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>工艺单</string>
+   </property>
+  </action>
+  <action name="action_11">
+   <property name="text">
+    <string>款式</string>
+   </property>
+  </action>
+  <action name="action_12">
+   <property name="text">
+    <string>号型</string>
+   </property>
+  </action>
+  <action name="action_Design">
+   <property name="text">
+    <string>款式(&amp;S)</string>
+   </property>
+  </action>
+  <action name="action_14">
+   <property name="text">
+    <string>纸样(&amp;P)</string>
+   </property>
+  </action>
+  <action name="action_A_5">
+   <property name="text">
+    <string>自动分片(&amp;A)</string>
+   </property>
+  </action>
+  <action name="action_15">
+   <property name="text">
+    <string>纸样复核(&amp;R)</string>
+   </property>
+  </action>
+  <action name="action_16">
+   <property name="text">
+    <string>自动放毛板</string>
+   </property>
+  </action>
+  <action name="action_18">
+   <property name="text">
+    <string>选项(&amp;O)</string>
    </property>
   </action>
  </widget>

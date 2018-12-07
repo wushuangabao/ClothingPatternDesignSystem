@@ -20,11 +20,11 @@ public:
 
     void setStartPoint(qreal x,qreal y);
     void setStartPoint(QPointF point);
+    void initializeSize();
 
     QPainterPath auxiliaryLinesH_1();
     QPainterPath auxiliaryLinesH_2();
     QPainterPath outLines_data();
-    QPainterPath bigCroCurve();
 
     QPainterPath sang_1(int intCase,QList<QPointF> *points);
     QPainterPath sang_2(int intCase,QList<QPointF> *points);
@@ -39,6 +39,8 @@ public:
     void drawOutline2(int typeSang);
     void curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
+    static QPainterPath cutPath(QPainterPath path1,QPainterPath path2);//类似于path1-path2，区别在于返回的QPainterPath不闭合
+    static QPainterPath intersectPath(QPainterPath path1,QPainterPath path2);//类似于path1&path2，区别在于返回的QPainterPath不闭合
 private:
     int pantsHeight;
     int pantsL;
@@ -76,12 +78,12 @@ private:
     QPointF leftUpPoint2;
     QPointF rightUpPoint1;
     QPointF rightUpPoint2;
-    QPointF cubicStartPoint2;
     QPointF leftHPoint2;
     QPointF getSymmetryPoint(QPointF point,QPointF center);
     QPointF getIntersection(qreal nA1,qreal x1,qreal y1,qreal nA2,qreal x2,qreal y2,qreal scale);
     QPointF getIntersection(qreal x1,qreal y1,qreal x2,qreal y2,qreal k,qreal b);
     QPointF getIntersection(QPointF p1,QPointF p2,qreal k,qreal b);
+    QPointF getIntersection(QPointF p1,QPointF p2,QPointF p3,QPointF p4);
     QPointF getPointOnRadial(qreal x1,qreal y1,qreal x2,qreal y2,qreal l);
     QPointF getPointOnRadial(QPointF p1,QPointF p2,qreal l);
     QPointF getPointOnRadial_Down(qreal x1,qreal y1,qreal k,qreal l);
@@ -105,7 +107,6 @@ private:
     void brokenLineThrough(QList<QPointF> points);
     QPainterPath curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,QPointF ctrl4);
     void curveThrough(QList<QPointF> points);
-    void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint);
     void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
     void addPoint(QPointF point,QString name="");

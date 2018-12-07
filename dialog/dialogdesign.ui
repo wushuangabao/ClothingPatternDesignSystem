@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogDesign</class>
+ <widget class="QDialog" name="DialogDesign">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1060</width>
+    <height>664</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1060</width>
+    <height>664</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1060</width>
+    <height>664</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>款式设计 - 廓形选择</string>
+  </property>
+  <widget class="QWidget" name="widgetMain" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1060</width>
+     <height>664</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton:hover{
+	background-color: rgba(222, 84, 27, 55);
+}
+</string>
+   </property>
+   <widget class="QPushButton" name="pushButton_1">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>150</y>
+      <width>179</width>
+      <height>388</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+background-color: rgba(255, 255, 255, 5);}
+QPushButton:hover{
+background-color: rgba(222, 222, 222, 55);}
+QPushButton:pressed{
+background-color: rgba(222, 222, 222, 155);}
+/*QPushButton:hover{
+background-color: rgba(222, 84, 27, 55);}
+QPushButton:pressed{
+background-color: rgba(222, 84, 27, 155);}*/</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>227</x>
+      <y>150</y>
+      <width>179</width>
+      <height>388</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+background-color: rgba(255, 255, 255, 5);}
+QPushButton:hover{
+background-color: rgba(222, 222, 222, 55);}
+QPushButton:pressed{
+background-color: rgba(222, 222, 222, 155);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="geometry">
+     <rect>
+      <x>404</x>
+      <y>150</y>
+      <width>179</width>
+      <height>388</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+background-color: rgba(255, 255, 255, 5);}
+QPushButton:hover{
+background-color: rgba(222, 222, 222, 55);}
+QPushButton:pressed{
+background-color: rgba(222, 222, 222, 155);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="geometry">
+     <rect>
+      <x>581</x>
+      <y>150</y>
+      <width>179</width>
+      <height>388</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+background-color: rgba(255, 255, 255, 5);}
+QPushButton:hover{
+background-color: rgba(222, 222, 222, 55);}
+QPushButton:pressed{
+background-color: rgba(222, 222, 222, 155);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>150</y>
+      <width>247</width>
+      <height>388</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+background-color: rgba(255, 255, 255, 5);}
+QPushButton:hover{
+background-color: rgba(222, 222, 222, 55);}
+QPushButton:pressed{
+background-color: rgba(222, 222, 222, 155);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>39</y>
+      <width>1060</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>请选择女裤的廓形</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_1">
+    <property name="geometry">
+     <rect>
+      <x>115</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+    </property>
+    <property name="text">
+     <string>H型</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>295</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+    </property>
+    <property name="text">
+     <string>Y型</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>475</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+    </property>
+    <property name="text">
+     <string>X型</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+    </property>
+    <property name="text">
+     <string>O型</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>170</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 11pt &quot;微软雅黑&quot;;</string>
+    </property>
+    <property name="text">
+     <string>A型</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <zorder>pushButton_1</zorder>
+   <zorder>pushButton_3</zorder>
+   <zorder>pushButton_4</zorder>
+   <zorder>pushButton_5</zorder>
+   <zorder>pushButton_2</zorder>
+   <zorder>label</zorder>
+   <zorder>label_1</zorder>
+   <zorder>label_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>label_5</zorder>
+  </widget>
+  <widget class="QWidget" name="widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1060</width>
+     <height>664</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-image: url(:/design/background.png);</string>
+   </property>
+  </widget>
+  <zorder>widget</zorder>
+  <zorder>widgetMain</zorder>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
