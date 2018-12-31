@@ -68,7 +68,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-//    QBrush brush(Qt::green);
+//    QBrush brush(Qt::white);
 //    painter.setBrush(brush);
 
     QSize painterAreaSize=this->size();
@@ -92,6 +92,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
         emit resetModel();
     }
 
+//    pen.setWidthF(1);
     pen.setColor(Qt::white);
     painter.setPen(pen);
 //    if()

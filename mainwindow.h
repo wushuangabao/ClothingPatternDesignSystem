@@ -30,6 +30,8 @@ public:
     void removeAllDock();
     void showDock(const QList<int>& index = QList<int>());
 
+    void closeEvent(QCloseEvent *event);
+
 public slots:
     void setStatusMouseCoordinate();
     void setStatusScalingMulti();

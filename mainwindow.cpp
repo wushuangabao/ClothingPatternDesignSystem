@@ -99,6 +99,19 @@ void MainWindow::showDock(const QList<int> &index)
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    switch(QMessageBox::question(this,tr("提示"),tr("你确定退出?")))
+    {
+    case QMessageBox::Yes:
+        event->accept();
+        break;
+    default:
+        event->ignore();
+        break;
+    }
+}
+
 void MainWindow::setStatusMouseCoordinate(){
     this->statusBar()->showMessage(painterArea->stringTempStatus,0);
 }
@@ -163,30 +176,34 @@ void MainWindow::on_action_M_S_triggered()
 void MainWindow::on_action_F_S_triggered()
 {
     //截取painterArea
-    int aLeft = painterArea->myPath->startPoint->x()-40, aTop = painterArea->myPath->startPoint->y()-40,
-        aRight = aLeft+440+painterArea->pantsH/4, aBottom = aTop+painterArea->pantsL+50;
+    int aLeft = 60, aTop = 60,
+        aRight = aLeft+440+painterArea->pantsH/4,
+        aBottom = aTop+painterArea->pantsL+50;
     qreal oldScalingMulti = painterArea->scalingMulti;
     int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
-    painterArea->scalingMulti = 10.0;
+    painterArea->scalingMulti = 5.0;
     painterArea->intUp = 0;
     painterArea->intLeft = 0;
-    QRect saveArea(10*aLeft,10*aTop,10*aRight,10*aBottom);
-    qDebug()<<"saveArea = "<<saveArea;
-    QPixmap pixMap = painterArea->grab(saveArea);
+    painterArea->update();
+    QPixmap pixMap = painterArea->grab(QRect(5*aLeft,5*aTop,5*aRight,5*aBottom));
     painterArea->scalingMulti = oldScalingMulti;
     painterArea->intUp = oldIntUp;
     painterArea->intLeft = oldIntLeft;
+    painterArea->update();
 
     //保获取路径，存成jpg文件
     QString filePath = QDir::currentPath() + "/" + painterArea->myPathData->name;
-//    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-//                               filePath + ".jpg",
-//                               tr("%1 Files (*.%2);;All Files (*)")
-//                               .arg(QString::fromLatin1("JPG"))
-//                               .arg(QString::fromLatin1("jpg")));
-//    qDebug()<<"save to: "<<fileName;
-//    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
-    bool boolPixMapSaved = pixMap.save(filePath+".jpg","JPG");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+                       filePath + ".jpg",
+                       tr("%1 Files (*.%2);;All Files (*)")
+                       .arg(QString::fromLatin1("JPG"))
+                       .arg(QString::fromLatin1("jpg")));
+    qDebug()<<"save to: "<<fileName;
+    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
+//    bool boolPixMapSaved = pixMap.save(filePath+".jpg","JPG");
+
+    if(boolPixMapSaved)
+        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
 
 //    //输出txt文件
 //    if(painterArea->myPathData->saveTo(filePath+".txt") && boolPixMapSaved)

@@ -17,7 +17,7 @@ struct PathData{
     int id;
     bool isLine;
     int startPoint; //起点在pointData数组中的id
-    int endPoint; //终点在pointData数组中的id
+    int endPoint;
     QPainterPath *path;
 };
 
@@ -41,7 +41,7 @@ public:
     int numberPoint=0;
     PathData pathData[MAX_NUM_PATH];
     PointData pointData[MAX_NUM_POINT];
-    QMap<QString,QPointF> pointMap; //记录点的名称与id，用于查找特殊点，如smallCroPoint
+    QMap<QString,QPointF> pointMap; //记录点的名称，用于查找特殊点，如smallCroPoint
 
     void addLineTo(QPointF endPoint);
     void addLine(QPointF startPoint,QPointF endPoint);

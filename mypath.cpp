@@ -378,44 +378,44 @@ QPainterPath MyPath::drawWaist1(int wCase,int sangCase)
     path1 = this->waist_1(wCase,sangCase,points);
     path.addPath(path1);
 
-    qreal l=distanceBetween(leftUpPoint1,rightUpPoint1), scale = 1.0*waistBandWidth/l;
-    qreal dy=scale*sqrt(l*l-downWaist1*downWaist1);
-    qreal dx=scale*downWaist1;
-    path2 = path1; path2.translate(dx,dy);
-    QPainterPath waistBottom = cutPath(path2,path);
-    path.addPath(waistBottom);
-//    QPainterPath waistBottom = intersectPath(path2,path);
+//    qreal l=distanceBetween(leftUpPoint1,rightUpPoint1), scale = 1.0*waistBandWidth/l;
+//    qreal dy=scale*sqrt(l*l-downWaist1*downWaist1);
+//    qreal dx=scale*downWaist1;
+//    path2 = path1; path2.translate(dx,dy);
+//    QPainterPath waistBottom = cutPath(path2,path);
 //    path.addPath(waistBottom);
-//    qDebug()<<waistBottom;
+////    QPainterPath waistBottom = intersectPath(path2,path);
+////    path.addPath(waistBottom);
+////    qDebug()<<waistBottom;
 
-    //画门襟
-    QPainterPath::Element e=waistBottom.elementAt(0);
-    QPointF p1(e.x,e.y);
-    e=waistBottom.elementAt(waistBottom.elementCount()-1);
-    QPointF p2(e.x,e.y);
-    QPointF cubicStartPoint(startPoint->x(),startPoint->y()+w_h_height);
-    QPointF leftWPoint1=getIntersection(p1,p2,leftUpPoint1,cubicStartPoint);
-    addPoint(leftWPoint1,"leftW1");
-    QPointF point=getPointOnRadial(p1,p2,30);
-    QPainterPath door;
-    door.moveTo(leftWPoint1);
-    door.lineTo(point);
-    point=getPointOnRadial(leftWPoint1,cubicStartPoint,88);
-    point.setX(point.x()+29.66);
-    door.lineTo(point);
-    QList<QPointF> doorPoints;
-    doorPoints<<point<<QPointF(cubicStartPoint.x()+21.96,cubicStartPoint.y()-9.77)<<cubicStartPoint;
-    MyPath myTempPath(parent);
-    myTempPath.curveThrough_data(doorPoints,point,cubicStartPoint);
-    door.addPath(*(myTempPath.myPath));
-    path.addPath(door);
+//    //画门襟
+//    QPainterPath::Element e=waistBottom.elementAt(0);
+//    QPointF p1(e.x,e.y);
+//    e=waistBottom.elementAt(waistBottom.elementCount()-1);
+//    QPointF p2(e.x,e.y);
+//    QPointF cubicStartPoint(startPoint->x(),startPoint->y()+w_h_height);
+//    QPointF leftWPoint1=getIntersection(p1,p2,leftUpPoint1,cubicStartPoint);
+//    addPoint(leftWPoint1,"leftW1");
+//    QPointF point=getPointOnRadial(p1,p2,30);
+//    QPainterPath door;
+//    door.moveTo(leftWPoint1);
+//    door.lineTo(point);
+//    point=getPointOnRadial(leftWPoint1,cubicStartPoint,88);
+//    point.setX(point.x()+29.66);
+//    door.lineTo(point);
+//    QList<QPointF> doorPoints;
+//    doorPoints<<point<<QPointF(cubicStartPoint.x()+21.96,cubicStartPoint.y()-9.77)<<cubicStartPoint;
+//    MyPath myTempPath(parent);
+//    myTempPath.curveThrough_data(doorPoints,point,cubicStartPoint);
+//    door.addPath(*(myTempPath.myPath));
+//    path.addPath(door);
 
-    //画斜插袋
-    QPointF rightWPoint1=QPointF(rightUpPoint1.x()+4.9,rightUpPoint1.y()+30);
-    point=getPointOnRadial(rightWPoint1,p2,30);
-    path.moveTo(rightWPoint1);
-    path.lineTo(point);
-    path.lineTo(QPointF(startPoint->x()+hWidth1-0.1,startPoint->y()+w_h_height+27.34));
+//    //画斜插袋
+//    QPointF rightWPoint1=QPointF(rightUpPoint1.x()+4.9,rightUpPoint1.y()+30);
+//    point=getPointOnRadial(rightWPoint1,p2,30);
+//    path.moveTo(rightWPoint1);
+//    path.lineTo(point);
+//    path.lineTo(QPointF(startPoint->x()+hWidth1-0.1,startPoint->y()+w_h_height+27.34));
 
     delete points;
     return path;
@@ -454,38 +454,38 @@ QPainterPath MyPath::drawWaist2(int pCase,int sangCase)
     QPainterPath path,path1,path2;
     QList<QPointF> *points = new QList<QPointF>;
 
-    //画单嵌线口袋
-    if(pCase==1)
-    {
-        midHPoint = QPointF(leftHPoint2.x()+0.51*rightUpPoint2.x()-0.49*leftUpPoint2.x(),leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
-//        midHPoint = QPointF(leftHPoint2.x()+(rightUpPoint2.x()-leftUpPoint2.x())/2.0,leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
-        midPocketPoint = getVertexOfSang_Up(leftHPoint2,midHPoint,55);
-        angle = qAsin(1.0*upWaist2/hWidth2);
-        dx = qCos(angle)*60; dy = qSin(angle)*60;
-        path1.moveTo(QPointF(midPocketPoint.x()-dx,midPocketPoint.y()+dy));
-        path1.lineTo(QPointF(midPocketPoint.x()+dx,midPocketPoint.y()-dy));
-        scale = 7.5/hWidth2;    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);    dx = scale*upWaist2;
-        path2 = path1;    path2.translate(dx,dy);
-        path1.translate(-dx,-dy);
-        QPainterPath::Element e=path2.elementAt(path2.elementCount()-1);
-        path1.lineTo(e.x,e.y);
-        e = path2.elementAt(0);
-        path1.lineTo(e.x,e.y);
-        e = path1.elementAt(0);
-        path1.lineTo(e.x,e.y);
-        path.addPath(path1);
-    }
+//    //画单嵌线口袋
+//    if(pCase==1)
+//    {
+//        midHPoint = QPointF(leftHPoint2.x()+0.51*rightUpPoint2.x()-0.49*leftUpPoint2.x(),leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
+////        midHPoint = QPointF(leftHPoint2.x()+(rightUpPoint2.x()-leftUpPoint2.x())/2.0,leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
+//        midPocketPoint = getVertexOfSang_Up(leftHPoint2,midHPoint,55);
+//        angle = qAsin(1.0*upWaist2/hWidth2);
+//        dx = qCos(angle)*60; dy = qSin(angle)*60;
+//        path1.moveTo(QPointF(midPocketPoint.x()-dx,midPocketPoint.y()+dy));
+//        path1.lineTo(QPointF(midPocketPoint.x()+dx,midPocketPoint.y()-dy));
+//        scale = 7.5/hWidth2;    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);    dx = scale*upWaist2;
+//        path2 = path1;    path2.translate(dx,dy);
+//        path1.translate(-dx,-dy);
+//        QPainterPath::Element e=path2.elementAt(path2.elementCount()-1);
+//        path1.lineTo(e.x,e.y);
+//        e = path2.elementAt(0);
+//        path1.lineTo(e.x,e.y);
+//        e = path1.elementAt(0);
+//        path1.lineTo(e.x,e.y);
+//        path.addPath(path1);
+//    }
 
     path.addPath(this->sang_2(sangCase,points)); //画省，并添加腰线关键点到points
     path1 = this->waist_2(pCase,sangCase,points);
     path.addPath(path1);
-    scale = 1.0*waistBandWidth/hWidth2;
-    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);
-    dx = scale*upWaist2;
-    path2 = path1; path2.translate(dx,dy);
-//    QPainterPath waistBottom = cutPath(path2,path);
-//    path.addPath(waistBottom);   有bug
-    path.addPath(path2);
+//    scale = 1.0*waistBandWidth/hWidth2;
+//    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);
+//    dx = scale*upWaist2;
+//    path2 = path1; path2.translate(dx,dy);
+////    QPainterPath waistBottom = cutPath(path2,path);
+////    path.addPath(waistBottom);   有bug
+//    path.addPath(path2);
 
     delete points;
     return path;
