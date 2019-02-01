@@ -36,7 +36,10 @@ SOURCES += \
     dialog/dialogdesign.cpp \
     dialog/dialogdesign/dialogpantsh.cpp \
     ui/stackedwidget.cpp \
-    dialog/dialogsize.cpp
+    dialog/dialogsize.cpp \
+    dxflib/dl_dxf.cpp \
+    dxflib/test_creationclass.cpp \
+    dxflib/dl_writer_ascii.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -51,7 +54,10 @@ HEADERS += \
     dialog/dialogdesign.h \
     dialog/dialogdesign/dialogpantsh.h \
     ui/stackedwidget.h \
-    dialog/dialogsize.h
+    dialog/dialogsize.h \
+    dxflib/dl_dxf.h \
+    dxflib/dl_creationadapter.h \
+    dxflib/test_creationclass.h
 
 FORMS += \
         mainwindow.ui \

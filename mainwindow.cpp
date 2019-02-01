@@ -175,41 +175,45 @@ void MainWindow::on_action_M_S_triggered()
 
 void MainWindow::on_action_F_S_triggered()
 {
-    //截取painterArea
-    int aLeft = 60, aTop = 60,
-        aRight = aLeft+440+painterArea->pantsH/4,
-        aBottom = aTop+painterArea->pantsL+50;
-    qreal oldScalingMulti = painterArea->scalingMulti;
-    int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
-    painterArea->scalingMulti = 5.0;
-    painterArea->intUp = 0;
-    painterArea->intLeft = 0;
-    painterArea->update();
-    QPixmap pixMap = painterArea->grab(QRect(5*aLeft,5*aTop,5*aRight,5*aBottom));
-    painterArea->scalingMulti = oldScalingMulti;
-    painterArea->intUp = oldIntUp;
-    painterArea->intLeft = oldIntLeft;
-    painterArea->update();
+//    //截取painterArea
+//    int aLeft = 60, aTop = 60,
+//        aRight = aLeft+440+painterArea->pantsH/4,
+//        aBottom = aTop+painterArea->pantsL+50;
+//    qreal oldScalingMulti = painterArea->scalingMulti;
+//    int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
+//    painterArea->scalingMulti = 5.0;
+//    painterArea->intUp = 0;
+//    painterArea->intLeft = 0;
+//    painterArea->update();
+//    QPixmap pixMap = painterArea->grab(QRect(5*aLeft,5*aTop,5*aRight,5*aBottom));
+//    painterArea->scalingMulti = oldScalingMulti;
+//    painterArea->intUp = oldIntUp;
+//    painterArea->intLeft = oldIntLeft;
+//    painterArea->update();
 
-    //保获取路径，存成jpg文件
+    //保获取路径
     QString filePath = QDir::currentPath() + "/" + painterArea->myPathData->name;
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                       filePath + ".jpg",
-                       tr("%1 Files (*.%2);;All Files (*)")
-                       .arg(QString::fromLatin1("JPG"))
-                       .arg(QString::fromLatin1("jpg")));
-    qDebug()<<"save to: "<<fileName;
-    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
-//    bool boolPixMapSaved = pixMap.save(filePath+".jpg","JPG");
+//    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+//                       filePath + ".dxf",
+//                       tr("%1 Files (*.%2)")
+//                       .arg(QString::fromLatin1("DXF"))
+//                       .arg(QString::fromLatin1("dxf")));
+//    qDebug()<<"save to: "<<fileName;
 
-    if(boolPixMapSaved)
-        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
+//    //保存为jpg文件
+//    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
+//    if(boolPixMapSaved)
+//        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
 
-//    //输出txt文件
-//    if(painterArea->myPathData->saveTo(filePath+".txt") && boolPixMapSaved)
-//        QMessageBox::information(nullptr,"Save","The jpg and txt files have saved successfully.");
-//    else
-//        QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
+    //保存为dxf文件
+    bool boolDXFSaved=painterArea->writeDXF();
+
+
+    //输出txt文件
+    if(painterArea->myPathData->saveTo(filePath+".txt") && boolDXFSaved)
+        QMessageBox::information(nullptr,"Save","The jpg and txt files have saved successfully.");
+    else
+        QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
 }
 
 void MainWindow::on_action_M_M_triggered()
@@ -242,34 +246,31 @@ void MainWindow::showPath(int id)
         CurvePoint *ep = painterArea->myPathData->pointData[pathData.endPoint].point;
         yellowPath.moveTo(QPointF(sp->x,sp->y));
         yellowPath.lineTo(QPointF(ep->x,ep->y));
+        painterArea->yellowPath = yellowPath;
+        painterArea->setCenterToYellowPath();
         points<<QPointF(sp->x,sp->y)<<QPointF(ep->x,ep->y);
         showPoints_L(points);
     }
     else
     {
-        painterArea->clearLabelPoints();  //*
-        ui->tablePoints->clearSelection();  //*
         CurvePoint *p = painterArea->myPathData->pointData[pathData.startPoint].point;
+        QPointF startPoint=QPointF(p->x,p->y);
         CurvePoint *c1 = p->pre;
         QList<QPointF> points;
         points.append(QPointF(p->x,p->y));
-        painterArea->setLabelPoint(-1,p);  //*
-        selectTablePoint(QPointF(p->x,p->y),2);  //*
         while(!p->next->isCtrlPoint)
         {
             p=p->next;
             points.append(QPointF(p->x,p->y));
-            painterArea->setLabelPoint(-1,p);  //*
-            selectTablePoint(QPointF(p->x,p->y),2);  //*
         }
         MyPath path(painterArea);
         path.curveThrough_data(points,QPointF(c1->x,c1->y),QPointF(p->next->x,p->next->y));
         yellowPath = *(path.myPath);
-//        showPoints_C(points); //*标记的这几行简单地实现showPoints_C(points);
+        painterArea->yellowPath = yellowPath;
+        painterArea->setCenterToYellowPath();
+        showPoints_C(startPoint);
     }
     ui->labelPathLen->setText("Length:"+QString::number(yellowPath.length())+"mm");
-    painterArea->yellowPath = yellowPath;
-    //todo:根据painterArea.size()和yellowPath上的点位置，改动intUp\intLeft使yellowPath处于可见区域
     painterArea->update();
 }
 
@@ -295,10 +296,18 @@ void MainWindow::selectTablePoint(QPointF point,int type)
                 ui->tablePoints->selectRow(i);
                 break;
             }
-            else if(type==2 && note!=""){
+            else if(type==2 && note==tr("途经点")){
                 ui->tablePoints->selectRow(i);
-//                if(note==tr("锚点")&&i>0&&modelPoints->item(i-1,3)->text()==tr("终点"))
-//                    break;  //此方法选取小裆弧线时还是有问题
+                if(modelPoints->item(i-1,3)->text()==tr("起点"))
+                {
+                    ui->tablePoints->selectRow(i-1);
+                    ui->tablePoints->selectRow(i-2);
+                }
+                if(modelPoints->item(i+1,3)->text()==tr("终点"))
+                {
+                    ui->tablePoints->selectRow(i+1);
+                    ui->tablePoints->selectRow(i+2);
+                }
             }
             else if(type==0)
                 ui->tablePoints->selectRow(i);
@@ -317,6 +326,7 @@ void MainWindow::showPoints_L(QList<QPointF> points)
     for(i=0;i<numList;i++)
     {
         QPointF p1 = points.takeAt(0);
+        b_equal=false;
         //寻找pointData中与p1相等的点
         for(j=0;j<numPointsData;j++)
         {
@@ -335,7 +345,32 @@ void MainWindow::showPoints_L(QList<QPointF> points)
     }
 }
 
+void MainWindow::showPoints_C(QPointF p1)
+{
+    painterArea->clearLabelPoints();
+    ui->tablePoints->clearSelection();
+    int j, numPointsData=painterArea->myPathData->numberPoint;
+    for(j=0;j<numPointsData;j++)
+    {
+        CurvePoint *p2 = painterArea->myPathData->pointData[j].point;
+        if(p2->isFirst==true && MyPathData::equal(p1,p2,1.0)) //设置寻点的误差为1.0mm
+        {
+            CurvePoint *cp=painterArea->myPathData->pointData[j].point;
+            painterArea->setLabelPoint(j,cp);
+            selectTablePoint(QPointF(cp->x,cp->y),2);
+            while(cp->next->isCtrlPoint==false)
+            {
+                cp=cp->next;
+                painterArea->setLabelPoint(-1,cp);  //没有存在于pointData数组中,id置为-1
+                selectTablePoint(QPointF(cp->x,cp->y),2);
+            }
+            break;
+        }
+    }
+}
+
 void MainWindow::on_action_Design_triggered()
 {
     dialogDesign->exec();
 }
+

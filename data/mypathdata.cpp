@@ -72,6 +72,7 @@ bool MyPathData::saveTo(QString filePath)
     //QFile file(QDir::currentPath()+"/pathData.txt");
     QFile file(filePath);
     QString content = "--paths--\n";
+    //true/false表示是否为直线。若true，数字表示起点终点的索引；若false，数字表示起点的索引和途经点（包括端点）的个数
     int i;
     for(i=0;i<numberPath;i++)
     {

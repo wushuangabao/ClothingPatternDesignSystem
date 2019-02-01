@@ -69,6 +69,10 @@ public:
     void clearLabelPoints();
     void updateLabelPoints();
 
+    bool writeDXF();
+
+    void setCenterToYellowPath();
+
 public slots:
     void setTypeSang(int frontOrBack,int intCase);
     void changePath();

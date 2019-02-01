@@ -15,8 +15,8 @@ public:
     qreal x=0;
     qreal y=0;
 
-    bool isFirst;
-    bool isLast;
+    bool isFirst; //起点
+    bool isLast; //终点
     bool isCtrlPoint;
 
     void setFirst();

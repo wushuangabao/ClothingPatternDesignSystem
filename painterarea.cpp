@@ -8,6 +8,13 @@
 #include "data/mypathdata.h"
 #include "data/labelpoint.h"
 
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include "dxflib/dl_dxf.h"
+#include "dxflib/dl_creationadapter.h"
+#include "dxflib/test_creationclass.h"
+
 //构造函数
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
@@ -223,7 +230,7 @@ void PainterArea::setLabelPoint(int id,CurvePoint *point)
     lp->setStyleSheet("QLabel{background-color:green;}");
     lp->move(lpx,lpy);
     lp->show();
-    lp->id=id;
+    lp->id=id;  //id指在pointData数组中的index
     lp->point=point;
     labelPoints.append(lp);
 }
@@ -259,6 +266,193 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
     qDebug()<<"typeSang changed"<<endl;
     setMyPath();
     update();
+}
+
+bool PainterArea::writeDXF() {
+    DL_Dxf* dxf = new DL_Dxf();
+    DL_Codes::version exportVersion = DL_Codes::AC1015;
+    DL_WriterA* dw = dxf->out("myfile.dxf", exportVersion);
+    if (dw==NULL) {
+        printf("Cannot open file 'myfile.dxf' \
+               for writing.");
+        // abort function e.g. with return
+    }
+
+    dxf->writeHeader(*dw);
+
+    // int variable:
+    dw->dxfString(9, "$INSUNITS");
+    dw->dxfInt(70, 4);
+    // real (double, float) variable:
+    dw->dxfString(9, "$DIMEXE");
+    dw->dxfReal(40, 1.25);
+    // string variable:
+    dw->dxfString(9, "$TEXTSTYLE");
+    dw->dxfString(7, "Standard");
+    // vector variable:
+    dw->dxfString(9, "$LIMMIN");
+    dw->dxfReal(10, 0.0);
+    dw->dxfReal(20, 0.0);
+
+    dw->sectionEnd();
+    dw->sectionTables();
+    dxf->writeVPort(*dw);
+
+    dw->tableLinetypes(3);
+    dxf->writeLinetype(*dw, DL_LinetypeData("BYBLOCK", "BYBLOCK", 0, 0, 0.0));
+    dxf->writeLinetype(*dw, DL_LinetypeData("BYLAYER", "BYLAYER", 0, 0, 0.0));
+    dxf->writeLinetype(*dw, DL_LinetypeData("CONTINUOUS", "Continuous", 0, 0, 0.0));
+    dw->tableEnd();
+
+    int numberOfLayers = 3;
+    dw->tableLayers(numberOfLayers);
+
+    dxf->writeLayer(*dw,
+                   DL_LayerData("0", 0),
+                   DL_Attributes(
+                       std::string(""),      // leave empty
+                       DL_Codes::black,        // default color
+                       100,                  // default width
+                       "CONTINUOUS", 1.0));       // default line style
+
+    dxf->writeLayer(*dw,
+                   DL_LayerData("mainlayer", 0),
+                   DL_Attributes(
+                       std::string(""),
+                       DL_Codes::red,
+                       100,
+                       "CONTINUOUS", 1.0));
+
+    dxf->writeLayer(*dw,
+                   DL_LayerData("anotherlayer", 0),
+                   DL_Attributes(
+                       std::string(""),
+                       DL_Codes::black,
+                       100,
+                       "CONTINUOUS", 1.0));
+
+    dw->tableEnd();
+
+    dw->tableStyle(1);
+    dxf->writeStyle(*dw, DL_StyleData("standard", 0, 2.5, 1.0, 0.0, 0, 2.5, "txt", ""));
+    dw->tableEnd();
+
+    dxf->writeView(*dw);
+    dxf->writeUcs(*dw);
+
+    dw->tableAppid(1);
+    dxf->writeAppid(*dw, "ACAD");
+    dw->tableEnd();
+
+    dxf->writeDimStyle(*dw, 1, 1, 1, 1, 1);
+
+    dxf->writeBlockRecord(*dw);
+    dxf->writeBlockRecord(*dw, "myblock1");
+    dxf->writeBlockRecord(*dw, "myblock2");
+    dw->tableEnd();
+
+    dw->sectionEnd();
+
+    dw->sectionBlocks();
+    dxf->writeBlock(*dw, DL_BlockData("*Model_Space", 0, 0.0, 0.0, 0.0));
+    dxf->writeEndBlock(*dw, "*Model_Space");
+    dxf->writeBlock(*dw, DL_BlockData("*Paper_Space", 0, 0.0, 0.0, 0.0));
+    dxf->writeEndBlock(*dw, "*Paper_Space");
+    dxf->writeBlock(*dw, DL_BlockData("*Paper_Space0", 0, 0.0, 0.0, 0.0));
+    dxf->writeEndBlock(*dw, "*Paper_Space0");
+
+    dxf->writeBlock(*dw, DL_BlockData("myblock1", 0, 0.0, 0.0, 0.0));
+    // ...
+    // write block entities e.g. with dxf->writeLine(), ..
+    // ...
+    dxf->writeEndBlock(*dw, "myblock1");
+
+    dxf->writeBlock(*dw, DL_BlockData("myblock2", 0, 0.0, 0.0, 0.0));
+    // ...
+    // write block entities e.g. with dxf->writeLine(), ..
+    // ...
+    dxf->writeEndBlock(*dw, "myblock2");
+
+    dw->sectionEnd();
+    dw->sectionEntities();
+    // write all entities in model space:
+
+    MyPathData *data = myPathData;
+    int numPaths = data->numberPath, i;
+    for(i=0;i<numPaths;++i)
+    {
+        PathData pathData = data->pathData[i];
+        CurvePoint *startPoint = data->pointData[pathData.startPoint].point;
+        if(pathData.isLine)
+        {
+            CurvePoint *endPoint = data->pointData[pathData.endPoint].point;
+            dxf->writeLine(
+                *dw,
+                DL_LineData(startPoint->x/10,
+                            -startPoint->y/10,
+                            0.0,
+                            endPoint->x/10,
+                            -endPoint->y/10,
+                            0.0
+                            ),
+                DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
+        }
+        else //曲线
+        {
+            QList<QPointF> points;
+            MyPath path(this);
+            qreal t=0.0;
+            CurvePoint *p = startPoint->pre; QPointF firstCtrlPoint(p->x,p->y);
+            while(p->next->isCtrlPoint!=true)
+            {
+                p=p->next; points<<QPointF(p->x,p->y);
+            }
+            p=p->next; QPointF lastCtrlPoint(p->x,p->y);
+            path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
+            while(t<1)
+            {
+                QPointF sp=path.myPath->pointAtPercent(t);
+                t=t+0.01;
+                if(t>1)
+                    t=1;
+                QPointF ep=path.myPath->pointAtPercent(t);
+                dxf->writeLine(
+                    *dw,
+                    DL_LineData(sp.x()/10,
+                                -sp.y()/10,
+                                0.0,
+                                ep.x()/10,
+                                -ep.y()/10,
+                                0.0
+                                ),
+                    DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
+            }
+        }
+    }
+
+    dw->sectionEnd();
+
+    dxf->writeObjects(*dw);
+    dxf->writeObjectsEnd(*dw);
+
+    dw->dxfEOF();
+    dw->close();
+    delete dw;
+    delete dxf;
+
+    return true;
+}
+
+// 设置画布中心点坐标为yellowPath的中心点
+void PainterArea::setCenterToYellowPath()
+{
+    QRectF rect=yellowPath.boundingRect();
+    QPointF centerRect=rect.center();
+    QSize sizePainterArea=this->size();
+    qreal xCenter=sizePainterArea.width()/2.0,
+          yCenter=sizePainterArea.height()/2.0;
+    intUp=(centerRect.y()-yCenter)*scalingMulti;
+    intLeft=(centerRect.x()-xCenter)*scalingMulti;
 }
 
 void PainterArea::changePath()
