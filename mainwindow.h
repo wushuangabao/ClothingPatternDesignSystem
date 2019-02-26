@@ -36,12 +36,10 @@ public slots:
     void setStatusMouseCoordinate();
     void setStatusScalingMulti();
     void resetModel();
-    void setPointModel(int id,CurvePoint *curvePoint);
     void showPath(int id); //在painterArea上显示tablePaths中row=id的path及其上的点
-    void showPoints_L(QList<QPointF> points); //在painterArea上用label显示points（直线）
-    void showPoints_C(QPointF startPoint); //在painterArea上用label显示points（曲线）
-    //void showCtrlPoints(QPointF point); //在painterArea上用label显示锚点
-    void selectTablePoint(QPointF point,int type=0); //在tablePoints表格中选中point对应的行。type:0所有位置符合的点，1直线上的点，2曲线上的点。
+    void showCtrlPoint(CurvePoint *ctrlPoint); //在painterArea上用label显示锚点
+    void selectTablePoint(QPointF point);
+    void selectTablePoint(int id);
 
 private slots:    
     void on_action_M_S_triggered();

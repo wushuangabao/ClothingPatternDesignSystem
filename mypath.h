@@ -111,7 +111,7 @@ private:
 
     void addPoint(QPointF point,QString name="");
     void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);
-    bool currentPositionequal(QPainterPath path,CurvePoint *cp);
+    bool currentPositionequal(QPainterPath path,QPointF p);
 
 private slots:
 

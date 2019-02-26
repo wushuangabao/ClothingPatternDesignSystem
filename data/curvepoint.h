@@ -6,14 +6,13 @@
 class CurvePoint
 {
 public:
-    CurvePoint(qreal x,qreal y,CurvePoint *pre=nullptr);
+    CurvePoint(int id,CurvePoint *pre=nullptr);
     ~CurvePoint();
 
     CurvePoint *pre=nullptr;
     CurvePoint *next=nullptr;
 
-    qreal x=0;
-    qreal y=0;
+    int id;
 
     bool isFirst; //起点
     bool isLast; //终点

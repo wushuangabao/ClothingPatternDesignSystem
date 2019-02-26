@@ -23,10 +23,6 @@ private:
     bool isMoving=false;
     int xBeforeMoving;
     int yBeforeMoving;
-    int xLogical(int xPhysical);
-    int yLogical(int yPhysical);
-    int xPhysical(int xLogical);
-    int yPhysical(int yLogical);
 
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -44,6 +40,7 @@ public:
     MyPath *myPath;
     QPainterPath auxiliaryLines;
     QPainterPath yellowPath;
+    QPainterPath greenPath;
     int typePants;
     int old_typePants;
 
@@ -60,14 +57,20 @@ public:
     int intUp=0; //原点向上偏移值
     int intLeft=0; //原点向左偏移值
 
+    bool dataChanged=false;
     void setMyPath();
 
     //鼠标拖动点:
     LabelPoint *selectedLabelPoint;
     QList<LabelPoint*> labelPoints;
-    void setLabelPoint(int id,CurvePoint *point);
+    void setLabelPoint(CurvePoint *point);
     void clearLabelPoints();
     void updateLabelPoints();
+
+    int xLogical(int xPhysical);
+    int yLogical(int yPhysical);
+    int xPhysical(int xLogical);
+    int yPhysical(int yLogical);
 
     bool writeDXF();
 

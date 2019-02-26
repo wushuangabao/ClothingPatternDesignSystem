@@ -1,10 +1,26 @@
 #include "labelpoint.h"
 #include "curvepoint.h"
+#include "../painterarea.h"
+#include "../mainwindow.h"
+#include "../mypath.h"
+#include "mypathdata.h"
+#include <QMenu>
+#include <QDebug>
 
-LabelPoint::LabelPoint(QWidget *parent) : QLabel(parent)
+LabelPoint::LabelPoint(PainterArea *parent) : QLabel(parent)
 {
-    id = -1;
+    this->parent=parent;
     point = nullptr;
+    actionNew=new QAction("移动点到当前位置",this);
+    contextMenu=new QMenu(this);
+    contextMenu->addAction(actionNew);
+    connect(actionNew,SIGNAL(triggered()),this,SLOT(changePos()));
+}
+
+LabelPoint::~LabelPoint()
+{
+    delete actionNew;
+    delete contextMenu;
 }
 
 QPoint LabelPoint::setHandlerPos(QPoint mousePos)
@@ -19,4 +35,27 @@ QPoint LabelPoint::setHandlerPos(QPoint mousePos)
 void LabelPoint::moveTo(QPoint mousePos)
 {
     this->move(mousePos.x()-handlerPos.x(),mousePos.y()-handlerPos.y());
+}
+
+void LabelPoint::contextMenuEvent(QContextMenuEvent *event)
+{
+    contextMenu->move(cursor().pos());
+    contextMenu->show();
+}
+
+void LabelPoint::changePos()
+{
+    if(point)
+    {
+        MyPathData *pathData=parent->myPathData;
+        //修改x,y的值
+        pathData->pointData[point->id].setX(parent->xLogical(this->x()));
+        pathData->pointData[point->id].setY(parent->yLogical(this->y()));
+        //重绘图形
+        parent->dataChanged=true;
+        parent->update();
+        //重设表格
+        MainWindow *mainWin=(MainWindow*)parent->parent();
+        mainWin->resetModel();
+    }
 }

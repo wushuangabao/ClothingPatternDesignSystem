@@ -19,7 +19,7 @@
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
     myPathData = new MyPathData("myPath");
-    old_typePants = -1;
+//    old_typePants = -1;
     typePants = 0;
 
     pantsHeight=1650;
@@ -53,6 +53,7 @@ PainterArea::~PainterArea()
 
 void PainterArea::setMyPath()
 {
+    dataChanged=false;
     myPath->initializeSize();
     if(!myPath->myPath->isEmpty()){
         delete myPath->myPath;
@@ -91,29 +92,34 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawPath(auxiliaryLines);
 
-    if(old_typePants!=typePants)
-    {
-        QString filePath = QDir::currentPath() + "/" + myPathData->name;
-        myPathData->saveTo(filePath+".txt");
-        old_typePants = typePants;
-        emit resetModel();
-    }
+//    if(old_typePants!=typePants)
+//    {
+//        QString filePath = QDir::currentPath() + "/" + myPathData->name;
+//        myPathData->saveTo(filePath+".txt");
+//        old_typePants = typePants;
+//        emit resetModel();
+//    }
 
 //    pen.setWidthF(1);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-//    if()
+    if(!dataChanged)
         painter.drawPath(*(myPath->myPath));
-//    else
-//    {
-//        //如果myPathData有改动，则按照myPathData绘图
-//        painter.drawPath(myPath->outLines_data());
-//    }
+    else
+    {
+        //如果myPathData有改动，则按照myPathData绘图
+        painter.drawPath(myPath->outLines_data());
+    }
 
     pen.setWidthF(1.5);
     pen.setColor(Qt::yellow);
     painter.setPen(pen);
     painter.drawPath(yellowPath);
+
+    pen.setWidthF(1.5);
+    pen.setColor(Qt::green);
+    painter.setPen(pen);
+    painter.drawPath(greenPath);
 }
 
 int PainterArea::xLogical(int xPhysical)
@@ -138,12 +144,15 @@ void PainterArea::mousePressEvent(QMouseEvent *event)
 {
     QPoint pos=event->pos();
     QWidget *w=this->childAt(pos);
-    if(w!=nullptr && w->inherits("LabelPoint") && event->button()==Qt::LeftButton)
-    {   //拖动labelPoint
-        selectedLabelPoint=reinterpret_cast<LabelPoint *>(w);
-        selectedLabelPoint->setHandlerPos(pos);
+    if(w!=nullptr && w->inherits("LabelPoint"))
+    {
+        if(event->button()==Qt::LeftButton) //左键：拖动labelPoint
+        {
+            selectedLabelPoint=reinterpret_cast<LabelPoint *>(w);
+            selectedLabelPoint->setHandlerPos(pos);
+        }
     }
-    else if(event->button()==Qt::MidButton)
+    if(event->button()==Qt::MidButton)
     {   //拖动画布
         isMoving=true;
         xBeforeMoving=pos.x();
@@ -221,16 +230,24 @@ void PainterArea::wheelEvent(QWheelEvent *event)
     emit scalingMultiChanged();
 }
 
-void PainterArea::setLabelPoint(int id,CurvePoint *point)
+void PainterArea::setLabelPoint(CurvePoint *point)
 {
-    qreal px=point->x, py=point->y,
-          lpx=xPhysical(px),lpy=yPhysical(py);
+    QPointF p = myPathData->pointData[point->id];
+    qreal lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
     LabelPoint *lp=new LabelPoint(this);
-    lp->setText(myPathData->findName(px,py));
-    lp->setStyleSheet("QLabel{background-color:green;}");
-    lp->move(lpx,lpy);
+    if(point->isCtrlPoint)
+    {
+        lp->setText("ctrlPoint");
+        lp->setStyleSheet("QLabel{background-color:white;}");
+        lp->move(lpx,lpy-lp->height());
+    }
+    else
+    {
+        lp->setText(myPathData->findName(point->id));
+        lp->setStyleSheet("QLabel{background-color:green;}");
+        lp->move(lpx,lpy);
+    }
     lp->show();
-    lp->id=id;  //id指在pointData数组中的index
     lp->point=point;
     labelPoints.append(lp);
 }
@@ -251,8 +268,8 @@ void PainterArea::updateLabelPoints()
     for(i=0;i<num;i++)
     {
         LabelPoint* lp=labelPoints.at(i);
-        qreal px=lp->point->x, py=lp->point->y,
-              lpx=xPhysical(px),lpy=yPhysical(py);
+        QPointF p=myPathData->pointData[lp->point->id];
+        qreal lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
         lp->move(lpx,lpy);
     }
 }
@@ -382,17 +399,17 @@ bool PainterArea::writeDXF() {
     for(i=0;i<numPaths;++i)
     {
         PathData pathData = data->pathData[i];
-        CurvePoint *startPoint = data->pointData[pathData.startPoint].point;
+        QPointF startPoint = data->pointData[pathData.startPoint->id];
         if(pathData.isLine)
         {
-            CurvePoint *endPoint = data->pointData[pathData.endPoint].point;
+            QPointF endPoint = data->pointData[pathData.endPoint->id];
             dxf->writeLine(
                 *dw,
-                DL_LineData(startPoint->x/10,
-                            -startPoint->y/10,
+                DL_LineData(startPoint.x()/10,
+                            -startPoint.y()/10,
                             0.0,
-                            endPoint->x/10,
-                            -endPoint->y/10,
+                            endPoint.x()/10,
+                            -endPoint.y()/10,
                             0.0
                             ),
                 DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
@@ -402,17 +419,20 @@ bool PainterArea::writeDXF() {
             QList<QPointF> points;
             MyPath path(this);
             qreal t=0.0;
-            CurvePoint *p = startPoint->pre; QPointF firstCtrlPoint(p->x,p->y);
+            CurvePoint *p = pathData.startPoint->pre;
+            QPointF firstCtrlPoint = data->pointData[p->id];
             while(p->next->isCtrlPoint!=true)
             {
-                p=p->next; points<<QPointF(p->x,p->y);
+                p=p->next; points<<data->pointData[p->id];
             }
-            p=p->next; QPointF lastCtrlPoint(p->x,p->y);
+            p=p->next;
+            QPointF lastCtrlPoint = data->pointData[p->id];
             path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
+            qreal dt=5.0/path.myPath->length();  //以每5mm为一根小线段
             while(t<1)
             {
                 QPointF sp=path.myPath->pointAtPercent(t);
-                t=t+0.01;
+                t=t+dt;
                 if(t>1)
                     t=1;
                 QPointF ep=path.myPath->pointAtPercent(t);
@@ -446,6 +466,7 @@ bool PainterArea::writeDXF() {
 // 设置画布中心点坐标为yellowPath的中心点
 void PainterArea::setCenterToYellowPath()
 {
+    scalingMulti=1.0;
     QRectF rect=yellowPath.boundingRect();
     QPointF centerRect=rect.center();
     QSize sizePainterArea=this->size();
@@ -453,6 +474,8 @@ void PainterArea::setCenterToYellowPath()
           yCenter=sizePainterArea.height()/2.0;
     intUp=(centerRect.y()-yCenter)*scalingMulti;
     intLeft=(centerRect.x()-xCenter)*scalingMulti;
+
+    emit scalingMultiChanged();
 }
 
 void PainterArea::changePath()

@@ -150,23 +150,25 @@ QPainterPath MyPath::outLines_data()
     for(i=0;i<numPaths;++i)
     {
         PathData pathData = data->pathData[i];
-        CurvePoint *startPoint = data->pointData[pathData.startPoint].point;
+        QPointF startPoint = data->pointData[pathData.startPoint->id];
         if(!currentPositionequal(*(path.myPath),startPoint))
-            path.myPath->moveTo(startPoint->x,startPoint->y);
+            path.myPath->moveTo(startPoint);
         if(pathData.isLine)
         {
-            CurvePoint *endPoint = data->pointData[pathData.endPoint].point;
-            path.myPath->lineTo(endPoint->x,endPoint->y);
+            QPointF endPoint = data->pointData[pathData.endPoint->id];
+            path.myPath->lineTo(endPoint);
         }
         else //如果pathData表示曲线
         {
             QList<QPointF> points;
-            CurvePoint *p = startPoint->pre; QPointF firstCtrlPoint(p->x,p->y);
+            CurvePoint *p = pathData.startPoint->pre;
+            QPointF firstCtrlPoint = data->pointData[p->id];
             while(p->next->isCtrlPoint!=true)
             {
-                p=p->next; points<<QPointF(p->x,p->y);
+                p=p->next; points<<data->pointData[p->id];
             }
-            p=p->next; QPointF lastCtrlPoint(p->x,p->y);
+            p=p->next;
+            QPointF lastCtrlPoint = data->pointData[p->id];
             path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
         }
     }
@@ -913,12 +915,12 @@ QPointF MyPath::getSymmetryPoint(QPointF point,QPointF center)
     return QPointF(x,y);
 }
 
-//path的currentPosition是否和cp的位置相符
-bool MyPath::currentPositionequal(QPainterPath path,CurvePoint *cp)
+//path的currentPosition是否和p的位置相符
+bool MyPath::currentPositionequal(QPainterPath path,QPointF p)
 {
-    QPointF p = path.currentPosition();
-    qreal px=p.x(), py=p.y(),
-          dx=px-cp->x, dy=py-cp->y;
+    QPointF pp = path.currentPosition();
+    qreal ppx=pp.x(), ppy=pp.y(),
+          dx=ppx-p.x(), dy=ppy-p.y();
     if(dx>-0.1 && dx<0.1 && dy>-0.1 && dy<0.1)
         return true;
     else

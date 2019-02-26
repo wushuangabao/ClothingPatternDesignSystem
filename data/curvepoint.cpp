@@ -1,9 +1,8 @@
 #include "curvepoint.h"
 
-CurvePoint::CurvePoint(qreal x,qreal y,CurvePoint* pre)
+CurvePoint::CurvePoint(int id,CurvePoint* pre)
 {
-    this->x=x;
-    this->y=y;
+    this->id=id;
     isFirst=false;
     isLast=false;
     isCtrlPoint=false;
