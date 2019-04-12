@@ -5,6 +5,11 @@
 #include "../painterarea.h"
 #include "../data/mypathdata.h"
 
+/**
+ * @brief
+ *
+ * @param parent
+ */
 DialogDesign::DialogDesign(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogDesign)
@@ -19,11 +24,20 @@ DialogDesign::DialogDesign(QWidget *parent) :
     connect(this,SIGNAL(selectKuoXing(int)),this,SLOT(enterStep2(int)));
 }
 
+/**
+ * @brief
+ *
+ */
 DialogDesign::~DialogDesign()
 {
     delete ui;
 }
 
+/**
+ * @brief
+ *
+ * @param intKuoXing
+ */
 void DialogDesign::enterStep2(int intKuoXing)
 {
     QObject *mainWin=parent();
@@ -43,6 +57,10 @@ void DialogDesign::enterStep2(int intKuoXing)
     m->resetModel();
 }
 
+/**
+ * @brief
+ *
+ */
 void DialogDesign::on_pushButton_1_clicked()
 {
     emit selectKuoXing(1);

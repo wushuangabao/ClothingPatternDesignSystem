@@ -3,6 +3,11 @@
 #include "../dialogsize.h"
 #include "../../mainwindow.h"
 
+/**
+ * @brief
+ *
+ * @param parent
+ */
 DialogPantsH::DialogPantsH(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogPantsH)
@@ -43,12 +48,21 @@ DialogPantsH::DialogPantsH(QWidget *parent) :
     updateString();
 }
 
+/**
+ * @brief
+ *
+ */
 DialogPantsH::~DialogPantsH()
 {
     delete ui;
     delete scene;
 }
 
+/**
+ * @brief
+ *
+ * @param w
+ */
 void DialogPantsH::setLabels(QWidget *w)
 {
     QList<QPushButton*> buttonList = w->findChildren<QPushButton*>();
@@ -67,6 +81,10 @@ void DialogPantsH::setLabels(QWidget *w)
     }
 }
 
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::updateString()
 {
     QString str=tr("选择款式：")+stringList.at(0);
@@ -78,6 +96,11 @@ void DialogPantsH::updateString()
     ui->labelString->setText(str);
 }
 
+/**
+ * @brief
+ *
+ * @param id
+ */
 void DialogPantsH::changePage(int id)
 {
     int old_id=ui->stackedWidget->currentIndex();
@@ -87,6 +110,12 @@ void DialogPantsH::changePage(int id)
     pushButtons.at(id)->setStyleSheet("color:rgb(0,0,0);background-color:rgb(255,255,255);");
 }
 
+/**
+ * @brief
+ *
+ * @param buttonList
+ * @param str
+ */
 void DialogPantsH::selectPushButton(QList<QPushButton*> buttonList,QString str)
 {
     for(int i=0;i<buttonList.size();i++)
@@ -100,6 +129,11 @@ void DialogPantsH::selectPushButton(QList<QPushButton*> buttonList,QString str)
     }
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changePantsL(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_1->findChildren<QPushButton*>();
@@ -108,6 +142,11 @@ void DialogPantsH::changePantsL(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changeWaistPostion(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_2->findChildren<QPushButton*>();
@@ -117,6 +156,11 @@ void DialogPantsH::changeWaistPostion(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changeWaistHead(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_3->findChildren<QPushButton*>();
@@ -125,6 +169,11 @@ void DialogPantsH::changeWaistHead(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changePantsLoop(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_4->findChildren<QPushButton*>();
@@ -133,6 +182,11 @@ void DialogPantsH::changePantsLoop(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changeDoor(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_5->findChildren<QPushButton*>();
@@ -141,6 +195,11 @@ void DialogPantsH::changeDoor(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changeSang1(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_6->findChildren<QPushButton*>();
@@ -150,6 +209,11 @@ void DialogPantsH::changeSang1(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changePocket1(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_7->findChildren<QPushButton*>();
@@ -157,6 +221,11 @@ void DialogPantsH::changePocket1(QString str)
     stringList.replace(6,str);
     updateString();
 }
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changeSang2(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_8->findChildren<QPushButton*>();
@@ -165,6 +234,11 @@ void DialogPantsH::changeSang2(QString str)
     stringList.replace(7,str);
     updateString();
 }
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changePocket2(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_9->findChildren<QPushButton*>();
@@ -173,6 +247,11 @@ void DialogPantsH::changePocket2(QString str)
     updateString();
 }
 
+/**
+ * @brief
+ *
+ * @param str
+ */
 void DialogPantsH::changePantsFoot(QString str)
 {
     QList<QPushButton*> buttonList = ui->page_10->findChildren<QPushButton*>();
@@ -182,27 +261,72 @@ void DialogPantsH::changePantsFoot(QString str)
 }
 
 
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pantsLength_clicked()
 {    changePage(0);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_waistPostion_clicked()
 {    changePage(1);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_waistHead_clicked()
 {    changePage(2);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pantsLoop_clicked()
 {    changePage(3);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_door_clicked()
 {    changePage(4);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_sang1_clicked()
 {    changePage(5);
+/**
+ * @brief
+ *
+ */
 }void DialogPantsH::on_pocket1_clicked()
 {    changePage(6);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_sang2_clicked()
 {    changePage(7);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pocket2_clicked()
 {    changePage(8);}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pantsFoot_clicked()
 {    changePage(9);}
 
+/**
+ * @brief
+ *
+ * @param k
+ */
 void DialogPantsH::keyPressEvent(QKeyEvent* k)
 {
     if(k->key()==Qt::Key_W)
@@ -219,6 +343,10 @@ void DialogPantsH::keyPressEvent(QKeyEvent* k)
      {}
 }
 
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::pageDown()
 {
     int i=ui->stackedWidget->currentIndex();
@@ -226,6 +354,10 @@ void DialogPantsH::pageDown()
         changePage(++i);
 }
 
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::pageUp()
 {
     int i=ui->stackedWidget->currentIndex();
@@ -233,132 +365,384 @@ void DialogPantsH::pageUp()
         changePage(--i);
 }
 
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton21_clicked()
 {    changePantsL(ui->pushButton21->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton22_clicked()
 {    changePantsL(ui->pushButton22->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton23_clicked()
 {    changePantsL(ui->pushButton23->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton24_clicked()
 {    changePantsL(ui->pushButton24->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton25_clicked()
 {    changePantsL(ui->pushButton25->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton26_clicked()
 {    changePantsL(ui->pushButton26->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton27_clicked()
 {    changePantsL(ui->pushButton27->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton28_clicked()
 {    changePantsL(ui->pushButton28->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton31_clicked()
 {    changeWaistPostion(ui->pushButton31->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton32_clicked()
 {    changeWaistPostion(ui->pushButton32->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton33_clicked()
 {    changeWaistPostion(ui->pushButton33->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton34_clicked()
 {    changeWaistPostion(ui->pushButton34->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton41_clicked()
 {    changeWaistHead(ui->pushButton41->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton42_clicked()
 {    changeWaistHead(ui->pushButton42->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton43_clicked()
 {    changeWaistHead(ui->pushButton43->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton44_clicked()
 {    changeWaistHead(ui->pushButton44->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton45_clicked()
 {    changeWaistHead(ui->pushButton45->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton46_clicked()
 {    changeWaistHead(ui->pushButton46->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton47_clicked()
 {    changeWaistHead(ui->pushButton47->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton48_clicked()
 {    changeWaistHead(ui->pushButton48->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton49_clicked()
 {    changeWaistHead(ui->pushButton49->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton51_clicked()
 {    changePantsLoop(ui->pushButton51->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton52_clicked()
 {    changePantsLoop(ui->pushButton52->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton65_clicked()
 {    changeDoor(ui->pushButton65->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton64_clicked()
 {    changeDoor(ui->pushButton64->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton63_clicked()
 {    changeDoor(ui->pushButton63->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton62_clicked()
 {    changeDoor(ui->pushButton62->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton61_clicked()
 {    changeDoor(ui->pushButton61->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton71_clicked()
 {    changeSang1(ui->pushButton71->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton72_clicked()
 {    changeSang1(ui->pushButton72->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton73_clicked()
 {    changeSang1(ui->pushButton73->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton74_clicked()
 {    changeSang1(ui->pushButton74->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton75_clicked()
 {    changeSang1(ui->pushButton75->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton76_clicked()
 {    changeSang1(ui->pushButton76->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton77_clicked()
 {    changeSang1(ui->pushButton77->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton81_clicked()
 {    changePocket1(ui->pushButton81->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton82_clicked()
 {    changePocket1(ui->pushButton82->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton83_clicked()
 {    changePocket1(ui->pushButton83->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton84_clicked()
 {    changePocket1(ui->pushButton84->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton85_clicked()
 {    changePocket1(ui->pushButton85->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton91_clicked()
 {    changeSang2(ui->pushButton91->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton92_clicked()
 {    changeSang2(ui->pushButton92->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton93_clicked()
 {    changeSang2(ui->pushButton93->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton94_clicked()
 {    changeSang2(ui->pushButton94->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1001_clicked()
 {    changePocket2(ui->pushButton1001->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1002_clicked()
 {    changePocket2(ui->pushButton1002->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1003_clicked()
 {    changePocket2(ui->pushButton1003->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1004_clicked()
 {    changePocket2(ui->pushButton1004->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1005_clicked()
 {    changePocket2(ui->pushButton1005->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1006_clicked()
 {    changePocket2(ui->pushButton1006->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1007_clicked()
 {    changePocket2(ui->pushButton1007->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1008_clicked()
 {    changePocket2(ui->pushButton1008->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1009_clicked()
 {    changePocket2(ui->pushButton1009->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1010_clicked()
 {    changePocket2(ui->pushButton1010->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1011_clicked()
 {    changePocket2(ui->pushButton1011->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1012_clicked()
 {    changePocket2(ui->pushButton1012->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1013_clicked()
 {    changePocket2(ui->pushButton1013->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1014_clicked()
 {    changePocket2(ui->pushButton1014->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton1015_clicked()
 {    changePocket2(ui->pushButton1015->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton111_clicked()
 {    changePantsFoot(ui->pushButton111->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton112_clicked()
 {    changePantsFoot(ui->pushButton112->text());}
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_pushButton113_clicked()
 {    changePantsFoot(ui->pushButton113->text());}
 
 
+/**
+ * @brief
+ *
+ */
 void DialogPantsH::on_buttonNext_clicked()
 {
     DialogSize *dialogSize=new DialogSize((QWidget*)parent());

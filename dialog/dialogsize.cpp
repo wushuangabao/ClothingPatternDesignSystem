@@ -3,6 +3,11 @@
 #include "../mainwindow.h"
 #include "../painterarea.h"
 
+/**
+ * @brief
+ *
+ * @param parent
+ */
 DialogSize::DialogSize(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogSize)
@@ -10,11 +15,19 @@ DialogSize::DialogSize(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/**
+ * @brief
+ *
+ */
 DialogSize::~DialogSize()
 {
     delete ui;
 }
 
+/**
+ * @brief
+ *
+ */
 void DialogSize::on_pushButton_clicked()
 {
     int pantsL=qRound(ui->lineEdit_1->text().toFloat()*10);

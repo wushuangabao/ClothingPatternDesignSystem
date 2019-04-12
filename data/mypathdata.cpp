@@ -3,11 +3,22 @@
 #include <QPainterPath>
 //#include <QTextCodec>
 
+/**
+ * @brief
+ *
+ * @param name
+ */
 MyPathData::MyPathData(QString name)
 {
     this->name = name;
 }
 
+/**
+ * @brief
+ *
+ * @param point
+ * @return QString
+ */
 QString MyPathData::stringOf(CurvePoint *point)
 {
     QPointF p=pointData[point->id];
@@ -31,6 +42,12 @@ QString MyPathData::stringOf(CurvePoint *point)
     return str;
 }
 
+/**
+ * @brief
+ *
+ * @param point
+ * @return QString
+ */
 QString MyPathData::stringsOf(CurvePoint *point)
 {
     QString str="";
@@ -67,6 +84,12 @@ QString MyPathData::stringsOf(CurvePoint *point)
 //    return point;
 //}
 
+/**
+ * @brief
+ *
+ * @param filePath
+ * @return bool
+ */
 bool MyPathData::saveTo(QString filePath)
 {
     //QFile file(QDir::currentPath()+"/pathData.txt");
@@ -106,6 +129,10 @@ bool MyPathData::saveTo(QString filePath)
     return true;
 }
 
+/**
+ * @brief
+ *
+ */
 MyPathData::~MyPathData()
 {
     for(int i=0;i<numberPath;i++)
@@ -124,6 +151,13 @@ MyPathData::~MyPathData()
     }
 }
 
+/**
+ * @brief
+ *
+ * @param endPoint
+ * @param idSP
+ * @return bool
+ */
 bool MyPathData::addLineTo(QPointF endPoint,int idSP)
 {
     if(numberPoint<1 || idSP<-1 || idSP>=numberPoint)
@@ -150,11 +184,25 @@ bool MyPathData::addLineTo(QPointF endPoint,int idSP)
     return true;
 }
 
+/**
+ * @brief
+ *
+ * @param startPoint
+ * @param endPoint
+ */
 void MyPathData::addLine(QPointF startPoint,QPointF endPoint)
 {
     addLineTo(endPoint,findPoint(startPoint,true));
 }
 
+/**
+ * @brief
+ *
+ * @param points
+ * @param firstCtrlPoint
+ * @param lastCtrlPoint
+ * @param path
+ */
 void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint,QPainterPath path)
 {
     CurvePoint *ctrlPoint1 = new CurvePoint(addCtrlPoint(firstCtrlPoint));
@@ -204,6 +252,13 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
 //        return false;
 //}
 
+/**
+ * @brief
+ *
+ * @param p1
+ * @param p2
+ * @return bool
+ */
 bool MyPathData::equal(QPointF p1,QPointF p2)
 {
     qreal dx=p1.x()-p2.x(), dy=p1.y()-p2.y();
@@ -213,6 +268,13 @@ bool MyPathData::equal(QPointF p1,QPointF p2)
         return false;
 }
 
+/**
+ * @brief
+ *
+ * @param point
+ * @param name
+ * @return int
+ */
 int MyPathData::addPoint(QPointF point,QString name)
 {
     int i=0;
@@ -229,6 +291,12 @@ int MyPathData::addPoint(QPointF point,QString name)
     return i;
 }
 
+/**
+ * @brief
+ *
+ * @param ctrlPoint
+ * @return int
+ */
 int MyPathData::addCtrlPoint(QPointF ctrlPoint)
 {
     int i=numberPoint;
@@ -237,6 +305,13 @@ int MyPathData::addCtrlPoint(QPointF ctrlPoint)
     return i;
 }
 
+/**
+ * @brief
+ *
+ * @param point
+ * @param addIfNotFind
+ * @return int
+ */
 int MyPathData::findPoint(QPointF point,bool addIfNotFind)
 {
     int i=0;
@@ -269,6 +344,12 @@ int MyPathData::findPoint(QPointF point,bool addIfNotFind)
     }
 }
 
+/**
+ * @brief
+ *
+ * @param point
+ * @return bool
+ */
 bool MyPathData::pointMapHas(QPointF point)
 {
     int id=findPoint(point);
@@ -295,6 +376,12 @@ bool MyPathData::pointMapHas(QPointF point)
 //{
 //    return findName(QPointF(x,y));
 //}
+/**
+ * @brief
+ *
+ * @param id
+ * @return QString
+ */
 QString MyPathData::findName(int id)
 {
     QMap<QString,int>::iterator i;
@@ -306,6 +393,12 @@ QString MyPathData::findName(int id)
     return "";
 }
 
+/**
+ * @brief
+ *
+ * @param name
+ * @return QPointF
+ */
 QPointF MyPathData::findPoint(QString name)
 {
     QMap<QString,int>::iterator i;
@@ -316,6 +409,10 @@ QPointF MyPathData::findPoint(QString name)
         return pointData[i.value()];
 }
 
+/**
+ * @brief
+ *
+ */
 void MyPathData::clear()
 {
     numberPath=0; numberPoint=0;
