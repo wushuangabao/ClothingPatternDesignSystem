@@ -29,7 +29,7 @@ MyPath::MyPath(PainterArea *parent)
 }
 
 /**
- * @brief
+ * @brief 初始化尺寸
  *
  */
 void MyPath::initializeSize()
@@ -55,7 +55,7 @@ void MyPath::initializeSize()
 }
 
 /**
- * @brief
+ * @brief 设置位置参照点
  *
  * @param x
  * @param y
@@ -67,7 +67,7 @@ void MyPath::setStartPoint(qreal x,qreal y)
 }
 
 /**
- * @brief
+ * @brief 设置位置参照点
  *
  * @param point
  */
@@ -77,9 +77,8 @@ void MyPath::setStartPoint(QPointF point)
     startPoint->setY(point.y());
 }
 
-//辅助线：H型前片
 /**
- * @brief
+ * @brief 辅助线 H型 前片
  *
  * @return QPainterPath
  */
@@ -130,9 +129,8 @@ QPainterPath MyPath::auxiliaryLinesH_1()
     return path;
 }
 
-//辅助线：H型后片
 /**
- * @brief
+ * @brief 辅助线 H型 后片
  *
  * @return QPainterPath
  */
@@ -175,9 +173,8 @@ QPainterPath MyPath::auxiliaryLinesH_2()
     return myPath;
 }
 
-//根据myPathData画轮廓线
 /**
- * @brief
+ * @brief 根据myPathData画轮廓线
  *
  * @return QPainterPath
  */
@@ -436,17 +433,11 @@ QPainterPath MyPath::waist_1(int wCase,int sangCase,QList<QPointF> *points)
     return path;
 }
 
-///
-/// \brief 画前片的腰线
-/// \param wCase 腰位
-/// \param sangCase 省褶类型
-/// \return 一个QPainterPath对象
-///
 /**
- * @brief
+ * @brief 画前片的腰线
  *
- * @param wCase
- * @param sangCase
+ * @param wCase 腰位
+ * @param sangCase 省褶类型
  * @return QPainterPath
  */
 QPainterPath MyPath::drawWaist1(int wCase,int sangCase)
@@ -727,14 +718,10 @@ QPainterPath MyPath::lineThrough2P(QPointF A,QPointF B)
     return path;
 }
 
-///
-/// \brief 用myPath画折线，并添加数据到myPathData数组
-/// \param points 有序的折线顶点列表
-///
 /**
- * @brief
+ * @brief 用myPath画折线，并添加数据到myPathData数组
  *
- * @param points
+ * @param points 有序的折线顶点列表
  */
 void MyPath::brokenLineThrough(QList<QPointF> points)
 {
