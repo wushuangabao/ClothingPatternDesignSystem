@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     Splash s;
     s.show();
     MainWindow mainWin;
-    s.waitFor(&mainWin,100);
+    s.waitFor(&mainWin,500);
 
     return a.exec();
 }
