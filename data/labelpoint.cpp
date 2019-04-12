@@ -7,6 +7,11 @@
 #include <QMenu>
 #include <QDebug>
 
+/**
+ * @brief
+ *
+ * @param parent
+ */
 LabelPoint::LabelPoint(PainterArea *parent) : QLabel(parent)
 {
     this->parent=parent;
@@ -17,12 +22,22 @@ LabelPoint::LabelPoint(PainterArea *parent) : QLabel(parent)
     connect(actionNew,SIGNAL(triggered()),this,SLOT(changePos()));
 }
 
+/**
+ * @brief
+ *
+ */
 LabelPoint::~LabelPoint()
 {
     delete actionNew;
     delete contextMenu;
 }
 
+/**
+ * @brief
+ *
+ * @param mousePos
+ * @return QPoint
+ */
 QPoint LabelPoint::setHandlerPos(QPoint mousePos)
 {
     int x = mousePos.x()-this->pos().x(),
@@ -32,17 +47,31 @@ QPoint LabelPoint::setHandlerPos(QPoint mousePos)
     return handlerPos;
 }
 
+/**
+ * @brief
+ *
+ * @param mousePos
+ */
 void LabelPoint::moveTo(QPoint mousePos)
 {
     this->move(mousePos.x()-handlerPos.x(),mousePos.y()-handlerPos.y());
 }
 
+/**
+ * @brief
+ *
+ * @param event
+ */
 void LabelPoint::contextMenuEvent(QContextMenuEvent *event)
 {
     contextMenu->move(cursor().pos());
     contextMenu->show();
 }
 
+/**
+ * @brief
+ *
+ */
 void LabelPoint::changePos()
 {
     if(point)

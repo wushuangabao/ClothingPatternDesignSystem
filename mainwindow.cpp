@@ -12,6 +12,10 @@
 //#include <QHeaderView>
 
 
+/**
+ * @brief
+ *
+ */
 MainWindow::MainWindow() :
     QMainWindow(),
     ui(new Ui::MainWindow)
@@ -59,6 +63,10 @@ MainWindow::MainWindow() :
     connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
 }
 
+/**
+ * @brief
+ *
+ */
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -71,6 +79,10 @@ MainWindow::~MainWindow()
 ///
 /// \brief 移除并隐藏所有的dock
 ///
+/**
+ * @brief
+ *
+ */
 void MainWindow::removeAllDock()
 {
     for(int i=0;i<numberDocks;++i)
@@ -78,10 +90,16 @@ void MainWindow::removeAllDock()
         removeDockWidget(m_docks[i]);
     }
 }
+
 ///
 /// \brief 显示指定序号的dock
 /// \param index 指定序号，如果不指定，则会显示所有
 ///
+/**
+ * @brief
+ *
+ * @param index
+ */
 void MainWindow::showDock(const QList<int> &index)
 {
     if (index.isEmpty())
@@ -99,6 +117,11 @@ void MainWindow::showDock(const QList<int> &index)
     }
 }
 
+/**
+ * @brief
+ *
+ * @param event
+ */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     switch(QMessageBox::question(this,tr("提示"),tr("你确定退出?")))
@@ -112,16 +135,28 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+/**
+ * @brief
+ *
+ */
 void MainWindow::setStatusMouseCoordinate(){
     this->statusBar()->showMessage(painterArea->stringTempStatus,0);
 }
 
+/**
+ * @brief
+ *
+ */
 void MainWindow::setStatusScalingMulti(){
     labelScaling->setText(tr("放大倍数 %1 ").arg(painterArea->scalingMulti));
     this->statusBar()->showMessage("",0);
 }
 
 //根据myPathData修改tablePoints和tablePaths---------------
+/**
+ * @brief
+ *
+ */
 void MainWindow::resetModel(){
     MyPathData *data = painterArea->myPathData;
     int nPaths = data->numberPath,
@@ -148,11 +183,19 @@ void MainWindow::resetModel(){
     ui->tablePaths->resizeColumnsToContents();
 }
 
+/**
+ * @brief
+ *
+ */
 void MainWindow::on_action_M_S_triggered()
 {
     dialogMS->exec();
 }
 
+/**
+ * @brief
+ *
+ */
 void MainWindow::on_action_F_S_triggered()
 {
 //    //截取painterArea
@@ -196,6 +239,10 @@ void MainWindow::on_action_F_S_triggered()
         QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
 }
 
+/**
+ * @brief
+ *
+ */
 void MainWindow::on_action_M_M_triggered()
 {
     if(dialogMM->exec()==QDialog::Accepted)
@@ -209,12 +256,22 @@ void MainWindow::on_action_M_M_triggered()
     }
 }
 
+/**
+ * @brief
+ *
+ * @param index
+ */
 void MainWindow::on_tablePaths_clicked(const QModelIndex &index)
 {
     int id = index.row();
     showPath(id);
 }
 
+/**
+ * @brief
+ *
+ * @param id
+ */
 void MainWindow::showPath(int id)
 {
     PathData pathData = painterArea->myPathData->pathData[id];
@@ -279,12 +336,22 @@ void MainWindow::showPath(int id)
     painterArea->update();
 }
 
+/**
+ * @brief
+ *
+ * @param index
+ */
 void MainWindow::on_tablePaths_activated(const QModelIndex &index)
 {
     qDebug()<<"on_tablePaths_activated";
 }
 
 //从tablePoints中选择与点point对应的点
+/**
+ * @brief
+ *
+ * @param point
+ */
 void MainWindow::selectTablePoint(QPointF point)
 {
     int i, numRows=modelPoints->rowCount();
@@ -300,6 +367,11 @@ void MainWindow::selectTablePoint(QPointF point)
         }
     }
 }
+/**
+ * @brief
+ *
+ * @param id
+ */
 void MainWindow::selectTablePoint(int id)
 {
     ui->tablePoints->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -307,6 +379,11 @@ void MainWindow::selectTablePoint(int id)
     ui->tablePoints->setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
+/**
+ * @brief
+ *
+ * @param ctrlPoint
+ */
 void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
 {
     if(!ctrlPoint->isCtrlPoint)
@@ -324,6 +401,10 @@ void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
     painterArea->greenPath.addPath(greenPath);
 }
 
+/**
+ * @brief
+ *
+ */
 void MainWindow::on_action_Design_triggered()
 {
     dialogDesign->exec();

@@ -16,10 +16,15 @@
 #include "dxflib/test_creationclass.h"
 
 //构造函数
+/**
+ * @brief
+ *
+ * @param parent
+ */
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
     myPathData = new MyPathData("myPath");
-//    old_typePants = -1;
+    //    old_typePants = -1;
     typePants = 0;
 
     pantsHeight=1650;
@@ -46,11 +51,19 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 
 }
 
+/**
+ * @brief
+ *
+ */
 PainterArea::~PainterArea()
 {
     delete myPathData;
 }
 
+/**
+ * @brief 重新绘制路径
+ *
+ */
 void PainterArea::setMyPath()
 {
     dataChanged=false;
@@ -63,21 +76,26 @@ void PainterArea::setMyPath()
     auxiliaryLines=path;
 
     myPath->setStartPoint(500.0,100.0);
-        auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
+    auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
     myPath->drawOutline1(typeSang1);
 
     myPath->setStartPoint(100.0,100.0);
-        auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
+    auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
     myPath->drawOutline2(typeSang2);
 }
 
 //绘制事件
+/**
+ * @brief
+ *
+ * @param event
+ */
 void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-//    QBrush brush(Qt::white);
-//    painter.setBrush(brush);
+    //    QBrush brush(Qt::white);
+    //    painter.setBrush(brush);
 
     QSize painterAreaSize=this->size();
     painter.setWindow(qRound(intLeft/scalingMulti),
@@ -92,15 +110,15 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawPath(auxiliaryLines);
 
-//    if(old_typePants!=typePants)
-//    {
-//        QString filePath = QDir::currentPath() + "/" + myPathData->name;
-//        myPathData->saveTo(filePath+".txt");
-//        old_typePants = typePants;
-//        emit resetModel();
-//    }
+    //    if(old_typePants!=typePants)
+    //    {
+    //        QString filePath = QDir::currentPath() + "/" + myPathData->name;
+    //        myPathData->saveTo(filePath+".txt");
+    //        old_typePants = typePants;
+    //        emit resetModel();
+    //    }
 
-//    pen.setWidthF(1);
+    //    pen.setWidthF(1);
     pen.setColor(Qt::white);
     painter.setPen(pen);
     if(!dataChanged)
@@ -122,24 +140,53 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.drawPath(greenPath);
 }
 
+/**
+ * @brief
+ *
+ * @param xPhysical
+ * @return int
+ */
 int PainterArea::xLogical(int xPhysical)
 {
     return qRound((xPhysical+intLeft)/scalingMulti);
 }
+/**
+ * @brief
+ *
+ * @param yPhysical
+ * @return int
+ */
 int PainterArea::yLogical(int yPhysical)
 {
     return qRound((yPhysical+intUp)/scalingMulti);
 }
+/**
+ * @brief
+ *
+ * @param xLogical
+ * @return int
+ */
 int PainterArea::xPhysical(int xLogical)
 {
     return qRound(xLogical*scalingMulti-intLeft);
 }
+/**
+ * @brief
+ *
+ * @param yLogical
+ * @return int
+ */
 int PainterArea::yPhysical(int yLogical)
 {
     return qRound(yLogical*scalingMulti-intUp);
 }
 
 //鼠标事件
+/**
+ * @brief
+ *
+ * @param event
+ */
 void PainterArea::mousePressEvent(QMouseEvent *event)
 {
     QPoint pos=event->pos();
@@ -160,9 +207,14 @@ void PainterArea::mousePressEvent(QMouseEvent *event)
     }
     //状态栏显示坐标
     stringTempStatus = tr("物理(")+QString::number(event->x()) + "," + QString::number(event->y()) +
-                       tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
+            tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
     emit mouseCoordinateChanged();
 }
+/**
+ * @brief
+ *
+ * @param event
+ */
 void PainterArea::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button()==Qt::LeftButton)
@@ -175,6 +227,11 @@ void PainterArea::mouseReleaseEvent(QMouseEvent *event)
         this->update();
     }
 }
+/**
+ * @brief
+ *
+ * @param event
+ */
 void PainterArea::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint pos=event->pos();
@@ -193,9 +250,14 @@ void PainterArea::mouseMoveEvent(QMouseEvent *event)
         updateLabelPoints();
     }
     stringTempStatus = tr("物理(")+QString::number(event->x()) + "," + QString::number(event->y()) +
-                       tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
+            tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
     emit mouseCoordinateChanged();
 }
+/**
+ * @brief
+ *
+ * @param event
+ */
 void PainterArea::wheelEvent(QWheelEvent *event)
 {
     int x = event->x();
@@ -209,12 +271,12 @@ void PainterArea::wheelEvent(QWheelEvent *event)
             intLeft+=qRound(0.1*x);
             intUp+=qRound(0.1*y);
         }
-//        else
-//        {
-//            scalingMulti = scalingMulti+0.5;
-//            intLeft+=qRound(0.5*x);
-//            intUp+=qRound(0.5*y);
-//        }
+        //        else
+        //        {
+        //            scalingMulti = scalingMulti+0.5;
+        //            intLeft+=qRound(0.5*x);
+        //            intUp+=qRound(0.5*y);
+        //        }
     }
     else
     {
@@ -230,6 +292,11 @@ void PainterArea::wheelEvent(QWheelEvent *event)
     emit scalingMultiChanged();
 }
 
+/**
+ * @brief
+ *
+ * @param point
+ */
 void PainterArea::setLabelPoint(CurvePoint *point)
 {
     QPointF p = myPathData->pointData[point->id];
@@ -252,6 +319,10 @@ void PainterArea::setLabelPoint(CurvePoint *point)
     labelPoints.append(lp);
 }
 
+/**
+ * @brief
+ *
+ */
 void PainterArea::clearLabelPoints()
 {
     int num=labelPoints.size(),i;
@@ -262,6 +333,10 @@ void PainterArea::clearLabelPoints()
     labelPoints.clear();
 }
 
+/**
+ * @brief
+ *
+ */
 void PainterArea::updateLabelPoints()
 {
     int num=labelPoints.size(),i;
@@ -274,6 +349,12 @@ void PainterArea::updateLabelPoints()
     }
 }
 
+/**
+ * @brief
+ *
+ * @param frontOrBack
+ * @param intCase
+ */
 void PainterArea::setTypeSang(int frontOrBack,int intCase)
 {
     if(frontOrBack==1)
@@ -285,6 +366,11 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
     update();
 }
 
+/**
+ * @brief
+ *
+ * @return bool
+ */
 bool PainterArea::writeDXF() {
     DL_Dxf* dxf = new DL_Dxf();
     DL_Codes::version exportVersion = DL_Codes::AC1015;
@@ -292,7 +378,7 @@ bool PainterArea::writeDXF() {
     if (dw==NULL) {
         printf("Cannot open file 'myfile.dxf' \
                for writing.");
-        // abort function e.g. with return
+               // abort function e.g. with return
     }
 
     dxf->writeHeader(*dw);
@@ -325,28 +411,28 @@ bool PainterArea::writeDXF() {
     dw->tableLayers(numberOfLayers);
 
     dxf->writeLayer(*dw,
-                   DL_LayerData("0", 0),
-                   DL_Attributes(
-                       std::string(""),      // leave empty
-                       DL_Codes::black,        // default color
-                       100,                  // default width
-                       "CONTINUOUS", 1.0));       // default line style
+                    DL_LayerData("0", 0),
+                    DL_Attributes(
+                        std::string(""),      // leave empty
+                        DL_Codes::black,        // default color
+                        100,                  // default width
+                        "CONTINUOUS", 1.0));       // default line style
 
     dxf->writeLayer(*dw,
-                   DL_LayerData("mainlayer", 0),
-                   DL_Attributes(
-                       std::string(""),
-                       DL_Codes::red,
-                       100,
-                       "CONTINUOUS", 1.0));
+                    DL_LayerData("mainlayer", 0),
+                    DL_Attributes(
+                        std::string(""),
+                        DL_Codes::red,
+                        100,
+                        "CONTINUOUS", 1.0));
 
     dxf->writeLayer(*dw,
-                   DL_LayerData("anotherlayer", 0),
-                   DL_Attributes(
-                       std::string(""),
-                       DL_Codes::black,
-                       100,
-                       "CONTINUOUS", 1.0));
+                    DL_LayerData("anotherlayer", 0),
+                    DL_Attributes(
+                        std::string(""),
+                        DL_Codes::black,
+                        100,
+                        "CONTINUOUS", 1.0));
 
     dw->tableEnd();
 
@@ -404,15 +490,15 @@ bool PainterArea::writeDXF() {
         {
             QPointF endPoint = data->pointData[pathData.endPoint->id];
             dxf->writeLine(
-                *dw,
-                DL_LineData(startPoint.x()/10,
-                            -startPoint.y()/10,
-                            0.0,
-                            endPoint.x()/10,
-                            -endPoint.y()/10,
-                            0.0
-                            ),
-                DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
+                        *dw,
+                        DL_LineData(startPoint.x()/10,
+                                    -startPoint.y()/10,
+                                    0.0,
+                                    endPoint.x()/10,
+                                    -endPoint.y()/10,
+                                    0.0
+                                    ),
+                        DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
         }
         else //曲线
         {
@@ -437,15 +523,15 @@ bool PainterArea::writeDXF() {
                     t=1;
                 QPointF ep=path.myPath->pointAtPercent(t);
                 dxf->writeLine(
-                    *dw,
-                    DL_LineData(sp.x()/10,
-                                -sp.y()/10,
-                                0.0,
-                                ep.x()/10,
-                                -ep.y()/10,
-                                0.0
-                                ),
-                    DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
+                            *dw,
+                            DL_LineData(sp.x()/10,
+                                        -sp.y()/10,
+                                        0.0,
+                                        ep.x()/10,
+                                        -ep.y()/10,
+                                        0.0
+                                        ),
+                            DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
             }
         }
     }
@@ -464,6 +550,10 @@ bool PainterArea::writeDXF() {
 }
 
 // 设置画布中心点坐标为yellowPath的中心点
+/**
+ * @brief
+ *
+ */
 void PainterArea::setCenterToYellowPath()
 {
     scalingMulti=1.0;
@@ -471,13 +561,17 @@ void PainterArea::setCenterToYellowPath()
     QPointF centerRect=rect.center();
     QSize sizePainterArea=this->size();
     qreal xCenter=sizePainterArea.width()/2.0,
-          yCenter=sizePainterArea.height()/2.0;
+            yCenter=sizePainterArea.height()/2.0;
     intUp=(centerRect.y()-yCenter)*scalingMulti;
     intLeft=(centerRect.x()-xCenter)*scalingMulti;
 
     emit scalingMultiChanged();
 }
 
+/**
+ * @brief
+ *
+ */
 void PainterArea::changePath()
 {
 }
