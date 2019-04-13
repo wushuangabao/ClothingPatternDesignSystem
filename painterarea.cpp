@@ -265,7 +265,7 @@ void PainterArea::wheelEvent(QWheelEvent *event)
     //当滚轮远离使用者时进行放大，当滚轮向使用者方向旋转时进行缩小
     if(event->delta() > 0)
     {
-        if(scalingMulti<3)
+        if(scalingMulti<5)
         {
             scalingMulti = scalingMulti+0.1;
             intLeft+=qRound(0.1*x);
@@ -367,7 +367,7 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
 }
 
 /**
- * @brief
+ * @brief 输出dxf文件
  *
  * @return bool
  */
@@ -514,8 +514,8 @@ bool PainterArea::writeDXF() {
             p=p->next;
             QPointF lastCtrlPoint = data->pointData[p->id];
             path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
-            qreal dt=5.0/path.myPath->length();  //以每5mm为一根小线段
-            while(t<1)
+            qreal dt=1.0/path.myPath->length();  //以每1mm为一根小线段
+            while(t<1) /**< TODO:使曲线的经过点成为小线段的端点 */
             {
                 QPointF sp=path.myPath->pointAtPercent(t);
                 t=t+dt;

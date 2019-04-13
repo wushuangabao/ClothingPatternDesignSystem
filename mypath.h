@@ -73,10 +73,9 @@ public:
      * @brief
      *
      * @param intCase
-     * @param points
      * @return QPainterPath
      */
-    QPainterPath sang_1(int intCase,QList<QPointF> *points);
+    QPainterPath sang_1(int intCase);
     /**
      * @brief
      *
@@ -129,7 +128,7 @@ public:
      * @param points
      * @return QPainterPath
      */
-    QPainterPath drawSang1(QPointF pointSang,QPointF vertexSang,qreal ls,qreal sang,QList<QPointF> *points);
+    QPainterPath drawSang1(QPointF pointSang,QPointF vertexSang,qreal ls,qreal sang);
     /**
      * @brief
      *

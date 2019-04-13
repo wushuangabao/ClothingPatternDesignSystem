@@ -85,7 +85,7 @@ QString MyPathData::stringsOf(CurvePoint *point)
 //}
 
 /**
- * @brief
+ * @brief myPathData保存为txt文件
  *
  * @param filePath
  * @return bool
