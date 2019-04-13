@@ -35,7 +35,6 @@ SOURCES += \
     data/labelpoint.cpp \
     dialog/dialogdesign.cpp \
     dialog/dialogdesign/dialogpantsh.cpp \
-    ui/stackedwidget.cpp \
     dialog/dialogsize.cpp \
     dxflib/dl_dxf.cpp \
     dxflib/test_creationclass.cpp \
@@ -53,7 +52,6 @@ HEADERS += \
     data/labelpoint.h \
     dialog/dialogdesign.h \
     dialog/dialogdesign/dialogpantsh.h \
-    ui/stackedwidget.h \
     dialog/dialogsize.h \
     dxflib/dl_dxf.h \
     dxflib/dl_creationadapter.h \

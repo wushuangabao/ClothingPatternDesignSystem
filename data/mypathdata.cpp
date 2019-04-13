@@ -269,11 +269,11 @@ bool MyPathData::equal(QPointF p1,QPointF p2)
 }
 
 /**
- * @brief
+ * @brief 增添点的数据
  *
  * @param point
  * @param name
- * @return int
+ * @return int 点在数组中的下标
  */
 int MyPathData::addPoint(QPointF point,QString name)
 {

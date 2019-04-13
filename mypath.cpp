@@ -5,10 +5,6 @@
 #include <QPainter>
 #include <QDebug>
 
-/**
- * @brief
- *
- */
 MyPath::~MyPath()
 {
     delete myPath;
@@ -16,7 +12,7 @@ MyPath::~MyPath()
 }
 
 /**
- * @brief
+ * @brief 构造和初始化
  *
  * @param parent
  */
@@ -85,7 +81,7 @@ void MyPath::setStartPoint(QPointF point)
 QPainterPath MyPath::auxiliaryLinesH_1()
 {
     qreal sx = startPoint->x(),
-          sy = startPoint->y();
+            sy = startPoint->y();
     smallCroPoint = QPointF(sx-smallCro,sy+pantsCrotchH);
     leftUpPoint1 = QPointF(sx+rightWaist1,sy+downWaist1);
     rightUpPoint1 = QPointF(sx+hWidth1-sang1,sy);
@@ -137,7 +133,7 @@ QPainterPath MyPath::auxiliaryLinesH_1()
 QPainterPath MyPath::auxiliaryLinesH_2()
 {
     qreal sx = startPoint->x(),
-          sy = startPoint->y();
+            sy = startPoint->y();
     bigCroPoint = QPointF(sx+hWidth2+bigCro,sy+pantsCrotchH+downCro2);
     addPoint(bigCroPoint,"theCro2");
 
@@ -212,10 +208,10 @@ QPainterPath MyPath::outLines_data()
 }
 
 /**
- * @brief
+ * @brief 增添点的数据
  *
  * @param point
- * @param name
+ * @param name 名称可以不填
  */
 void MyPath::addPoint(QPointF point,QString name)
 {
@@ -223,7 +219,7 @@ void MyPath::addPoint(QPointF point,QString name)
 }
 
 /**
- * @brief
+ * @brief 画轮廓线 前片
  *
  * @param typeSang
  */
@@ -233,7 +229,7 @@ void MyPath::drawOutline1(int typeSang)
     addPoint(leftUpPoint1,"leftUp1");
     addPoint(rightUpPoint1,"rightUp1");
     qreal sx = startPoint->x(),
-          sy = startPoint->y();
+            sy = startPoint->y();
     QList<QPointF> points;
 
     points.clear();
@@ -284,14 +280,6 @@ void MyPath::drawOutline1(int typeSang)
     points.clear();
     point = QPointF(sx,sy+w_h_height); //"leftH1"
     addPoint(point,"leftH1");
-//    qreal nAngle1=qAtan(1.0*smallCro/(pantsCrotchH-w_h_height)); //单位为弧度
-//    qreal nAngle2=M_PI-nAngle1;
-//    nAngle1=M_PI_2-nAngle1;
-//    point2 = getIntersection(nAngle1,sx,point.y(),
-//                             nAngle2,sx,smallCroPoint.y(),
-//                             1.0/3);
-//    myPath->addEllipse(point2,1,1);
-//    以上方法画的辅助点不适合用贝塞尔插值来画曲线
     point2 = QPointF(sx-11.5*sqrt(2.0),sy+pantsCrotchH-11.5*sqrt(2.0));
     addPoint(point2,"CtH1");
     points<<smallCroPoint<<point2<<point;
@@ -301,19 +289,18 @@ void MyPath::drawOutline1(int typeSang)
     points<<point<<leftUpPoint1;
     brokenLineThrough(points);
 
-//    myPath->addPath(this->drawWaist1(1,typeSang));
-    this->drawWaist1(1,typeSang);
+    drawWaist1(1,typeSang);
 }
 
 /**
- * @brief
+ * @brief 画轮廓线 后片
  *
  * @param typeSang
  */
 void MyPath::drawOutline2(int typeSang)
 {
     qreal sx = startPoint->x(),
-          sy = startPoint->y();
+            sy = startPoint->y();
     QList<QPointF> points;
     rightUpPoint2 = QPointF(sx+xMidVerticalLine2/2.0+hWidth2/2.0,sy-upWaist2);
     addPoint(rightUpPoint2,"rightUp2");
@@ -382,7 +369,7 @@ void MyPath::drawOutline2(int typeSang)
 
     //从leftUpPoint2和leftHPoint2连线上1/2点往左取3mm。
     qreal x1=leftUpPoint2.x(), x2=leftHPoint2.x(),
-          y1=leftUpPoint2.y(), y2=leftHPoint2.y();
+            y1=leftUpPoint2.y(), y2=leftHPoint2.y();
     if(x1<x2)
         point = getVertexOfSang_Down(leftUpPoint2,getPointOfSang_P(leftUpPoint2,leftHPoint2,1.0/2.0),3);
     else if(x1>x2)
@@ -396,303 +383,242 @@ void MyPath::drawOutline2(int typeSang)
     curveThrough(points);
     //curveThrough(points,getPointOfSang_P(leftHPoint2,leftCroPoint,1.0/4.0),leftUpPoint2);
 
-    myPath->addPath(this->drawWaist2(1,typeSang));
+    drawWaist2(1,typeSang);
 }
 
 /**
- * @brief 前片腰线
- *
- * @param wCase
- * @param sangCase
- * @param points
- * @return QPainterPath
- */
-QPainterPath MyPath::waist_1(int wCase,int sangCase,QList<QPointF> *points)
-{
-    QPainterPath path;
-    QList<QPointF>::iterator i=points->begin();
-    QPointF p1 = (*i);
-    ++i;
-    path.moveTo(leftUpPoint1);
-    path.cubicTo(p1,p1,(*i));
-    ++i;
-    path.lineTo(*i);
-    ++i;
-    path.lineTo(*i);
-    ++i;
-    if(sangCase==1)
-    {
-        p1 = (*i);
-        ++i; QPointF p2 = (*i);
-        ++i; path.cubicTo(p1,p2,(*i));
-        ++i; path.lineTo(*i);
-        i++; path.lineTo(*i);
-        i++;
-    }
-    path.cubicTo((*i),(*i),rightUpPoint1);
-
-    return path;
-}
-
-/**
- * @brief 画前片的腰
+ * @brief 画前片的腰部
  *
  * @param wCase 腰位
  * @param sangCase 省褶类型
  * @return QPainterPath
  */
-QPainterPath MyPath::drawWaist1(int wCase,int sangCase)
+void MyPath::drawWaist1(int wCase,int sangCase)
 {
-    QPainterPath path,path1,path2;
-    path.addPath(this->sang_1(sangCase)); //画省，并添加腰线关键点到points
-//    path1 = this->waist_1(wCase,sangCase,points);
-//    path.addPath(path1);
+    drawWaistLine1(sangCase);
+    //    path1 = this->waist_1(wCase,sangCase,points);
+    //    path.addPath(path1);
 
-//    qreal l=distanceBetween(leftUpPoint1,rightUpPoint1), scale = 1.0*waistBandWidth/l;
-//    qreal dy=scale*sqrt(l*l-downWaist1*downWaist1);
-//    qreal dx=scale*downWaist1;
-//    path2 = path1; path2.translate(dx,dy);
-//    QPainterPath waistBottom = cutPath(path2,path);
-//    path.addPath(waistBottom);
+    //    qreal l=distanceBetween(leftUpPoint1,rightUpPoint1), scale = 1.0*waistBandWidth/l;
+    //    qreal dy=scale*sqrt(l*l-downWaist1*downWaist1);
+    //    qreal dx=scale*downWaist1;
+    //    path2 = path1; path2.translate(dx,dy);
+    //    QPainterPath waistBottom = cutPath(path2,path);
+    //    path.addPath(waistBottom);
 
-//    //画门襟
-//    QPainterPath::Element e=waistBottom.elementAt(0);
-//    QPointF p1(e.x,e.y);
-//    e=waistBottom.elementAt(waistBottom.elementCount()-1);
-//    QPointF p2(e.x,e.y);
-//    QPointF cubicStartPoint(startPoint->x(),startPoint->y()+w_h_height);
-//    QPointF leftWPoint1=getIntersection(p1,p2,leftUpPoint1,cubicStartPoint);
-//    addPoint(leftWPoint1,"leftW1");
-//    QPointF point=getPointOnRadial(p1,p2,30);
-//    QPainterPath door;
-//    door.moveTo(leftWPoint1);
-//    door.lineTo(point);
-//    point=getPointOnRadial(leftWPoint1,cubicStartPoint,88);
-//    point.setX(point.x()+29.66);
-//    door.lineTo(point);
-//    QList<QPointF> doorPoints;
-//    doorPoints<<point<<QPointF(cubicStartPoint.x()+21.96,cubicStartPoint.y()-9.77)<<cubicStartPoint;
-//    MyPath myTempPath(parent);
-//    myTempPath.curveThrough_data(doorPoints,point,cubicStartPoint);
-//    door.addPath(*(myTempPath.myPath));
-//    path.addPath(door);
+    //    //画门襟
+    //    QPainterPath::Element e=waistBottom.elementAt(0);
+    //    QPointF p1(e.x,e.y);
+    //    e=waistBottom.elementAt(waistBottom.elementCount()-1);
+    //    QPointF p2(e.x,e.y);
+    //    QPointF cubicStartPoint(startPoint->x(),startPoint->y()+w_h_height);
+    //    QPointF leftWPoint1=getIntersection(p1,p2,leftUpPoint1,cubicStartPoint);
+    //    addPoint(leftWPoint1,"leftW1");
+    //    QPointF point=getPointOnRadial(p1,p2,30);
+    //    QPainterPath door;
+    //    door.moveTo(leftWPoint1);
+    //    door.lineTo(point);
+    //    point=getPointOnRadial(leftWPoint1,cubicStartPoint,88);
+    //    point.setX(point.x()+29.66);
+    //    door.lineTo(point);
+    //    QList<QPointF> doorPoints;
+    //    doorPoints<<point<<QPointF(cubicStartPoint.x()+21.96,cubicStartPoint.y()-9.77)<<cubicStartPoint;
+    //    MyPath myTempPath(parent);
+    //    myTempPath.curveThrough_data(doorPoints,point,cubicStartPoint);
+    //    door.addPath(*(myTempPath.myPath));
+    //    path.addPath(door);
 
-//    //画斜插袋
-//    QPointF rightWPoint1=QPointF(rightUpPoint1.x()+4.9,rightUpPoint1.y()+30);
-//    point=getPointOnRadial(rightWPoint1,p2,30);
-//    path.moveTo(rightWPoint1);
-//    path.lineTo(point);
-//    path.lineTo(QPointF(startPoint->x()+hWidth1-0.1,startPoint->y()+w_h_height+27.34));
-
-    return path;
+    //    //画斜插袋
+    //    QPointF rightWPoint1=QPointF(rightUpPoint1.x()+4.9,rightUpPoint1.y()+30);
+    //    point=getPointOnRadial(rightWPoint1,p2,30);
+    //    path.moveTo(rightWPoint1);
+    //    path.lineTo(point);
+    //    path.lineTo(QPointF(startPoint->x()+hWidth1-0.1,startPoint->y()+w_h_height+27.34));
 }
 
 /**
- * @brief
+ * @brief 画后片的腰部
  *
- * @param wCase
- * @param sangCase
- * @param points
+ * @param pCase 腰位
+ * @param sangCase 省褶类型
  * @return QPainterPath
  */
-QPainterPath MyPath::waist_2(int wCase,int sangCase,QList<QPointF> *points)
-{
-    QPainterPath path;
-    QList<QPointF>::iterator i=points->begin();
-    QPointF p1 = (*i);
-    ++i;
-    path.moveTo(leftUpPoint2);
-    path.cubicTo(p1,p1,(*i));
-    ++i;
-    path.lineTo(*i);
-    ++i;
-    path.lineTo(*i);
-    ++i;
-    if(sangCase==1)
-    {
-        p1 = (*i);
-        ++i; QPointF p2 = (*i);
-        ++i; path.cubicTo(p1,p2,(*i));
-        ++i; path.lineTo(*i);
-        i++; path.lineTo(*i);
-        i++;
-    }
-    path.cubicTo((*i),(*i),rightUpPoint2);
-    return path;
-}
-
-/**
- * @brief
- *
- * @param pCase
- * @param sangCase
- * @return QPainterPath
- */
-QPainterPath MyPath::drawWaist2(int pCase,int sangCase)
+void MyPath::drawWaist2(int pCase,int sangCase)
 {
     QPointF midHPoint,midPocketPoint;
     qreal angle,dx,dy,scale;
-    QPainterPath path,path1,path2;
-    QList<QPointF> *points = new QList<QPointF>;
+    QList<QPointF> points;
+    QPainterPath path1,path2;
+    QPainterPath::Element e;
 
-//    //画单嵌线口袋
-//    if(pCase==1)
-//    {
-//        midHPoint = QPointF(leftHPoint2.x()+0.51*rightUpPoint2.x()-0.49*leftUpPoint2.x(),leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
-////        midHPoint = QPointF(leftHPoint2.x()+(rightUpPoint2.x()-leftUpPoint2.x())/2.0,leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
-//        midPocketPoint = getVertexOfSang_Up(leftHPoint2,midHPoint,55);
-//        angle = qAsin(1.0*upWaist2/hWidth2);
-//        dx = qCos(angle)*60; dy = qSin(angle)*60;
-//        path1.moveTo(QPointF(midPocketPoint.x()-dx,midPocketPoint.y()+dy));
-//        path1.lineTo(QPointF(midPocketPoint.x()+dx,midPocketPoint.y()-dy));
-//        scale = 7.5/hWidth2;    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);    dx = scale*upWaist2;
-//        path2 = path1;    path2.translate(dx,dy);
-//        path1.translate(-dx,-dy);
-//        QPainterPath::Element e=path2.elementAt(path2.elementCount()-1);
-//        path1.lineTo(e.x,e.y);
-//        e = path2.elementAt(0);
-//        path1.lineTo(e.x,e.y);
-//        e = path1.elementAt(0);
-//        path1.lineTo(e.x,e.y);
-//        path.addPath(path1);
-//    }
+    drawWaistLine2(sangCase);
 
-    path.addPath(this->sang_2(sangCase,points)); //画省，并添加腰线关键点到points
-    path1 = this->waist_2(pCase,sangCase,points);
-    path.addPath(path1);
-//    scale = 1.0*waistBandWidth/hWidth2;
-//    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);
-//    dx = scale*upWaist2;
-//    path2 = path1; path2.translate(dx,dy);
-////    QPainterPath waistBottom = cutPath(path2,path);
-////    path.addPath(waistBottom);   有bug
-//    path.addPath(path2);
+        // 画单嵌线口袋
+        if(pCase==1)
+        {
+            midHPoint = QPointF(leftHPoint2.x()+0.51*rightUpPoint2.x()-0.49*leftUpPoint2.x(),leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
+            //midHPoint = QPointF(leftHPoint2.x()+(rightUpPoint2.x()-leftUpPoint2.x())/2.0,leftHPoint2.y()+(rightUpPoint2.y()-leftUpPoint2.y())/2.0);
+            midPocketPoint = getVertexOfSang_Up(leftHPoint2,midHPoint,55);
+            angle = qAsin(1.0*upWaist2/hWidth2);
+            dx = qCos(angle)*60; dy = qSin(angle)*60;
+            path1.moveTo(QPointF(midPocketPoint.x()-dx,midPocketPoint.y()+dy));
+            path1.lineTo(QPointF(midPocketPoint.x()+dx,midPocketPoint.y()-dy));
+            scale = 7.5/hWidth2;    dy = scale*sqrt(hWidth2*hWidth2+upWaist2*upWaist2);    dx = scale*upWaist2;
+            path2 = path1;    path2.translate(dx,dy);   path1.translate(-dx,-dy);
+            e=path1.elementAt(0);   points<<QPointF(e.x,e.y);
+            e=path1.elementAt(1);   points<<QPointF(e.x,e.y);
+            e=path2.elementAt(1);   points<<QPointF(e.x,e.y);
+            e=path2.elementAt(0);   points<<QPointF(e.x,e.y);
+            e=path1.elementAt(0);   points<<QPointF(e.x,e.y);
+            brokenLineThrough(points);   points.clear();
+        }
 
-    delete points;
-    return path;
+        // 画腰头
 }
 
 /**
- * @brief 省 前片
+ * @brief 画省、腰线 前片
  *
  * @param intCase
- * @return QPainterPath
  */
-QPainterPath MyPath::sang_1(int intCase){
-    QPainterPath path;
+void MyPath::drawWaistLine1(int intCase){
     QPointF sangA,sangB,tempPoint;
     qreal l1=w_h_height/2.0, l0=l1+32, l2=l1-15;
+    QList<QPointF> waistPoints, curvePoints;
+    waistPoints<<leftUpPoint1;
+
     switch (intCase) {
     case 0: //单省
         tempPoint = QPointF(rightUpPoint1.x()+sang1-halfCroWidth1,rightUpPoint1.y()+l0);
         sangA = getPointOfSang(tempPoint,leftUpPoint1,rightUpPoint1);
-        path.addPath(drawSang1(sangA,tempPoint,l0,sang1));
+        waistPoints<<drawSang1(sangA,tempPoint,sang1);
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.first();
+        curveThrough(curvePoints);
+        curvePoints.clear();
         break;
     case 1: //双省
         tempPoint = QPointF(rightUpPoint1.x()+sang1-halfCroWidth1,rightUpPoint1.y()+l1);
         sangA = getPointOfSang(tempPoint,leftUpPoint1,rightUpPoint1);
         sangB = getPointOfSang_P(sangA,rightUpPoint1,1.0/2);
-        path.addPath(drawSang1(sangA,tempPoint,l1,sang1/3.0*2));
-        path.addPath(drawSang1(sangB,getVertexOfSang_Down(leftUpPoint1,sangB,l2),l2,sang1/3.0));
+        waistPoints<<drawSang1(sangA,tempPoint,sang1/3.0*2);
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.first();
+        curveThrough(curvePoints);
+        curvePoints.clear();
+        waistPoints<<drawSang1(sangB,getVertexOfSang_Down(leftUpPoint1,sangB,l2),sang1/3.0);
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.first();
+        curveThrough(curvePoints);
+        curvePoints.clear();
         break;
     case 2: //褶
         break;
     }
-    return path;
+    waistPoints<<rightUpPoint1;
+    curveThrough(waistPoints);
 }
 
-//省：后片
 /**
- * @brief
+ * @brief 画省、腰线 后片
  *
  * @param intCase
- * @param points
- * @return QPainterPath
  */
-QPainterPath MyPath::sang_2(int intCase,QList<QPointF> *points){
-    QPainterPath path;
+void MyPath::drawWaistLine2(int intCase){
     QPointF sangA,sangB;
     qreal l0=w_h_height/2.0+35, l1=l0-10, l2=l0;
-    if(true) //有单嵌线口袋存在
-    {
+    QList<QPointF> waistPoints, curvePoints;
+    waistPoints<<leftUpPoint2;
+
+    if(true){ //有单嵌线口袋存在
         l0 = 110; l1 = 110; l2 = 110; // 待计算
     }
+
     switch (intCase) {
     case 0: //单省
         sangA = getPointOfSang_P(rightUpPoint2,leftUpPoint2,1/2.0);
-        path.addPath(drawSang2(sangA,getVertexOfSang_Down(leftUpPoint2,sangA,l0),l0,sang2,points));
+        waistPoints<<drawSang2(sangA,getVertexOfSang_Down(leftUpPoint2,sangA,l0),sang2);
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.first();
+        curveThrough(curvePoints);
+        curvePoints.clear();
         break;
     case 1: //双省
         sangA = getPointOfSang_P(rightUpPoint2,leftUpPoint2,2/3.0);
         sangB = getPointOfSang_P(rightUpPoint2,leftUpPoint2,1/3.0);
-        path.addPath(drawSang2(sangA,getVertexOfSang_Down(leftUpPoint2,sangA,l1),l1,sang2/2.0,points));
-        path.addPath(drawSang2(sangB,getVertexOfSang_Down(leftUpPoint2,sangB,l2),l2,sang2/2.0,points));
+        waistPoints<<drawSang2(sangA,getVertexOfSang_Down(leftUpPoint2,sangA,l1),sang2/2.0);
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.first();
+        curveThrough(curvePoints);
+        curvePoints.clear();
+        waistPoints<<drawSang2(sangB,getVertexOfSang_Down(leftUpPoint2,sangB,l2),sang2/2.0);
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.takeFirst();
+        curvePoints<<waistPoints.first();
+        curveThrough(curvePoints);
+        curvePoints.clear();
         break;
     }
-    return path;
+    waistPoints<<rightUpPoint2;
+    curveThrough(waistPoints);
 }
 
 /**
- * @brief 画前省、腰线
+ * @brief 画省、腰线 前片
  *
  * @param point 省的位置
  * @param vertex 省尖点
- * @param ls 省长
  * @param sang 省量
- * @return QPainterPath
+ * @return QList<QPointF>
  */
-QPainterPath MyPath::drawSang1(QPointF point,QPointF vertex,qreal ls,qreal sang)
+QList<QPointF> MyPath::drawSang1(QPointF point,QPointF vertex,qreal sang)
 {
-    QPainterPath path;
     QPointF p1=getPointOnRadial(point,leftUpPoint1,sang),
             p4=getPointOnRadial(point,rightUpPoint1,sang),
             pMid=getPointOnRadial(vertex,point,distanceBetween(p1,vertex)),
             p2=getPointOfSang(vertex,pMid,p1),
             p3=getPointOfSang(vertex,pMid,p4);
 
-    path.moveTo(p2);
-    path.lineTo(vertex);
-    path.lineTo(p3);
+    QList<QPointF> pList;
+    pList<<p2<<vertex<<p3;
+    brokenLineThrough(pList);
+
+    // 返回画腰线需要用到的点（从左往右）
+    pList.clear();
+    pList<<p2<<pMid<<p3;
+    return pList;
+}
+/**
+ * @brief 画省、腰线 后片
+ *
+ * @param point 省的位置
+ * @param vertex 省尖点
+ * @param sang 省量
+ * @return QList<QPointF>
+ */
+QList<QPointF> MyPath::drawSang2(QPointF point,QPointF vertex,qreal sang)
+{
+    QPointF p1=getPointOnRadial(point,leftUpPoint2,sang), //省位向腰线左端点方向 移一个sang 的位置
+            p4=getPointOnRadial(point,rightUpPoint2,sang),
+            pMid=getPointOnRadial(vertex,point,distanceBetween(p1,vertex)), //省尖点向省位方向 移一个“p1到省尖距离” 的位置
+            p2=getPointOfSang(vertex,pMid,p1), //省尖点到“pMid、p1连线”的垂点(根据“等腰三角形三线合一”，这也是“pMid、p1连线”的中点）
+            p3=getPointOfSang(vertex,pMid,p4);
 
     QList<QPointF> pList;
     pList<<p2<<vertex<<p3;
     brokenLineThrough(pList);
-    pList.clear();
-    pList<<leftUpPoint1<<p2<<pMid;
-    curveThrough(pList);
-    pList.clear();
-    pList<<pMid<<p3<<rightUpPoint1;
-    curveThrough(pList);
 
-    return path;
-}
-/**
- * @brief
- *
- * @param point
- * @param vertex
- * @param ls
- * @param sang
- * @param points
- * @return QPainterPath
- */
-QPainterPath MyPath::drawSang2(QPointF point,QPointF vertex,qreal ls,qreal sang,QList<QPointF> *points)
-{
-    QPainterPath path;
-    QPointF p1=getPointOnRadial(point,leftUpPoint2,sang),
-            p4=getPointOnRadial(point,rightUpPoint2,sang),
-            pMid=getPointOnRadial(vertex,point,distanceBetween(p1,vertex)),
-            p2=getPointOfSang(vertex,pMid,p1),
-            p3=getPointOfSang(vertex,pMid,p4);
-    path.moveTo(p2);
-    path.lineTo(vertex);
-    path.lineTo(p3);
-    points->append(p1);
-    points->append(p2);
-    points->append(pMid);
-    points->append(p3);
-    points->append(p4);
-    return path;
+    // 返回画腰线需要用到的点（从左往右）
+    pList.clear();
+    pList<<p2<<pMid<<p3;
+    return pList;
 }
 
 /**
@@ -723,7 +649,7 @@ void MyPath::brokenLineThrough(QList<QPointF> points)
     QPointF point;
     point = points.takeAt(0);
     qreal dx=point.x()-myPath->currentPosition().x(),
-          dy=point.y()-myPath->currentPosition().y();
+            dy=point.y()-myPath->currentPosition().y();
     if(dx>0.1 || dx<-0.1 || dy<-0.1 ||dy>0.1)
         myPath->moveTo(point);
     myPath->lineTo(points.at(0));
@@ -737,7 +663,7 @@ void MyPath::brokenLineThrough(QList<QPointF> points)
 }
 
 /**
- * @brief
+ * @brief 画过3点的曲线（贝塞尔插值法
  *
  * @param A
  * @param B
@@ -750,7 +676,7 @@ QPainterPath MyPath::curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,
 {
     QPointF E((A.x()+B.x())/2.0,(A.y()+B.y())/2.0);
     QPointF F((B.x()+C.x())/2.0,(B.y()+C.y())/2.0);
-    qreal d1 =  distanceBetween(A,B),    d2 = distanceBetween(B,C),    scale = d1/(d1+d2);
+    qreal d1 = distanceBetween(A,B),    d2 = distanceBetween(B,C),    scale = d1/(d1+d2);
     QPointF D = getPointOfSang_P(E,F,scale);
     qreal dx = B.x()-D.x(),    dy = B.y()-D.y();
     QPointF ctrl2(E.x()+dx,E.y()+dy);
@@ -761,7 +687,7 @@ QPainterPath MyPath::curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,
 }
 
 /**
- * @brief
+ * @brief 向3点曲线中加入中间2个控制点
  *
  * @param A
  * @param B
@@ -772,7 +698,7 @@ void MyPath::addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoi
 {
     QPointF E((A.x()+B.x())/2.0,(A.y()+B.y())/2.0);
     QPointF F((B.x()+C.x())/2.0,(B.y()+C.y())/2.0);
-    qreal d1 =  distanceBetween(A,B),    d2 = distanceBetween(B,C),    scale = d1/(d1+d2);
+    qreal d1 = distanceBetween(A,B),    d2 = distanceBetween(B,C),    scale = d1/(d1+d2);
     QPointF D = getPointOfSang_P(E,F,scale);
     qreal dx = B.x()-D.x(),    dy = B.y()-D.y();
     QPointF ctrl2(E.x()+dx,E.y()+dy);
@@ -782,7 +708,7 @@ void MyPath::addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoi
 }
 
 /**
- * @brief
+ * @brief 根据经过的一系列点，画曲线
  *
  * @param points
  * @param firstCtrlPoint
@@ -796,7 +722,7 @@ void MyPath::curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPoi
     ctrlPoints->append(getSymmetryPoint(lastCtrlPoint,points.at(num-1)));
     if(num>0){
         qreal dx = myPath->currentPosition().x()-points.at(0).x(),
-              dy = myPath->currentPosition().y()-points.at(0).y();
+                dy = myPath->currentPosition().y()-points.at(0).y();
         if(dx<-0.1 || dx>0.1 || dy<-0.1 || dy>0.1)
             myPath->moveTo(points.at(0));
         while(i<=num){
@@ -811,9 +737,9 @@ void MyPath::curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPoi
 }
 
 /**
- * @brief
+ * @brief 画曲线并添加数据（有首尾控制点
  *
- * @param points
+ * @param points 曲线经过点的列表
  * @param firstCtrlPoint
  * @param lastCtrlPoint
  */
@@ -826,9 +752,9 @@ void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
 }
 
 /**
- * @brief
+ * @brief 画曲线并添加数据（无控制点
  *
- * @param points
+ * @param points 曲线经过点的列表
  */
 void MyPath::curveThrough(QList<QPointF> points)
 {
@@ -838,106 +764,28 @@ void MyPath::curveThrough(QList<QPointF> points)
         return;
 }
 
+
 /**
- * @brief
+ * @brief 用myPath画折线，并添加数据到myPathData数组
  *
- * @param path1
- * @param path2
- * @return QPainterPath
+ * @param brokenLine 折线(务必确认不含曲线）
  */
-QPainterPath MyPath::cutPath(QPainterPath path1,QPainterPath path2)
+void MyPath::brokenLineThrough(QPainterPath brokenLine)
 {
-    QPainterPath closedPath=path1-path2;
-    int n=closedPath.elementCount(), i=0;
-    qreal x,y;
-    QPainterPath unclosedPath;
-    for(;i<n;i++)
-    {
-        QPainterPath::Element e=closedPath.elementAt(i);
-        if(e.isMoveTo()){
-            x=e.x; y=e.y;
-            unclosedPath.moveTo(x,y);
-        }
-        else if(e.isLineTo()){
-            qreal dx=e.x-x, dy=e.y-y, E=0.005;
-            //如果unclosedPath的点在path1上，且这个点不是起点,就画线
-            if(path1.contains(QPointF(e))&&(dx<-E||dx>E||dy<-E||dy>E))
-                unclosedPath.lineTo(e.x,e.y);
-        }
-        else if(e.type==2){
-            i++;
-            QPainterPath::Element e2=closedPath.elementAt(i);
-            i++;
-            QPainterPath::Element e3=closedPath.elementAt(i);
-            unclosedPath.cubicTo(e.x,e.y,e2.x,e2.y,e3.x,e3.y);
-        }
+    QList<QPointF> points;
+    QPainterPath::Element e;
+    int len = brokenLine.elementCount();
+    if(len<2) return;
+    for(int i=0;i<len;i++){
+        e = brokenLine.elementAt(i);
+        if(e.type>2) return;
+        points<<QPointF(e.x,e.y);
     }
-    return unclosedPath;
+    brokenLineThrough(points);
 }
 
 /**
- * @brief
- *
- * @param path1
- * @param path2
- * @return QPainterPath
- */
-QPainterPath MyPath::intersectPath(QPainterPath path1,QPainterPath path2)//有bug
-{
-    QPainterPath closedPath=path1&path2;
-    int n=closedPath.elementCount(), i=0;
-    qreal x,y;
-    QPainterPath unclosedPath;
-    for(;i<n;i++)
-    {
-        QPainterPath::Element e=closedPath.elementAt(i);
-        if(e.isMoveTo()){
-            x=e.x; y=e.y;
-            unclosedPath.moveTo(x,y);
-        }
-        else if(e.isLineTo()){
-            qreal dx=e.x-x, dy=e.y-y, E=0.005;
-            //如果unclosedPath的点在path1上，且这个点不是起点,就画线
-            if(path1.contains(QPointF(e))&&(dx<-E||dx>E||dy<-E||dy>E)
-               &&path2.contains(QPointF(e)))
-                unclosedPath.lineTo(e.x,e.y);
-        }
-        else if(e.type==2){
-            i++;
-            QPainterPath::Element e2=closedPath.elementAt(i);
-            i++;
-            QPainterPath::Element e3=closedPath.elementAt(i);
-            unclosedPath.cubicTo(e.x,e.y,e2.x,e2.y,e3.x,e3.y);
-        }
-    }
-    return unclosedPath;
-}
-
-//画小裆：求辅助点函数（弃用）
-/**
- * @brief
- *
- * @param nA1
- * @param x1
- * @param y1
- * @param nA2
- * @param x2
- * @param y2
- * @param scale
- * @return QPointF
- */
-QPointF MyPath::getIntersection(qreal nA1,qreal x1,qreal y1,qreal nA2,qreal x2,qreal y2,qreal scale)
-{
-    qreal k1=-qTan(nA1), k2=-qTan(nA2); //注意因为坐标系，要给斜率添加负号
-    qreal b1=y1-k1*x1,b2=y2-k2*x2;
-    qreal xx=1.0*(b2-b1)/(k1-k2);
-    qreal yy=k1*xx+b1;
-    return QPointF(xx+(x2-xx)*scale,yy+(y2-yy)*scale);
-}
-
-//求长度：两点间距
-/**
- * @brief
+ * @brief 两点间距
  *
  * @param p1
  * @param p2
@@ -988,9 +836,8 @@ QPointF MyPath::getPointOnRadial(QPointF p1,QPointF p2,qreal l)
     return getPointOnRadial(p1.x(),p1.y(),p2.x(),p2.y(),l);
 }
 
-//求点：位于p(x1,y1)出发，斜率为k的向下/上的射线上，并距离(x1,y1)距离为l的点
 /**
- * @brief
+ * @brief 位于(x1,y1)出发、斜率为k的向下的射线上，并到(x1,y1)距离为l的点
  *
  * @param x1
  * @param y1
@@ -1009,7 +856,7 @@ QPointF MyPath::getPointOnRadial_Down(qreal x1,qreal y1,qreal k,qreal l)
     return QPointF(x,k*x+b);
 }
 /**
- * @brief
+ * @brief 位于点p出发、斜率为k的向下的射线上，并到p距离为l的点
  *
  * @param p
  * @param k
@@ -1021,7 +868,7 @@ QPointF MyPath::getPointOnRadial_Down(QPointF p,qreal k,qreal l)
     return getPointOnRadial_Down(p.x(),p.y(),k,l);
 }
 /**
- * @brief
+ * @brief 位于(x1,y1)出发、斜率为k的向上的射线上，并到(x1,y1)距离为l的点
  *
  * @param x1
  * @param y1
@@ -1040,7 +887,7 @@ QPointF MyPath::getPointOnRadial_Up(qreal x1,qreal y1,qreal k,qreal l)
     return QPointF(x,k*x+b);
 }
 /**
- * @brief
+ * @brief 位于点p出发、斜率为k的向上的射线上，并到p距离为l的点
  *
  * @param p
  * @param k
@@ -1052,9 +899,8 @@ QPointF MyPath::getPointOnRadial_Up(QPointF p,qreal k,qreal l)
     return getPointOnRadial_Up(p.x(),p.y(),k,l);
 }
 
-//求点：“点p1(x1,y1)出发、经过p2(x2,y2)的射线”与“直线y=kx+b”的交点
 /**
- * @brief
+ * @brief “点(x1,y1)出发、经过(x2,y2)的射线”与“直线y=kx+b”的交点
  *
  * @param x1
  * @param y1
@@ -1071,7 +917,7 @@ QPointF MyPath::getIntersection(qreal x1,qreal y1,qreal x2,qreal y2,qreal k,qrea
     return QPointF(x,k*x+b);
 }
 /**
- * @brief
+ * @brief “点p1出发、经过p2的射线”与“直线y=kx+b”的交点
  *
  * @param p1
  * @param p2
@@ -1086,9 +932,8 @@ QPointF MyPath::getIntersection(QPointF p1,QPointF p2,qreal k,qreal b)
     qreal x = (b-b1)/(k1-k);
     return QPointF(x,k*x+b);
 }
-//求两直线的交点。其中一条直线经过p1,p2,另一条经过p3,p4。
 /**
- * @brief
+ * @brief “经过p1,p2的直线”与“经过p3,p4的直线”的交点
  *
  * @param p1
  * @param p2
@@ -1112,13 +957,12 @@ QPointF MyPath::getIntersection(QPointF p1, QPointF p2, QPointF p3, QPointF p4)
     }
 }
 
-//求点（省）：根据腰线顶点p1、p2以及到顶点p1的距离distance确定省的位置
 /**
- * @brief
+ * @brief 省的位置
  *
- * @param p1
- * @param p2
- * @param distance
+ * @param p1 腰线端点1
+ * @param p2 腰线端点2
+ * @param distance 省位到端点1的距离
  * @return QPointF
  */
 QPointF MyPath::getPointOfSang_D(QPointF p1,QPointF p2,qreal distance)
@@ -1128,13 +972,13 @@ QPointF MyPath::getPointOfSang_D(QPointF p1,QPointF p2,qreal distance)
     return getPointOfSang_P(p1,p2,proportion);
 }
 /**
- * @brief
+ * @brief 省的位置
  *
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @param distance
+ * @param x1 腰线端点1横坐标
+ * @param y1 腰线端点1纵坐标
+ * @param x2 腰线端点2横坐标
+ * @param y2 腰线端点2纵坐标
+ * @param distance 省位到端点1的距离
  * @return QPointF
  */
 QPointF MyPath::getPointOfSang_D(qreal x1,qreal y1,qreal x2,qreal y2,qreal distance)
@@ -1144,15 +988,12 @@ QPointF MyPath::getPointOfSang_D(qreal x1,qreal y1,qreal x2,qreal y2,qreal dista
     return getPointOfSang_P(x1,y1,x2,y2,proportion);
 }
 
-///
-/// \brief 求点（省）：根据腰线顶点p1、p2以及到顶点p1的距离占腰线长度的比例proportion确定省的位置
-///
 /**
- * @brief
+ * @brief 省的位置
  *
- * @param p1
- * @param p2
- * @param proportion
+ * @param p1 腰线端点1
+ * @param p2 腰线端点2
+ * @param proportion “省位到端点1的距离”占“腰线长度”的比例
  * @return QPointF
  */
 QPointF MyPath::getPointOfSang_P(QPointF p1,QPointF p2,qreal proportion)
@@ -1162,13 +1003,13 @@ QPointF MyPath::getPointOfSang_P(QPointF p1,QPointF p2,qreal proportion)
     return QPointF(x,y);
 }
 /**
- * @brief
+ * @brief 省的位置
  *
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @param proportion
+ * @param x1 腰线端点1横坐标
+ * @param y1 腰线端点1纵坐标
+ * @param x2 腰线端点2横坐标
+ * @param y2 腰线端点2纵坐标
+ * @param proportion “省位到端点1的距离”占“腰线长度”的比例
  * @return QPointF
  */
 QPointF MyPath::getPointOfSang_P(qreal x1,qreal y1,qreal x2,qreal y2,qreal proportion)
@@ -1178,13 +1019,12 @@ QPointF MyPath::getPointOfSang_P(qreal x1,qreal y1,qreal x2,qreal y2,qreal propo
     return QPointF(x,y);
 }
 
-//求点（省尖）：根据腰线上点p1、省点ps、省长ls求省尖点
 /**
- * @brief
+ * @brief 省尖点（沿垂直于p1、ps连线方向，从ps向下取ls长的点
  *
- * @param p1
- * @param ps
- * @param ls
+ * @param p1 腰线上一点
+ * @param ps 省位
+ * @param ls 省长
  * @return QPointF
  */
 QPointF MyPath::getVertexOfSang_Down(QPointF p1,QPointF ps,qreal ls)
@@ -1193,11 +1033,11 @@ QPointF MyPath::getVertexOfSang_Down(QPointF p1,QPointF ps,qreal ls)
     return getPointOnRadial_Down(ps,k2,ls);
 }
 /**
- * @brief
+ * @brief 沿垂直于p1、ps连线方向，从ps向上取ls长的点
  *
- * @param p1
- * @param ps
- * @param ls
+ * @param p1 直线上一点
+ * @param ps 直线的垂点
+ * @param ls 到垂点的距离
  * @return QPointF
  */
 QPointF MyPath::getVertexOfSang_Up(QPointF p1,QPointF ps,qreal ls)
@@ -1209,9 +1049,9 @@ QPointF MyPath::getVertexOfSang_Up(QPointF p1,QPointF ps,qreal ls)
 /**
  * @brief 根据省尖点位置，求与腰线的垂点
  *
- * @param vertex
- * @param leftUp
- * @param rightUp
+ * @param vertex 省尖点
+ * @param leftUp 腰线左端点
+ * @param rightUp 腰线右端点
  * @return QPointF
  */
 QPointF MyPath::getPointOfSang(QPointF vertex,QPointF leftUp,QPointF rightUp)
@@ -1228,14 +1068,13 @@ QPointF MyPath::getPointOfSang(QPointF vertex,QPointF leftUp,QPointF rightUp)
     }
 }
 
-//求点：距离点p的距离为l，且位于直线y=kx+b上的点。该点在p左侧。
 /**
- * @brief
+ * @brief 直线上，到点p固定距离，在点p左侧的点
  *
  * @param p
- * @param l
- * @param k
- * @param b
+ * @param l 到点p的距离
+ * @param k 直线斜率
+ * @param b 直线截距
  * @return QPointF
  */
 QPointF MyPath::getIntersection_L(QPointF p,qreal l,qreal k,qreal b)
@@ -1246,12 +1085,12 @@ QPointF MyPath::getIntersection_L(QPointF p,qreal l,qreal k,qreal b)
     return QPointF(xx,yy);
 }
 /**
- * @brief
+ * @brief 直线上，到点p固定距离，在点p右侧的点
  *
  * @param p
- * @param l
- * @param k
- * @param b
+ * @param l 到点p的距离
+ * @param k 直线斜率
+ * @param b 直线截距
  * @return QPointF
  */
 QPointF MyPath::getIntersection_R(QPointF p,qreal l,qreal k,qreal b)
@@ -1262,9 +1101,8 @@ QPointF MyPath::getIntersection_R(QPointF p,qreal l,qreal k,qreal b)
     return QPointF(xx,yy);
 }
 
-//求点：点point关于点center的对称点
 /**
- * @brief
+ * @brief 点point关于点center的对称点
  *
  * @param point
  * @param center
@@ -1273,14 +1111,13 @@ QPointF MyPath::getIntersection_R(QPointF p,qreal l,qreal k,qreal b)
 QPointF MyPath::getSymmetryPoint(QPointF point,QPointF center)
 {
     qreal px=point.x(), py=point.y(),
-          cx=center.x(), cy=center.y(),
-          x=2*cx-px, y=2*cy-py;
+            cx=center.x(), cy=center.y(),
+            x=2*cx-px, y=2*cy-py;
     return QPointF(x,y);
 }
 
-//path的currentPosition是否和p的位置相符
 /**
- * @brief
+ * @brief path的currentPosition是否和p的位置相符（精度0.1
  *
  * @param path
  * @param p
@@ -1290,7 +1127,7 @@ bool MyPath::currentPositionequal(QPainterPath path,QPointF p)
 {
     QPointF pp = path.currentPosition();
     qreal ppx=pp.x(), ppy=pp.y(),
-          dx=ppx-p.x(), dy=ppy-p.y();
+            dx=ppx-p.x(), dy=ppy-p.y();
     if(dx>-0.1 && dx<0.1 && dy>-0.1 && dy<0.1)
         return true;
     else
