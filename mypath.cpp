@@ -721,9 +721,7 @@ void MyPath::curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPoi
     ctrlPoints->append(getSymmetryPoint(firstCtrlPoint,points.at(0)));
     ctrlPoints->append(getSymmetryPoint(lastCtrlPoint,points.at(num-1)));
     if(num>0){
-        qreal dx = myPath->currentPosition().x()-points.at(0).x(),
-                dy = myPath->currentPosition().y()-points.at(0).y();
-        if(dx<-0.1 || dx>0.1 || dy<-0.1 || dy>0.1)
+        if(!currentPositionequal(*myPath,points.at(0)))
             myPath->moveTo(points.at(0));
         while(i<=num){
             addCtrlPoints(points.at(0),points.at(1),points.at(2),ctrlPoints);

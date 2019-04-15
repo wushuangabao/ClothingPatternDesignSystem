@@ -20,9 +20,9 @@ class PainterArea : public QWidget
     Q_OBJECT
 
 private:
-    bool isMoving=false; /**< TODO: describe */
-    int xBeforeMoving; /**< TODO: describe */
-    int yBeforeMoving; /**< TODO: describe */
+    bool isMoving=false;
+    int xBeforeMoving;
+    int yBeforeMoving;
 
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -34,21 +34,21 @@ public:
     explicit PainterArea(QWidget *parent = nullptr);
     ~PainterArea();
 
-    MyPathData *myPathData; /**< TODO: describe */
-    MyPath *myPath; /**< TODO: describe */
-    QPainterPath auxiliaryLines; /**< TODO: describe */
-    QPainterPath yellowPath; /**< TODO: describe */
-    QPainterPath greenPath; /**< TODO: describe */
-    int typePants; /**< TODO: describe */
-    int old_typePants; /**< TODO: describe */
+    MyPathData *myPathData; /**< 纸样数据 */
+    MyPath *myPath; /**< 绘图路径 */
+    QPainterPath auxiliaryLines; /**< 辅助线 */
+    QPainterPath yellowPath; /**< 黄线 */
+    QPainterPath greenPath; /**< 绿线 */
+    int typePants; /**< 裤子类型 */
+    int old_typePants; /**< 原来的裤子类型 */
 
-    int pantsHeight; /**< TODO: describe */
-    int pantsL; /**< TODO: describe */
-    int pantsW; /**< TODO: describe */
-    int pantsH; /**< TODO: describe */
-    int pantsCrotchH; /**< TODO: describe */
-    int typeSang1; /**< TODO: describe */
-    int typeSang2; /**< TODO: describe */
+    int pantsHeight; /**< 身高 */
+    int pantsL; /**< 裤长 */
+    int pantsW; /**< 腰围 */
+    int pantsH; /**< 臀围 */
+    int pantsCrotchH; /**< 裆深 */
+    int typeSang1; /**< 省褶类型 前片 */
+    int typeSang2; /**< 省褶类型 后片 */
 
     QString stringTempStatus; /**< 显示在状态栏的临时字符串 */
     qreal scalingMulti=1.0; /**< 缩放倍数，数值越大图形越大 */
@@ -58,9 +58,8 @@ public:
 //    bool dataChanged=false; /**< TODO: describe */
     void setMyPath();
 
-    //鼠标拖动点:
-    LabelPoint *selectedLabelPoint; /**< TODO: describe */
-    QList<LabelPoint*> labelPoints; /**< TODO: describe */
+    LabelPoint *selectedLabelPoint; /**< 选中的点标签 */
+    QList<LabelPoint*> labelPoints; /**< 点标签列表 */
     void setLabelPoint(CurvePoint *point);
     void clearLabelPoints();
     void updateLabelPoints();

@@ -52,6 +52,8 @@ private slots:
 
     void on_action_Design_triggered();
 
+    void on_actiontest_curve_triggered();
+
 private:
     Ui::MainWindow *ui; /**< TODO: describe */
     QList<QDockWidget*> m_docks; /**< 记录所有dockWidget的指针 */

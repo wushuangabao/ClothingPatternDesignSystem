@@ -14,9 +14,9 @@ class MyPath
 public:
     MyPath(PainterArea *parent);
     ~MyPath();
-    PainterArea *parent;
-    QPainterPath *myPath;
-    QPointF *startPoint;
+    PainterArea *parent; /**< 绘图区指针 */
+    QPainterPath *myPath; /**< 绘图路径 */
+    QPointF *startPoint; /**< 坐标系中的位置参照点 */
 
     void setStartPoint(qreal x,qreal y);
     void setStartPoint(QPointF point);
@@ -65,6 +65,13 @@ public:
     static QPointF getVertexOfSang_Up(QPointF p1,QPointF ps,qreal ls);
     static QPointF getVertexOfSang_Down(QPointF p1,QPointF ps,qreal ls);
 
+    QPainterPath lineThrough2P(QPointF startPoint,QPointF endPoint);
+    void brokenLineThrough(QList<QPointF> points);
+    void brokenLineThrough(QPainterPath brokenLine);
+    QPainterPath curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,QPointF ctrl4);
+    void curveThrough(QList<QPointF> points);
+    void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
+
 private:
     int pantsHeight;
     int pantsL;
@@ -103,13 +110,6 @@ private:
     QPointF rightUpPoint1;
     QPointF rightUpPoint2;
     QPointF leftHPoint2;
-
-    QPainterPath lineThrough2P(QPointF startPoint,QPointF endPoint);
-    void brokenLineThrough(QList<QPointF> points);
-    void brokenLineThrough(QPainterPath brokenLine);
-    QPainterPath curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,QPointF ctrl4);
-    void curveThrough(QList<QPointF> points);
-    void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
     void addPoint(QPointF point,QString name="");
     void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);

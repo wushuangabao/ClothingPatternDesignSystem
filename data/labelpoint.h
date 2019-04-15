@@ -17,47 +17,20 @@ class LabelPoint : public QLabel
 {
     Q_OBJECT
 public:
-    /**
-     * @brief
-     *
-     * @param parent
-     */
     explicit LabelPoint(PainterArea *parent = nullptr);
-    /**
-     * @brief
-     *
-     */
     ~LabelPoint();
-    PainterArea *parent; /**< TODO: describe */
-    CurvePoint *point; /**< TODO: describe */
-    QPoint handlerPos; //拖动时鼠标的位置（在自身坐标系中） /**< TODO: describe */
-    /**
-     * @brief
-     *
-     * @param mousePos
-     * @return QPoint
-     */
+
+    PainterArea *parent; /**< 绘图区 */
+    CurvePoint *point; /**< 对应的点 */
+    QPoint handlerPos; /**< 拖动时鼠标的位置（在自身坐标系中） */
+
     QPoint setHandlerPos(QPoint mousePos); //根据鼠标在painterArea中的的物理位置计算handlerPos
-    /**
-     * @brief
-     *
-     * @param mousePos
-     */
     void moveTo(QPoint mousePos);
-    /**
-     * @brief
-     *
-     * @param event
-     */
     void contextMenuEvent(QContextMenuEvent *event);
 
 signals:
 
 public slots:
-    /**
-     * @brief
-     *
-     */
     void changePos();
 private:
     QAction *actionNew; /**< TODO: describe */

@@ -11,19 +11,13 @@ class WidgetKuoXing;
 class DialogPantsH;
 
 /**
- * @brief
- *
+ * @brief 款式设计
  */
 class DialogDesign : public QDialog
 {
     Q_OBJECT
 
 public slots:
-    /**
-     * @brief
-     *
-     * @param i
-     */
     void enterStep2(int i);
 
 public:

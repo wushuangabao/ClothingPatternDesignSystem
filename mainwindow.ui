@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>1155</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menudraw">
@@ -97,6 +97,7 @@
     </property>
     <addaction name="action_H"/>
     <addaction name="action_A_4"/>
+    <addaction name="actiontest_curve"/>
    </widget>
    <widget class="QMenu" name="menu_T">
     <property name="title">
@@ -393,6 +394,11 @@
   <action name="action_18">
    <property name="text">
     <string>选项(&amp;O)</string>
+   </property>
+  </action>
+  <action name="actiontest_curve">
+   <property name="text">
+    <string>test curve</string>
    </property>
   </action>
  </widget>

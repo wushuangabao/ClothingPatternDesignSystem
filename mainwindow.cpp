@@ -8,6 +8,7 @@
 #include "dialog/dialogms.h"
 #include "dialog/dialogmm.h"
 #include "dialog/dialogdesign.h"
+#include "dialog/dialogtest/dialogtestcurve.h"
 #include "data/mypathdata.h"
 //#include <QHeaderView>
 
@@ -405,3 +406,12 @@ void MainWindow::on_action_Design_triggered()
     dialogDesign->exec();
 }
 
+/**
+ * @brief action触发 测试曲线
+ */
+void MainWindow::on_actiontest_curve_triggered()
+{
+    DialogTestCurve* dialogTest = new DialogTestCurve(this);
+    dialogTest->exec();
+    delete dialogTest;
+}

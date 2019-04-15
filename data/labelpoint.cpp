@@ -7,11 +7,6 @@
 #include <QMenu>
 #include <QDebug>
 
-/**
- * @brief
- *
- * @param parent
- */
 LabelPoint::LabelPoint(PainterArea *parent) : QLabel(parent)
 {
     this->parent=parent;
@@ -22,10 +17,6 @@ LabelPoint::LabelPoint(PainterArea *parent) : QLabel(parent)
     connect(actionNew,SIGNAL(triggered()),this,SLOT(changePos()));
 }
 
-/**
- * @brief
- *
- */
 LabelPoint::~LabelPoint()
 {
     delete actionNew;
@@ -33,7 +24,7 @@ LabelPoint::~LabelPoint()
 }
 
 /**
- * @brief
+ * @brief 设置标签抓手的位置
  *
  * @param mousePos
  * @return QPoint
@@ -48,7 +39,7 @@ QPoint LabelPoint::setHandlerPos(QPoint mousePos)
 }
 
 /**
- * @brief
+ * @brief 移动标签
  *
  * @param mousePos
  */
@@ -58,7 +49,7 @@ void LabelPoint::moveTo(QPoint mousePos)
 }
 
 /**
- * @brief
+ * @brief 右键菜单
  *
  * @param event
  */
@@ -69,7 +60,7 @@ void LabelPoint::contextMenuEvent(QContextMenuEvent *event)
 }
 
 /**
- * @brief
+ * @brief 改变点的位置
  *
  */
 void LabelPoint::changePos()

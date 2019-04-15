@@ -5,11 +5,6 @@
 #include "../painterarea.h"
 #include "../data/mypathdata.h"
 
-/**
- * @brief
- *
- * @param parent
- */
 DialogDesign::DialogDesign(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogDesign)
@@ -24,19 +19,15 @@ DialogDesign::DialogDesign(QWidget *parent) :
     connect(this,SIGNAL(selectKuoXing(int)),this,SLOT(enterStep2(int)));
 }
 
-/**
- * @brief
- *
- */
 DialogDesign::~DialogDesign()
 {
     delete ui;
 }
 
 /**
- * @brief
+ * @brief 进入步骤2
  *
- * @param intKuoXing
+ * @param intKuoXing 廓形类型
  */
 void DialogDesign::enterStep2(int intKuoXing)
 {
@@ -50,14 +41,14 @@ void DialogDesign::enterStep2(int intKuoXing)
     default:
         break;
     }
-    this->close();//bug:这个窗口会一直存在到退出pantH->exec()为止
+    this->close();//然而这个窗口会一直存在到退出pantH->exec()为止
     MainWindow *m=(MainWindow*)mainWin;
     m->painterArea->myPathData->clear();
     m->painterArea->setMyPath();
 }
 
 /**
- * @brief
+ * @brief 选择H廓形
  *
  */
 void DialogDesign::on_pushButton_1_clicked()

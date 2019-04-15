@@ -23,7 +23,7 @@
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
     myPathData = new MyPathData("myPath");
-    //    old_typePants = -1;
+    //old_typePants = -1;
     typePants = 0;
 
     pantsHeight=1650;
@@ -36,7 +36,7 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 
     myPath = new MyPath(this); //必须等设置完上面的一系列尺寸再构造
 
-    //设置背景为黑色
+    // 设置背景为黑色
     QPalette pal(this->palette());
     pal.setColor(QPalette::Background, Qt::black);
     this->setAutoFillBackground(true);
@@ -117,15 +117,13 @@ void PainterArea::paintEvent(QPaintEvent *event)
     //    pen.setWidthF(1);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-    painter.drawPath(*(myPath->myPath));
-    // painter.drawPath(myPath->outLines_data());
+    //painter.drawPath(*(myPath->myPath));
+    painter.drawPath(myPath->outLines_data());
 
-    pen.setWidthF(1.5);
     pen.setColor(Qt::yellow);
     painter.setPen(pen);
     painter.drawPath(yellowPath);
 
-    pen.setWidthF(1.5);
     pen.setColor(Qt::green);
     painter.setPen(pen);
     painter.drawPath(greenPath);

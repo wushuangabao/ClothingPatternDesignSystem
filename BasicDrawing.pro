@@ -38,7 +38,10 @@ SOURCES += \
     dialog/dialogsize.cpp \
     dxflib/dl_dxf.cpp \
     dxflib/test_creationclass.cpp \
-    dxflib/dl_writer_ascii.cpp
+    dxflib/dl_writer_ascii.cpp \
+    components/mycomponent.cpp \
+    rules/myrule.cpp \
+    dialog/dialogtest/dialogtestcurve.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -55,7 +58,10 @@ HEADERS += \
     dialog/dialogsize.h \
     dxflib/dl_dxf.h \
     dxflib/dl_creationadapter.h \
-    dxflib/test_creationclass.h
+    dxflib/test_creationclass.h \
+    components/mycomponent.h \
+    rules/myrule.h \
+    dialog/dialogtest/dialogtestcurve.h
 
 FORMS += \
         mainwindow.ui \
@@ -64,7 +70,8 @@ FORMS += \
     splash/splash.ui \
     dialog/dialogdesign.ui \
     dialog/dialogdesign/dialogpantsh.ui \
-    dialog/dialogsize.ui
+    dialog/dialogsize.ui \
+    dialog/dialogtest/dialogtestcurve.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
