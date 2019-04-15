@@ -15,9 +15,8 @@
 #include "dxflib/dl_creationadapter.h"
 #include "dxflib/test_creationclass.h"
 
-//构造函数
 /**
- * @brief
+ * @brief 构造函数
  *
  * @param parent
  */
@@ -45,14 +44,10 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 
     setMouseTracking(true);//始终跟踪鼠标
     selectedLabelPoint=nullptr;
-
-    //下面代码用于测试
-    //setMyPath();
-
 }
 
 /**
- * @brief
+ * @brief 析构函数
  *
  */
 PainterArea::~PainterArea()
@@ -61,16 +56,16 @@ PainterArea::~PainterArea()
 }
 
 /**
- * @brief 重新绘制路径
+ * @brief 重置路径
  *
  */
 void PainterArea::setMyPath()
 {
-    dataChanged=false;
     myPath->initializeSize();
     if(!myPath->myPath->isEmpty()){
         delete myPath->myPath;
         myPath->myPath=new QPainterPath;
+        myPathData->clear();
     }
     QPainterPath path;
     auxiliaryLines=path;
@@ -82,11 +77,12 @@ void PainterArea::setMyPath()
     myPath->setStartPoint(100.0,100.0);
     auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
     myPath->drawOutline2(typeSang2);
+
+    emit resetModel();
 }
 
-//绘制事件
 /**
- * @brief
+ * @brief 绘制事件
  *
  * @param event
  */
@@ -121,13 +117,8 @@ void PainterArea::paintEvent(QPaintEvent *event)
     //    pen.setWidthF(1);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-    if(!dataChanged)
-        painter.drawPath(*(myPath->myPath));
-    else
-    {
-        //如果myPathData有改动，则按照myPathData绘图
-        painter.drawPath(myPath->outLines_data());
-    }
+    painter.drawPath(*(myPath->myPath));
+    // painter.drawPath(myPath->outLines_data());
 
     pen.setWidthF(1.5);
     pen.setColor(Qt::yellow);
@@ -141,7 +132,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
 }
 
 /**
- * @brief
+ * @brief 逻辑横坐标
  *
  * @param xPhysical
  * @return int
@@ -151,7 +142,7 @@ int PainterArea::xLogical(int xPhysical)
     return qRound((xPhysical+intLeft)/scalingMulti);
 }
 /**
- * @brief
+ * @brief 逻辑纵坐标
  *
  * @param yPhysical
  * @return int
@@ -161,7 +152,7 @@ int PainterArea::yLogical(int yPhysical)
     return qRound((yPhysical+intUp)/scalingMulti);
 }
 /**
- * @brief
+ * @brief 物理横坐标
  *
  * @param xLogical
  * @return int
@@ -171,7 +162,7 @@ int PainterArea::xPhysical(int xLogical)
     return qRound(xLogical*scalingMulti-intLeft);
 }
 /**
- * @brief
+ * @brief 物理纵坐标
  *
  * @param yLogical
  * @return int
@@ -181,9 +172,49 @@ int PainterArea::yPhysical(int yLogical)
     return qRound(yLogical*scalingMulti-intUp);
 }
 
-//鼠标事件
 /**
- * @brief
+ * @brief 逻辑横坐标
+ *
+ * @param xPhysical
+ * @return int
+ */
+int PainterArea::xLogical(qreal xPhysical)
+{
+    return qRound((xPhysical+intLeft)/scalingMulti);
+}
+/**
+ * @brief 逻辑纵坐标
+ *
+ * @param yPhysical
+ * @return int
+ */
+int PainterArea::yLogical(qreal yPhysical)
+{
+    return qRound((yPhysical+intUp)/scalingMulti);
+}
+/**
+ * @brief 物理横坐标
+ *
+ * @param xLogical
+ * @return int
+ */
+int PainterArea::xPhysical(qreal xLogical)
+{
+    return qRound(xLogical*scalingMulti-intLeft);
+}
+/**
+ * @brief 物理纵坐标
+ *
+ * @param yLogical
+ * @return int
+ */
+int PainterArea::yPhysical(qreal yLogical)
+{
+    return qRound(yLogical*scalingMulti-intUp);
+}
+
+/**
+ * @brief 鼠标按压事件
  *
  * @param event
  */
@@ -211,7 +242,7 @@ void PainterArea::mousePressEvent(QMouseEvent *event)
     emit mouseCoordinateChanged();
 }
 /**
- * @brief
+ * @brief 鼠标释放事件
  *
  * @param event
  */
@@ -228,7 +259,7 @@ void PainterArea::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 /**
- * @brief
+ * @brief 鼠标移动事件
  *
  * @param event
  */
@@ -254,7 +285,7 @@ void PainterArea::mouseMoveEvent(QMouseEvent *event)
     emit mouseCoordinateChanged();
 }
 /**
- * @brief
+ * @brief 鼠标滚轮事件
  *
  * @param event
  */
@@ -293,14 +324,14 @@ void PainterArea::wheelEvent(QWheelEvent *event)
 }
 
 /**
- * @brief
+ * @brief 设置选中点的标签
  *
  * @param point
  */
 void PainterArea::setLabelPoint(CurvePoint *point)
 {
     QPointF p = myPathData->pointData[point->id];
-    qreal lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
+    int lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
     LabelPoint *lp=new LabelPoint(this);
     if(point->isCtrlPoint)
     {
@@ -320,7 +351,7 @@ void PainterArea::setLabelPoint(CurvePoint *point)
 }
 
 /**
- * @brief
+ * @brief 清除所有点的标签
  *
  */
 void PainterArea::clearLabelPoints()
@@ -334,7 +365,7 @@ void PainterArea::clearLabelPoints()
 }
 
 /**
- * @brief
+ * @brief 更新点标签的位置
  *
  */
 void PainterArea::updateLabelPoints()
@@ -344,16 +375,16 @@ void PainterArea::updateLabelPoints()
     {
         LabelPoint* lp=labelPoints.at(i);
         QPointF p=myPathData->pointData[lp->point->id];
-        qreal lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
+        int lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
         lp->move(lpx,lpy);
     }
 }
 
 /**
- * @brief
+ * @brief 重置省褶
  *
- * @param frontOrBack
- * @param intCase
+ * @param frontOrBack 1：前片 2：后片
+ * @param intCase 类型
  */
 void PainterArea::setTypeSang(int frontOrBack,int intCase)
 {
@@ -361,7 +392,6 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
         typeSang1 = intCase;
     else if(frontOrBack==2)
         typeSang2 = intCase;
-    qDebug()<<"typeSang changed"<<endl;
     setMyPath();
     update();
 }
@@ -375,7 +405,7 @@ bool PainterArea::writeDXF() {
     DL_Dxf* dxf = new DL_Dxf();
     DL_Codes::version exportVersion = DL_Codes::AC1015;
     DL_WriterA* dw = dxf->out("myfile.dxf", exportVersion);
-    if (dw==NULL) {
+    if (dw==nullptr) {
         printf("Cannot open file 'myfile.dxf' \
                for writing.");
                // abort function e.g. with return
@@ -479,7 +509,6 @@ bool PainterArea::writeDXF() {
     dw->sectionEnd();
     dw->sectionEntities();
     // write all entities in model space:
-
     MyPathData *data = myPathData;
     int numPaths = data->numberPath, i;
     for(i=0;i<numPaths;++i)
@@ -549,9 +578,8 @@ bool PainterArea::writeDXF() {
     return true;
 }
 
-// 设置画布中心点坐标为yellowPath的中心点
 /**
- * @brief
+ * @brief 设置画布中心点坐标为yellowPath的中心点
  *
  */
 void PainterArea::setCenterToYellowPath()
@@ -562,16 +590,9 @@ void PainterArea::setCenterToYellowPath()
     QSize sizePainterArea=this->size();
     qreal xCenter=sizePainterArea.width()/2.0,
             yCenter=sizePainterArea.height()/2.0;
-    intUp=(centerRect.y()-yCenter)*scalingMulti;
-    intLeft=(centerRect.x()-xCenter)*scalingMulti;
+    intUp=static_cast<int>((centerRect.y()-yCenter)*scalingMulti);
+    intLeft=static_cast<int>((centerRect.x()-xCenter)*scalingMulti);
 
     emit scalingMultiChanged();
 }
 
-/**
- * @brief
- *
- */
-void PainterArea::changePath()
-{
-}

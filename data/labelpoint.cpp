@@ -81,7 +81,7 @@ void LabelPoint::changePos()
         pathData->pointData[point->id].setX(parent->xLogical(this->x()));
         pathData->pointData[point->id].setY(parent->yLogical(this->y()));
         //重绘图形
-        parent->dataChanged=true;
+//        parent->dataChanged=true;
         parent->update();
         //重设表格
         MainWindow *mainWin=(MainWindow*)parent->parent();

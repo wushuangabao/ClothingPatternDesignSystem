@@ -2,11 +2,6 @@
 #include "ui_dialogms.h"
 #include <QDebug>
 
-/**
- * @brief
- *
- * @param parent
- */
 DialogMS::DialogMS(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogMS)
@@ -14,10 +9,6 @@ DialogMS::DialogMS(QWidget *parent) :
     ui->setupUi(this);
 }
 
-/**
- * @brief
- *
- */
 DialogMS::~DialogMS()
 {
     delete ui;

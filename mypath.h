@@ -38,6 +38,33 @@ public:
     void drawOutline2(int typeSang);
     void curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
+    constexpr static const qreal minUnit = 0.1; /**< 比较实数时的精度 */
+    static bool currentPositionequal(QPainterPath path,QPointF p);
+    static bool equal(qreal v1,qreal v2);
+    static bool equal(QPointF p1,QPointF p2);
+    static bool pointIsOnSegment(QPointF p,QPointF sp1,QPointF sp2);
+    static qreal distanceBetween(QPointF p1,QPointF p2);
+    static qreal distanceBetween(QPointF p,QPointF p1,QPointF p2);
+    static QPointF getSymmetryPoint(QPointF point,QPointF center);
+    static QPointF getIntersection(qreal x1,qreal y1,qreal x2,qreal y2,qreal k,qreal b);
+    static QPointF getIntersection(QPointF p1,QPointF p2,qreal k,qreal b);
+    static QPointF getIntersection(QPointF p1,QPointF p2,QPointF p3,QPointF p4);
+    static QPointF getIntersection_L(QPointF p,qreal l,qreal k,qreal b);
+    static QPointF getIntersection_R(QPointF p,qreal l,qreal k,qreal b);
+    static QPointF getPointOnRadial(qreal x1,qreal y1,qreal x2,qreal y2,qreal l);
+    static QPointF getPointOnRadial(QPointF p1,QPointF p2,qreal l);
+    static QPointF getPointOnRadial_Down(qreal x1,qreal y1,qreal k,qreal l);
+    static QPointF getPointOnRadial_Down(QPointF p,qreal k,qreal l);
+    static QPointF getPointOnRadial_Up(qreal x1,qreal y1,qreal k,qreal l);
+    static QPointF getPointOnRadial_Up(QPointF p,qreal k,qreal l);
+    static QPointF getPointOfSang(QPointF vertex,QPointF leftUp,QPointF rightUp);
+    static QPointF getPointOfSang_D(QPointF p1,QPointF p2,qreal distance);
+    static QPointF getPointOfSang_D(qreal x1,qreal y1,qreal x2,qreal y2,qreal distance);
+    static QPointF getPointOfSang_P(QPointF p1,QPointF p2,qreal proportion);
+    static QPointF getPointOfSang_P(qreal x1,qreal y1,qreal x2,qreal y2,qreal proportion);
+    static QPointF getVertexOfSang_Up(QPointF p1,QPointF ps,qreal ls);
+    static QPointF getVertexOfSang_Down(QPointF p1,QPointF ps,qreal ls);
+
 private:
     int pantsHeight;
     int pantsL;
@@ -76,28 +103,6 @@ private:
     QPointF rightUpPoint1;
     QPointF rightUpPoint2;
     QPointF leftHPoint2;
-    QPointF getSymmetryPoint(QPointF point,QPointF center);
-    QPointF getIntersection(qreal x1,qreal y1,qreal x2,qreal y2,qreal k,qreal b);
-    QPointF getIntersection(QPointF p1,QPointF p2,qreal k,qreal b);
-    QPointF getIntersection(QPointF p1,QPointF p2,QPointF p3,QPointF p4);
-    QPointF getPointOnRadial(qreal x1,qreal y1,qreal x2,qreal y2,qreal l);
-    QPointF getPointOnRadial(QPointF p1,QPointF p2,qreal l);
-    QPointF getPointOnRadial_Down(qreal x1,qreal y1,qreal k,qreal l);
-    QPointF getPointOnRadial_Down(QPointF p,qreal k,qreal l);
-    QPointF getPointOnRadial_Up(qreal x1,qreal y1,qreal k,qreal l);
-    QPointF getPointOnRadial_Up(QPointF p,qreal k,qreal l);
-    QPointF getPointOfSang(QPointF vertex,QPointF leftUp,QPointF rightUp);
-    QPointF getPointOfSang_D(QPointF p1,QPointF p2,qreal distance);
-    QPointF getPointOfSang_D(qreal x1,qreal y1,qreal x2,qreal y2,qreal distance);
-    QPointF getPointOfSang_P(QPointF p1,QPointF p2,qreal proportion);
-    QPointF getPointOfSang_P(qreal x1,qreal y1,qreal x2,qreal y2,qreal proportion);
-    QPointF getVertexOfSang_Up(QPointF p1,QPointF ps,qreal ls);
-    QPointF getVertexOfSang_Down(QPointF p1,QPointF ps,qreal ls);
-    QPointF getIntersection_L(QPointF p,qreal l,qreal k,qreal b);
-    QPointF getIntersection_R(QPointF p,qreal l,qreal k,qreal b);
-
-    qreal distanceBetween(QPointF p1,QPointF p2);
-    //    qreal distanceBetween(QPointF p1,QPointF p2,QPointF p3,QPointF p4);
 
     QPainterPath lineThrough2P(QPointF startPoint,QPointF endPoint);
     void brokenLineThrough(QList<QPointF> points);
@@ -108,7 +113,6 @@ private:
 
     void addPoint(QPointF point,QString name="");
     void addCtrlPoints(QPointF A,QPointF B,QPointF C,QList<QPointF> *ctrlPoints);
-    bool currentPositionequal(QPainterPath path,QPointF p);
 
 private slots:
 

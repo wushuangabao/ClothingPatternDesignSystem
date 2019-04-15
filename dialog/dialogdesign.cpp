@@ -54,7 +54,6 @@ void DialogDesign::enterStep2(int intKuoXing)
     MainWindow *m=(MainWindow*)mainWin;
     m->painterArea->myPathData->clear();
     m->painterArea->setMyPath();
-    m->resetModel();
 }
 
 /**

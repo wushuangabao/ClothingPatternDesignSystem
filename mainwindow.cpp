@@ -13,7 +13,7 @@
 
 
 /**
- * @brief
+ * @brief 主窗口的构造
  *
  */
 MainWindow::MainWindow() :
@@ -42,15 +42,11 @@ MainWindow::MainWindow() :
     modelPoints = new QStandardItemModel(this);
     modelPaths = new QStandardItemModel(this);
 
-    modelPoints->setItem(0, 0, new QStandardItem(" "));
-    modelPoints->setItem(0, 1, new QStandardItem(" "));
-    modelPoints->setItem(0, 2, new QStandardItem(" "));
-//    modelPoints->setItem(0, 3, new QStandardItem(" "));
     ui->tablePoints->setModel(modelPoints);
     modelPoints->setHeaderData(0,Qt::Horizontal, tr("x坐标"));
     modelPoints->setHeaderData(1,Qt::Horizontal, tr("y坐标"));
     modelPoints->setHeaderData(2,Qt::Horizontal, tr("别名"));
-//    modelPoints->setHeaderData(3,Qt::Horizontal, tr("曲线相关"));
+
     ui->tablePaths->setModel(modelPaths);
     ui->tablePaths->horizontalHeader()->hide();
     ui->tablePaths->setEditTriggers(QAbstractItemView::NoEditTriggers);//设为只读
@@ -60,27 +56,30 @@ MainWindow::MainWindow() :
     connect(painterArea,SIGNAL(scalingMultiChanged()),this,SLOT(setStatusScalingMulti()));
     connect(painterArea,SIGNAL(resetModel()),this,SLOT(resetModel()));
     connect(dialogMS,SIGNAL(typeSangChanged(int,int)),painterArea,SLOT(setTypeSang(int,int)));
-    connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
+//    connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
+
+    //下面代码用于测试
+    //painterArea->setMyPath();
 }
 
 /**
- * @brief
+ * @brief 主窗口的析构
  *
  */
 MainWindow::~MainWindow()
 {
     delete ui;
     delete painterArea;
+    delete labelScaling;
     delete dialogMS;
     delete dialogMM;
-
+    delete dialogDesign;
+    delete modelPaths;
+    delete modelPoints;
 }
 
-///
-/// \brief 移除并隐藏所有的dock
-///
 /**
- * @brief
+ * @brief 移除并隐藏所有的dock
  *
  */
 void MainWindow::removeAllDock()
@@ -91,14 +90,10 @@ void MainWindow::removeAllDock()
     }
 }
 
-///
-/// \brief 显示指定序号的dock
-/// \param index 指定序号，如果不指定，则会显示所有
-///
 /**
- * @brief
+ * @brief 显示指定序号的dock
  *
- * @param index
+ * @param index 指定序号，如果不指定，则会显示所有
  */
 void MainWindow::showDock(const QList<int> &index)
 {
@@ -118,13 +113,13 @@ void MainWindow::showDock(const QList<int> &index)
 }
 
 /**
- * @brief
+ * @brief 关闭主窗口事件
  *
  * @param event
  */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    switch(QMessageBox::question(this,tr("提示"),tr("你确定退出?")))
+    switch(QMessageBox::question(this,tr("提示"),tr("确定退出?")))
     {
     case QMessageBox::Yes:
         event->accept();
@@ -136,7 +131,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 /**
- * @brief
+ * @brief 设置状态栏（显示鼠标位置
  *
  */
 void MainWindow::setStatusMouseCoordinate(){
@@ -144,7 +139,7 @@ void MainWindow::setStatusMouseCoordinate(){
 }
 
 /**
- * @brief
+ * @brief 设置状态栏（显示放大倍数
  *
  */
 void MainWindow::setStatusScalingMulti(){
@@ -152,12 +147,13 @@ void MainWindow::setStatusScalingMulti(){
     this->statusBar()->showMessage("",0);
 }
 
-//根据myPathData修改tablePoints和tablePaths---------------
 /**
- * @brief
+ * @brief 根据myPathData修改tablePoints和tablePaths
  *
  */
 void MainWindow::resetModel(){
+    modelPoints->clear();
+    modelPaths->clear();
     MyPathData *data = painterArea->myPathData;
     int nPaths = data->numberPath,
         nPoints = data->numberPoint;
@@ -184,7 +180,7 @@ void MainWindow::resetModel(){
 }
 
 /**
- * @brief
+ * @brief action触发 省褶类型修改
  *
  */
 void MainWindow::on_action_M_S_triggered()
@@ -193,7 +189,7 @@ void MainWindow::on_action_M_S_triggered()
 }
 
 /**
- * @brief
+ * @brief action触发 文件保存
  *
  */
 void MainWindow::on_action_F_S_triggered()
@@ -234,13 +230,13 @@ void MainWindow::on_action_F_S_triggered()
 
     //输出txt文件
     if(painterArea->myPathData->saveTo(filePath+".txt") && boolDXFSaved)
-        QMessageBox::information(nullptr,"Save","The jpg and txt files have saved successfully.");
+        QMessageBox::information(nullptr,"Save","The dxf and txt files have saved successfully.");
     else
-        QMessageBox::information(nullptr,"Save","The jpg and txt files failed to save!");
+        QMessageBox::information(nullptr,"Save","The dxf and txt files failed to save!");
 }
 
 /**
- * @brief
+ * @brief action触发 尺寸修改
  *
  */
 void MainWindow::on_action_M_M_triggered()
@@ -257,7 +253,7 @@ void MainWindow::on_action_M_M_triggered()
 }
 
 /**
- * @brief
+ * @brief 点击tablePath
  *
  * @param index
  */
@@ -268,7 +264,7 @@ void MainWindow::on_tablePaths_clicked(const QModelIndex &index)
 }
 
 /**
- * @brief
+ * @brief 在painterArea上显示tablePaths中row=id的path及其上的点
  *
  * @param id
  */
@@ -337,7 +333,7 @@ void MainWindow::showPath(int id)
 }
 
 /**
- * @brief
+ * @brief 没有用
  *
  * @param index
  */
@@ -346,9 +342,8 @@ void MainWindow::on_tablePaths_activated(const QModelIndex &index)
     qDebug()<<"on_tablePaths_activated";
 }
 
-//从tablePoints中选择与点point对应的点
 /**
- * @brief
+ * @brief 从tablePoints中选择点
  *
  * @param point
  */
@@ -368,7 +363,7 @@ void MainWindow::selectTablePoint(QPointF point)
     }
 }
 /**
- * @brief
+ * @brief 从tablePoints中选择点
  *
  * @param id
  */
@@ -380,7 +375,7 @@ void MainWindow::selectTablePoint(int id)
 }
 
 /**
- * @brief
+ * @brief 在painterArea上用label显示锚点
  *
  * @param ctrlPoint
  */
@@ -402,7 +397,7 @@ void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
 }
 
 /**
- * @brief
+ * @brief action触发 款式设计
  *
  */
 void MainWindow::on_action_Design_triggered()
