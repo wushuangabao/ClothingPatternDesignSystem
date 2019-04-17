@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "dxflib/dl_dxf.h"
-#include "dxflib/dl_creationadapter.h"
-#include "dxflib/test_creationclass.h"
 
 /**
  * @brief 构造函数
@@ -395,7 +393,7 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
 }
 
 /**
- * @brief 输出dxf文件
+ * @brief 输出dxf文件（AutoCAD标准
  *
  * @return bool
  */
@@ -403,27 +401,10 @@ bool PainterArea::writeDXF() {
     DL_Dxf* dxf = new DL_Dxf();
     DL_Codes::version exportVersion = DL_Codes::AC1015;
     DL_WriterA* dw = dxf->out("myfile.dxf", exportVersion);
-    if (dw==nullptr) {
-        printf("Cannot open file 'myfile.dxf' \
-               for writing.");
-               // abort function e.g. with return
-    }
+    if (dw==nullptr)
+        return false;
 
     dxf->writeHeader(*dw);
-
-    // int variable:
-    dw->dxfString(9, "$INSUNITS");
-    dw->dxfInt(70, 4);
-    // real (double, float) variable:
-    dw->dxfString(9, "$DIMEXE");
-    dw->dxfReal(40, 1.25);
-    // string variable:
-    dw->dxfString(9, "$TEXTSTYLE");
-    dw->dxfString(7, "Standard");
-    // vector variable:
-    dw->dxfString(9, "$LIMMIN");
-    dw->dxfReal(10, 0.0);
-    dw->dxfReal(20, 0.0);
 
     dw->sectionEnd();
     dw->sectionTables();
@@ -437,7 +418,6 @@ bool PainterArea::writeDXF() {
 
     int numberOfLayers = 3;
     dw->tableLayers(numberOfLayers);
-
     dxf->writeLayer(*dw,
                     DL_LayerData("0", 0),
                     DL_Attributes(
@@ -445,7 +425,6 @@ bool PainterArea::writeDXF() {
                         DL_Codes::black,        // default color
                         100,                  // default width
                         "CONTINUOUS", 1.0));       // default line style
-
     dxf->writeLayer(*dw,
                     DL_LayerData("mainlayer", 0),
                     DL_Attributes(
@@ -453,7 +432,6 @@ bool PainterArea::writeDXF() {
                         DL_Codes::red,
                         100,
                         "CONTINUOUS", 1.0));
-
     dxf->writeLayer(*dw,
                     DL_LayerData("anotherlayer", 0),
                     DL_Attributes(
@@ -461,7 +439,6 @@ bool PainterArea::writeDXF() {
                         DL_Codes::black,
                         100,
                         "CONTINUOUS", 1.0));
-
     dw->tableEnd();
 
     dw->tableStyle(1);
@@ -470,13 +447,11 @@ bool PainterArea::writeDXF() {
 
     dxf->writeView(*dw);
     dxf->writeUcs(*dw);
-
     dw->tableAppid(1);
     dxf->writeAppid(*dw, "ACAD");
     dw->tableEnd();
 
     dxf->writeDimStyle(*dw, 1, 1, 1, 1, 1);
-
     dxf->writeBlockRecord(*dw);
     dxf->writeBlockRecord(*dw, "myblock1");
     dxf->writeBlockRecord(*dw, "myblock2");
@@ -525,7 +500,7 @@ bool PainterArea::writeDXF() {
                                     -endPoint.y()/10,
                                     0.0
                                     ),
-                        DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
+                        DL_Attributes("0", 256, -1, "BYLAYER", 1.0));
         }
         else //曲线
         {
@@ -558,7 +533,7 @@ bool PainterArea::writeDXF() {
                                         -ep.y()/10,
                                         0.0
                                         ),
-                            DL_Attributes("mainlayer", 256, -1, "BYLAYER", 1.0));
+                            DL_Attributes("0", 256, -1, "BYLAYER", 1.0));
             }
         }
     }

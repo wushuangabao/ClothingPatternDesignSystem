@@ -116,8 +116,8 @@ bool MyPathData::saveTo(QString filePath)
     }
 
     file.open(QIODevice::ReadWrite | QIODevice::Text);
-    QByteArray str = content.toUtf8();
-    file.write(str);
+//    QByteArray str = content.toUtf8();
+    file.write(content.toUtf8());
 
     file.close();
 
@@ -130,8 +130,40 @@ bool MyPathData::saveTo(QString filePath)
 }
 
 /**
+ * @brief 保存为ASTM标准
+ * @return 是否成功
+ */
+bool MyPathData::writeASTM(QString filePath)
+{
+    QFile file(filePath);
+    QString content = "999\nANSI/AAMA\n";
+    file.open(QIODevice::ReadWrite | QIODevice::Text);
+    file.write(content.toUtf8());
+    int i;
+    for(i=0;i<numberPath;i++)
+    {
+        QString id = QString::number(pathData[i].id),
+                isLine = "false";
+        if(pathData[i].isLine)
+            isLine = "true";
+        CurvePoint *sp=pathData[i].startPoint;
+        QString p1 = QString::number(sp->id),
+                p2 = QString::number(pathData[i].endPoint->id);
+        content = content + id +" "+ isLine +" "+p1+" "+p2+"\n"+stringsOf(sp)+"\n";
+    }
+    content = content+"--points--\n";
+    for(i=0;i<numberPoint;i++)
+    {
+        QString x=QString::number(pointData[i].x()),
+                y=QString::number(pointData[i].y());
+        content = content+QString::number(i)+" ("+x+","+y+")\n";
+    }
+    file.close();
+    return true;
+}
+
+/**
  * @brief
- *
  */
 MyPathData::~MyPathData()
 {

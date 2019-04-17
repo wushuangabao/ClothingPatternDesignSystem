@@ -37,7 +37,6 @@ SOURCES += \
     dialog/dialogdesign/dialogpantsh.cpp \
     dialog/dialogsize.cpp \
     dxflib/dl_dxf.cpp \
-    dxflib/test_creationclass.cpp \
     dxflib/dl_writer_ascii.cpp \
     components/mycomponent.cpp \
     rules/myrule.cpp \
@@ -57,8 +56,6 @@ HEADERS += \
     dialog/dialogdesign/dialogpantsh.h \
     dialog/dialogsize.h \
     dxflib/dl_dxf.h \
-    dxflib/dl_creationadapter.h \
-    dxflib/test_creationclass.h \
     components/mycomponent.h \
     rules/myrule.h \
     dialog/dialogtest/dialogtestcurve.h

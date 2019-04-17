@@ -57,7 +57,7 @@ MainWindow::MainWindow() :
     connect(painterArea,SIGNAL(scalingMultiChanged()),this,SLOT(setStatusScalingMulti()));
     connect(painterArea,SIGNAL(resetModel()),this,SLOT(resetModel()));
     connect(dialogMS,SIGNAL(typeSangChanged(int,int)),painterArea,SLOT(setTypeSang(int,int)));
-//    connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
+    //    connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
 
     //下面代码用于测试
     //painterArea->setMyPath();
@@ -157,7 +157,7 @@ void MainWindow::resetModel(){
     modelPaths->clear();
     MyPathData *data = painterArea->myPathData;
     int nPaths = data->numberPath,
-        nPoints = data->numberPoint;
+            nPoints = data->numberPoint;
     for(int i=0;i<nPoints;++i)
     {
         QPointF p = data->pointData[i];
@@ -195,42 +195,40 @@ void MainWindow::on_action_M_S_triggered()
  */
 void MainWindow::on_action_F_S_triggered()
 {
-//    //截取painterArea
-//    int aLeft = 60, aTop = 60,
-//        aRight = aLeft+440+painterArea->pantsH/4,
-//        aBottom = aTop+painterArea->pantsL+50;
-//    qreal oldScalingMulti = painterArea->scalingMulti;
-//    int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
-//    painterArea->scalingMulti = 5.0;
-//    painterArea->intUp = 0;
-//    painterArea->intLeft = 0;
-//    painterArea->update();
-//    QPixmap pixMap = painterArea->grab(QRect(5*aLeft,5*aTop,5*aRight,5*aBottom));
-//    painterArea->scalingMulti = oldScalingMulti;
-//    painterArea->intUp = oldIntUp;
-//    painterArea->intLeft = oldIntLeft;
-//    painterArea->update();
+    //    //截取painterArea
+    //    int aLeft = 60, aTop = 60,
+    //        aRight = aLeft+440+painterArea->pantsH/4,
+    //        aBottom = aTop+painterArea->pantsL+50;
+    //    qreal oldScalingMulti = painterArea->scalingMulti;
+    //    int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
+    //    painterArea->scalingMulti = 5.0;
+    //    painterArea->intUp = 0;
+    //    painterArea->intLeft = 0;
+    //    painterArea->update();
+    //    QPixmap pixMap = painterArea->grab(QRect(5*aLeft,5*aTop,5*aRight,5*aBottom));
+    //    painterArea->scalingMulti = oldScalingMulti;
+    //    painterArea->intUp = oldIntUp;
+    //    painterArea->intLeft = oldIntLeft;
+    //    painterArea->update();
 
     //保获取路径
     QString filePath = QDir::currentPath() + "/" + painterArea->myPathData->name;
-//    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-//                       filePath + ".dxf",
-//                       tr("%1 Files (*.%2)")
-//                       .arg(QString::fromLatin1("DXF"))
-//                       .arg(QString::fromLatin1("dxf")));
-//    qDebug()<<"save to: "<<fileName;
+    //    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+    //                       filePath + ".dxf",
+    //                       tr("%1 Files (*.%2)")
+    //                       .arg(QString::fromLatin1("DXF"))
+    //                       .arg(QString::fromLatin1("dxf")));
+    //    qDebug()<<"save to: "<<fileName;
 
-//    //保存为jpg文件
-//    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
-//    if(boolPixMapSaved)
-//        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
+    //    //保存为jpg文件
+    //    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
+    //    if(boolPixMapSaved)
+    //        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
 
-    //保存为dxf文件
     bool boolDXFSaved=painterArea->writeDXF();
+    bool boolASTMSaved=painterArea->myPathData->writeASTM(filePath+".dxf");
 
-
-    //输出txt文件
-    if(painterArea->myPathData->saveTo(filePath+".txt") && boolDXFSaved)
+    if(painterArea->myPathData->saveTo(filePath+".txt") && boolDXFSaved && boolASTMSaved)
         QMessageBox::information(nullptr,"Save","The dxf and txt files have saved successfully.");
     else
         QMessageBox::information(nullptr,"Save","The dxf and txt files failed to save!");
@@ -399,7 +397,6 @@ void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
 
 /**
  * @brief action触发 款式设计
- *
  */
 void MainWindow::on_action_Design_triggered()
 {
@@ -414,4 +411,12 @@ void MainWindow::on_actiontest_curve_triggered()
     DialogTestCurve* dialogTest = new DialogTestCurve(this);
     dialogTest->exec();
     delete dialogTest;
+}
+
+/**
+ * @brief action触发 另存为（ASTM标准DXF格式
+ */
+void MainWindow::on_action_F_A_triggered()
+{
+    painterArea->writeASTM();
 }
