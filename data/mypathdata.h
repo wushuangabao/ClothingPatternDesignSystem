@@ -3,18 +3,18 @@
 
 #include <QPointF>
 #include <QString>
-#include <QDir>
-#include <QFile>
 #include <QTextStream>
 #include <QList>
 #include <QMap>
-#include <QString>
 #include "curvepoint.h"
 
 class QPainterPath;
+class QFile;
+class QPainterPath;
+class PainterArea;
 
 struct PathData{
-    int id; /**< 点在数组中的序号 */
+    int id; /**< 路径在数组中的序号 */
     bool isLine; /**< 是否为直线 */
     CurvePoint* startPoint; /**< 起点指针 */
     CurvePoint* endPoint; /**< 终点指针 */
@@ -24,46 +24,48 @@ struct PathData{
 class MyPathData
 {
 public:
-    MyPathData(QString name);
+    MyPathData(QString name,PainterArea* parent);
     ~MyPathData();
 
-    QString name=""; /**< TODO: describe */
-    QFile file; /**< TODO: describe */
-
-    const static int MAX_NUM_POINT=250; /**< TODO: describe */
-    const static int MAX_NUM_PATH=100; /**< TODO: describe */
-    int numberPath=0; /**< TODO: describe */
-    int numberPoint=0; /**< TODO: describe */
-    PathData pathData[MAX_NUM_PATH]; /**< TODO: describe */
-    QPointF pointData[MAX_NUM_POINT]; /**< TODO: describe */
-    QMap<QString,int> pointMap; //记录点的名称，用于查找特殊点，如smallCroPoint /**< TODO: describe */
+    PainterArea* parent=nullptr;
+    QString name=""; /**< MyPathData实例的名称 */
+    const static int MAX_NUM_POINT=250; /**< 点的数目上限 */
+    const static int MAX_NUM_PATH=120; /**< 路径数目上限 */
+    int numberPath=0; /**< 路径数目 */
+    int numberPoint=0; /**< 点的数目 */
+    PathData pathData[MAX_NUM_PATH]; /**< 路径数组 */
+    QPointF pointData[MAX_NUM_POINT]; /**< 点的数组 */
+    QMap<QString,int> pointMap; /**< 记录点的名称 */
 
     bool addLineTo(QPointF endPoint,int idStartPoint=-1);
     void addLine(QPointF startPoint,QPointF endPoint);
     void addCurve(QList<QPointF> points,QPointF ctrlPoint1,QPointF ctrlPoint2,QPainterPath path);
     int addPoint(QPointF point,QString name=""); //将point加入pointData数组（若已存在就不会添加），返回在数组中的索引
     int addCtrlPoint(QPointF ctrlPoint); //将ctrlPoint加入pointData数组（不管是否已存在同位置的点），返回在数组中的索引
-    int findPoint(QPointF point,bool addIfNotFind=false); //在pointData数组中寻找point，返回它的索引。addIfNotFind表示若没有找到，自动添加进数组。返回-1表示没找到也没添加。
+    int findPoint(QPointF point,bool addIfNotFind=false); //在pointData数组中寻找point，返回它的索引。
     bool pointMapHas(QPointF point);
     QPointF findPoint(QString name);
-//    QString findName(QPointF point);
-//    QString findName(qreal x,qreal y);
     QString findName(int id);
     QString stringOf(CurvePoint *point);
     QString stringsOf(CurvePoint *point);
-//    CurvePoint pointOf(QString str);
-//    CurvePoint pointsOf(QString str);
 
     bool saveTo(QString path);
     bool writeASTM(QString filePath);
-//    static bool equal(QPointF p1,CurvePoint *p2,qreal E); //判断两点是否相等（对应坐标相差不超过变量(E)mm）
-    void clear(); //清空所有数据
+    void clear();
 
 private:
     const qreal E=0.1;
-    int idCurrentPoint=0; //记录当前点在pointData数组中的索引 /**< TODO: describe */
-//    bool equal(CurvePoint *p1,CurvePoint *p2); //判断两点是否相等（对应坐标相差不超过常量(E)mm）
-    bool equal(QPointF p1,QPointF p2);
+    int idCurrentPoint=0; //记录当前点在pointData数组中的索引
+    int findPathBySP(int idSP);
+    bool equal(QPointF p1,QPointF p2); //判断两点是否相等（对应坐标相差不超过常量(E)mm）
+    void writeText(QFile* file,QString str,qreal x=0,qreal y=0,int layer=1);
+    void writePolyL(QFile* file,PathData path,int layer=1);
+    void writePolyL(QFile* file,const QPainterPath& path,int layer);
+    void writeBoundary(QFile* file);
+    void writePolyLHead(QFile* file,int layer=1);
+    QString stringReal(qreal n);
+    QString stringPoint(QPointF p);
+    QString stringPoint(qreal x,qreal y);
 };
 
 #endif // MYPATHDATA_H

@@ -1,10 +1,10 @@
 #include "curvepoint.h"
 
 /**
- * @brief
+ * @brief 构造函数
  *
- * @param id
- * @param pre
+ * @param id 点在数组中的索引
+ * @param pre 前一个点的指针
  */
 CurvePoint::CurvePoint(int id,CurvePoint* pre)
 {
@@ -19,36 +19,14 @@ CurvePoint::CurvePoint(int id,CurvePoint* pre)
     }
 }
 
-/**
- * @brief
- *
- */
 CurvePoint::~CurvePoint()
 {
 }
 
 /**
- * @brief
- *
- */
-void CurvePoint::setFirst()
-{
-    isFirst = true;
-}
-
-/**
- * @brief
- *
- */
-void CurvePoint::setLast()
-{
-    isLast = true;
-}
-
-/**
  * @brief 将自身设置为起点
  *
- * @param pre 指向前一个点（bezier的控制点）的指针
+ * @param pre 指向前一个点（也是bezier的控制点）的指针
  */
 void CurvePoint::setFirst(CurvePoint *pre)
 {
@@ -64,7 +42,7 @@ void CurvePoint::setFirst(CurvePoint *pre)
 /**
  * @brief 将自身设置为终点
  *
- * @param next
+ * @param next 指向后一个点（也是bezier的控制点）的指针
  */
 void CurvePoint::setLast(CurvePoint *next)
 {

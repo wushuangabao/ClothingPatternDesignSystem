@@ -175,12 +175,12 @@
   </action>
   <action name="action_F_S">
    <property name="text">
-    <string>保存(&amp;S)</string>
+    <string>保存为txt(&amp;S)</string>
    </property>
   </action>
   <action name="action_F_A">
    <property name="text">
-    <string>另存为(&amp;A)</string>
+    <string>保存为ASTM(&amp;A)</string>
    </property>
   </action>
   <action name="action_U">

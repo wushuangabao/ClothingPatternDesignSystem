@@ -20,7 +20,7 @@
  */
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
-    myPathData = new MyPathData("myPath");
+    myPathData = new MyPathData("myTrousers",this);
     //old_typePants = -1;
     typePants = 0;
 
@@ -509,11 +509,7 @@ bool PainterArea::writeDXF() {
             qreal t=0.0;
             CurvePoint *p = pathData.startPoint->pre;
             QPointF firstCtrlPoint = data->pointData[p->id];
-            while(p->next->isCtrlPoint!=true)
-            {
-                p=p->next; points<<data->pointData[p->id];
-            }
-            p=p->next;
+            p=pathData.endPoint->next;
             QPointF lastCtrlPoint = data->pointData[p->id];
             path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
             qreal dt=1.0/path.myPath->length();  //以每1mm为一根小线段

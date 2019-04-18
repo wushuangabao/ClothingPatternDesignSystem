@@ -68,7 +68,7 @@ void LabelPoint::changePos()
     if(point)
     {
         MyPathData *pathData=parent->myPathData;
-        //修改x,y的值
+        //修改x,y的值     (TODO:更新pathData中的QPainterPath数据)
         pathData->pointData[point->id].setX(parent->xLogical(this->x()));
         pathData->pointData[point->id].setY(parent->yLogical(this->y()));
         //重绘图形

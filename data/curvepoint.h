@@ -10,50 +10,21 @@
 class CurvePoint
 {
 public:
-    /**
-     * @brief
-     *
-     * @param id
-     * @param pre
-     */
     CurvePoint(int id,CurvePoint *pre=nullptr);
-    /**
-     * @brief
-     *
-     */
+
     ~CurvePoint();
 
-    CurvePoint *pre=nullptr; /**< TODO: describe */
-    CurvePoint *next=nullptr; /**< TODO: describe */
+    CurvePoint *pre=nullptr; /**< 前指针 */
+    CurvePoint *next=nullptr; /**< 后指针 */
 
-    int id; /**< TODO: describe */
+    int id; /**< 点在pointData数组中的id */
 
-    bool isFirst; //起点 /**< TODO: describe */
-    bool isLast; //终点 /**< TODO: describe */
-    bool isCtrlPoint; /**< TODO: describe */
+    bool isFirst; /**< 是否为起点 */
+    bool isLast; /**< 是否为终点 */
+    bool isCtrlPoint; /**< 是否为贝塞尔曲线的控制点 */
 
-    /**
-     * @brief
-     *
-     */
-    void setFirst();
-    /**
-     * @brief
-     *
-     * @param pre
-     */
-    void setFirst(CurvePoint *pre); //设置为曲线的第一个点，且有控制点
-    /**
-     * @brief
-     *
-     */
-    void setLast();
-    /**
-     * @brief
-     *
-     * @param next
-     */
-    void setLast(CurvePoint *next); //设置为曲线最后一个点，且有控制点
+    void setFirst(CurvePoint *pre=nullptr);
+    void setLast(CurvePoint *next=nullptr);
 };
 
 #endif // CURVEPOINT_H
