@@ -509,7 +509,11 @@ bool PainterArea::writeDXF() {
             qreal t=0.0;
             CurvePoint *p = pathData.startPoint->pre;
             QPointF firstCtrlPoint = data->pointData[p->id];
-            p=pathData.endPoint->next;
+            while(p->next->isCtrlPoint!=true)
+            {
+                p=p->next; points<<data->pointData[p->id];
+            }
+            p=p->next;
             QPointF lastCtrlPoint = data->pointData[p->id];
             path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
             qreal dt=1.0/path.myPath->length();  //以每1mm为一根小线段

@@ -133,8 +133,10 @@ bool MyPathData::writeASTM(QString filePath)
     writeText(&file,"Piece Name: noname");
     writeText(&file,"Size: M",0,15.0);
 
-    // 边界线
+    // 边界线、内部线和剪口
     writeBoundary(&file);
+    writeInLines(&file);
+    writeNotches(&file);
 
     content="  0\nENDBLK\n  0\nENDSEC\n";
     file.write(content.toUtf8());
@@ -291,7 +293,7 @@ void MyPathData::writeText(QFile *file, QString str, qreal x, qreal y, int layer
 }
 
 /**
- * @brief 写入一系列多段线顶点
+ * @brief ASTM中写入一系列多段线顶点
  * @param file 文件指针
  * @param path 想要写入的路径数据
  * @param layer 所在图层
@@ -311,23 +313,26 @@ void MyPathData::writePolyL(QFile *file, PathData path, int layer)
         QList<QPointF> points;
         CurvePoint *p = path.startPoint->pre;
         QPointF firstCtrlPoint = pointData[p->id];
-        p=path.endPoint->next;
+        while(p->next->isCtrlPoint!=true){
+            p=p->next; points<<pointData[p->id];
+        }
+        p=p->next;
         QPointF lastCtrlPoint = pointData[p->id];
         myPath.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
         writePolyL(file,*myPath.myPath,layer);
-//        CurvePoint* cp=path.startPoint;
-//        while(cp->isLast==false){
-//            content=vertex+stringPoint(pointData[cp->id]);
-//            file->write(content.toUtf8());
-//            cp=cp->next;
-//        }
-//        content=vertex+stringPoint(pointData[cp->id]);
-//        file->write(content.toUtf8());
+        //        CurvePoint* cp=path.startPoint;
+        //        while(cp->isLast==false){
+        //            content=vertex+stringPoint(pointData[cp->id]);
+        //            file->write(content.toUtf8());
+        //            cp=cp->next;
+        //        }
+        //        content=vertex+stringPoint(pointData[cp->id]);
+        //        file->write(content.toUtf8());
     }
 }
 
 /**
- * @brief 写入一系列多段线顶点
+ * @brief ASTM中写入一系列多段线顶点
  * @param file 文件指针
  * @param path 想要写入的绘图路径（它将被微分）
  * @param layer 所在图层
@@ -352,7 +357,7 @@ void MyPathData::writePolyL(QFile *file, const QPainterPath &path, int layer)
 }
 
 /**
- * @brief 写入boundary(纸样轮廓）
+ * @brief ASTM中写入boundary(纸样轮廓）
  * @param file
  */
 void MyPathData::writeBoundary(QFile *file)
@@ -374,12 +379,49 @@ void MyPathData::writeBoundary(QFile *file)
         if(i==-1){qDebug()<<"ERROR!找不到下一个路径！";break;}
     }
 
-    content="  0\nSEQEND\n  8\n1";
+    content="  0\nSEQEND\n  8\n1\n";
     file->write(content.toUtf8());
 }
 
 /**
- * @brief 添加PolyLine（多段线）的头字符串
+ * @brief ASTM中写入剪口信息
+ * @param file
+ */
+void MyPathData::writeNotches(QFile *file)
+{
+    // TODO：采取某种手段，确保某点属于剪口
+
+    QString content;
+    int id = pathData[7].startPoint->id;
+    content="  0\nPOINT\n  8\n4\n"+stringPoint(pointData[id])+" 30\n0.2\n";
+    file->write(content.toUtf8());
+    id = pathData[8].endPoint->id;
+    content="  0\nPOINT\n  8\n4\n"+stringPoint(pointData[id])+" 30\n0.2\n";
+    file->write(content.toUtf8());
+}
+
+/**
+ * @brief ASTM中写入内部线(Internal lines)信息
+ * @param file
+ */
+void MyPathData::writeInLines(QFile *file)
+{
+    QString content;
+    writePolyLHead(file,8);
+
+    // TODO：采取某种手段，确保某路径属于内部线
+
+    int id=7;
+    writePolyL(file,pathData[id],8);
+    id=8;
+    writePolyL(file,pathData[id],8);
+
+    content="  0\nSEQEND\n  8\n8\n";
+    file->write(content.toUtf8());
+}
+
+/**
+ * @brief 添加PolyLine（多段线）的头字符串到ASTM
  * @param file 文件指针
  * @param layer PolyLine所在图层
  */

@@ -61,8 +61,10 @@ private:
     void writeText(QFile* file,QString str,qreal x=0,qreal y=0,int layer=1);
     void writePolyL(QFile* file,PathData path,int layer=1);
     void writePolyL(QFile* file,const QPainterPath& path,int layer);
-    void writeBoundary(QFile* file);
     void writePolyLHead(QFile* file,int layer=1);
+    void writeBoundary(QFile* file);
+    void writeNotches(QFile* file);
+    void writeInLines(QFile* file);
     QString stringReal(qreal n);
     QString stringPoint(QPointF p);
     QString stringPoint(qreal x,qreal y);

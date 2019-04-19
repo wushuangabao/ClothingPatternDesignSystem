@@ -418,5 +418,6 @@ void MainWindow::on_actiontest_curve_triggered()
  */
 void MainWindow::on_action_F_A_triggered()
 {
-    painterArea->myPathData->writeASTM(painterArea->myPathData->name+".dxf");
+    QString filePath=painterArea->myPathData->name+".dxf";
+    painterArea->myPathData->writeASTM(filePath);
 }
