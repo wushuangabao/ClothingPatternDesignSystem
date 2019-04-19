@@ -346,14 +346,15 @@ void MyPathData::writePolyL(QFile *file, const QPainterPath &path, int layer)
     else if(path.length()<350)
         dt=0.04;
     else dt=0.1;
-    while(t<1)
+    while(t<0.99)
     {
         QPointF p=path.pointAtPercent(t);
         content=vertex+stringPoint(p);
         file->write(content.toUtf8());
         t=t+dt;
-        if(t>0.995) t=1.0;
     }
+    content=vertex+stringPoint(path.pointAtPercent(1));
+    file->write(content.toUtf8());
 }
 
 /**
