@@ -31,12 +31,6 @@ MainWindow::MainWindow() :
     painterArea = new PainterArea(this);
     setCentralWidget(painterArea);
 
-    setDockNestingEnabled(true); //允许嵌套dock
-    //记录所有的dock指针
-    m_docks.append(ui->dockPointData);
-    m_docks.append(ui->dockPathData);
-    numberDocks = 2;
-
     labelScaling = new QLabel(tr("放大倍数 %1 ").arg(painterArea->scalingMulti));
     statusBar()->addPermanentWidget(labelScaling);
 
@@ -77,40 +71,6 @@ MainWindow::~MainWindow()
     delete dialogDesign;
     delete modelPaths;
     delete modelPoints;
-}
-
-/**
- * @brief 移除并隐藏所有的dock
- *
- */
-void MainWindow::removeAllDock()
-{
-    for(int i=0;i<numberDocks;++i)
-    {
-        removeDockWidget(m_docks[i]);
-    }
-}
-
-/**
- * @brief 显示指定序号的dock
- *
- * @param index 指定序号，如果不指定，则会显示所有
- */
-void MainWindow::showDock(const QList<int> &index)
-{
-    if (index.isEmpty())
-    {
-        for(int i=0;i<9;++i)
-        {
-            m_docks[i]->show();
-        }
-    }
-    else
-    {
-        foreach (int i, index) {
-            m_docks[i]->show();
-        }
-    }
 }
 
 /**

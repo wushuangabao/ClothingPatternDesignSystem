@@ -4,7 +4,7 @@
 #include "../painterarea.h"
 
 /**
- * @brief
+ * @brief 构造函数
  *
  * @param parent
  */
@@ -16,7 +16,7 @@ DialogSize::DialogSize(QWidget *parent) :
 }
 
 /**
- * @brief
+ * @brief 析构函数
  *
  */
 DialogSize::~DialogSize()
@@ -25,7 +25,7 @@ DialogSize::~DialogSize()
 }
 
 /**
- * @brief
+ * @brief 将输入的尺寸赋值给painterArea
  *
  */
 void DialogSize::on_pushButton_clicked()
@@ -36,7 +36,7 @@ void DialogSize::on_pushButton_clicked()
     int pantsCroH=qRound(ui->lineEdit_4->text().toFloat()*10);
     int waistWidth=qRound(ui->lineEdit_5->text().toFloat()*10);
 
-    MainWindow* mainWin=(MainWindow*)parent();
+    MainWindow* mainWin=reinterpret_cast<MainWindow*>(parent());
     mainWin->painterArea->pantsL=pantsL;
     mainWin->painterArea->pantsW=pantsW;
     mainWin->painterArea->pantsH=pantsH;

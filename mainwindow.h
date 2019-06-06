@@ -25,10 +25,7 @@ public:
     explicit MainWindow();
     ~MainWindow();
 
-    PainterArea *painterArea; /**< TODO: describe */
-
-    void removeAllDock();
-    void showDock(const QList<int>& index = QList<int>());
+    PainterArea *painterArea;
 
     void closeEvent(QCloseEvent *event);
 
@@ -46,25 +43,21 @@ private slots:
     void on_action_F_S_triggered();
     void on_action_M_M_triggered();
     void on_action_F_A_triggered();
-
+    void on_action_Design_triggered();
+    void on_actiontest_curve_triggered();
     void on_tablePaths_clicked(const QModelIndex &index);
-
     void on_tablePaths_activated(const QModelIndex &index);
 
-    void on_action_Design_triggered();
-
-    void on_actiontest_curve_triggered();
-
 private:
-    Ui::MainWindow *ui; /**< TODO: describe */
-    QList<QDockWidget*> m_docks; /**< 记录所有dockWidget的指针 */
-    int numberDocks; /**< TODO: describe */
-    QLabel *labelScaling; /**< TODO: describe */
-    QStandardItemModel* modelPoints; /**< TODO: describe */
-    QStandardItemModel* modelPaths; /**< TODO: describe */
-    DialogMS *dialogMS; /**< TODO: describe */
-    DialogMM *dialogMM; /**< TODO: describe */
-    DialogDesign *dialogDesign; /**< TODO: describe */
+    Ui::MainWindow *ui;
+
+    QLabel *labelScaling;
+    QStandardItemModel* modelPoints;
+    QStandardItemModel* modelPaths;
+
+    DialogMS *dialogMS; /**< 修改褶省 */
+    DialogMM *dialogMM; /**< 修改尺寸 */
+    DialogDesign *dialogDesign; /**< 选择廓形 */
 
 signals:
 };
