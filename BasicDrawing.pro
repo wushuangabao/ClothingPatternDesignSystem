@@ -40,7 +40,9 @@ SOURCES += \
     dxflib/dl_writer_ascii.cpp \
     components/mycomponent.cpp \
     rules/myrule.cpp \
-    dialog/dialogtest/dialogtestcurve.cpp
+    dialog/dialogtest/dialogtestcurve.cpp \
+    dialog/dialogrule/dialogruleedit.cpp \
+    dialog/dialogrule/dialogrule.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -58,7 +60,9 @@ HEADERS += \
     dxflib/dl_dxf.h \
     components/mycomponent.h \
     rules/myrule.h \
-    dialog/dialogtest/dialogtestcurve.h
+    dialog/dialogtest/dialogtestcurve.h \
+    dialog/dialogrule/dialogruleedit.h \
+    dialog/dialogrule/dialogrule.h
 
 FORMS += \
         mainwindow.ui \
@@ -68,7 +72,9 @@ FORMS += \
     dialog/dialogdesign.ui \
     dialog/dialogdesign/dialogpantsh.ui \
     dialog/dialogsize.ui \
-    dialog/dialogtest/dialogtestcurve.ui
+    dialog/dialogtest/dialogtestcurve.ui \
+    dialog/dialogrule/dialogruleedit.ui \
+    dialog/dialogrule/dialogrule.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

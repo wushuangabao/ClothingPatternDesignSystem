@@ -80,6 +80,7 @@
     <addaction name="action_Design"/>
     <addaction name="action_14"/>
     <addaction name="action_A_5"/>
+    <addaction name="action_Rule"/>
    </widget>
    <widget class="QMenu" name="menu_M">
     <property name="title">
@@ -399,6 +400,14 @@
   <action name="actiontest_curve">
    <property name="text">
     <string>test curve</string>
+   </property>
+  </action>
+  <action name="action_Rule">
+   <property name="text">
+    <string>制板规则(&amp;R)</string>
+   </property>
+   <property name="toolTip">
+    <string>管理制板规则(R)</string>
    </property>
   </action>
  </widget>

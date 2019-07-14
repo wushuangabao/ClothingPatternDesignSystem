@@ -48,6 +48,8 @@ private slots:
     void on_tablePaths_clicked(const QModelIndex &index);
     void on_tablePaths_activated(const QModelIndex &index);
 
+    void on_action_Rule_triggered();
+
 private:
     Ui::MainWindow *ui;
 

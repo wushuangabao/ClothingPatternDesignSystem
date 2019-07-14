@@ -8,6 +8,7 @@
 #include "dialog/dialogms.h"
 #include "dialog/dialogmm.h"
 #include "dialog/dialogdesign.h"
+#include "dialog/dialogrule/dialogrule.h"
 #include "dialog/dialogtest/dialogtestcurve.h"
 #include "data/mypathdata.h"
 //#include <QHeaderView>
@@ -374,10 +375,20 @@ void MainWindow::on_actiontest_curve_triggered()
 }
 
 /**
- * @brief action触发 另存为（ASTM标准DXF格式
+ * @brief action触发 另存为（ASTM标准DXF格式)
  */
 void MainWindow::on_action_F_A_triggered()
 {
     QString filePath=painterArea->myPathData->name+".dxf";
     painterArea->myPathData->writeASTM(filePath);
+}
+
+/**
+ * @brief action触发 编辑、管理制板规则
+ */
+void MainWindow::on_action_Rule_triggered()
+{
+    DialogRule* dialogRule = new DialogRule(this);
+    dialogRule->exec();
+    delete dialogRule;
 }
