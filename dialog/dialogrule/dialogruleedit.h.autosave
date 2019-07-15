@@ -29,8 +29,6 @@ private slots:
     void on_listView_clicked(const QModelIndex &index);
     void on_pushButton_clicked();
 
-    void on_actionInsertCode_triggered();
-
 private:
     Ui::DialogRuleEdit *ui;
 
@@ -40,6 +38,8 @@ private:
     QStringList strEntities; /**< 所有已定义的实体 */
     QStringList codeList; /**< 制板语言的代码集合 */
     int currentIndex; /**< 当前选择的语句 */
+    
+    void keyPressEvent(QKeyEvent *ev);
 
 signals:
 

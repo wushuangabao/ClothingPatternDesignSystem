@@ -42,7 +42,9 @@ SOURCES += \
     rules/myrule.cpp \
     dialog/dialogtest/dialogtestcurve.cpp \
     dialog/dialogrule/dialogruleedit.cpp \
-    dialog/dialogrule/dialogrule.cpp
+    dialog/dialogrule/dialogrule.cpp \
+    dialog/dialogrule/dialogdefparameter.cpp \
+    dialog/dialogrule/dialogaggignparameter.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -62,7 +64,9 @@ HEADERS += \
     rules/myrule.h \
     dialog/dialogtest/dialogtestcurve.h \
     dialog/dialogrule/dialogruleedit.h \
-    dialog/dialogrule/dialogrule.h
+    dialog/dialogrule/dialogrule.h \
+    dialog/dialogrule/dialogdefparameter.h \
+    dialog/dialogrule/dialogaggignparameter.h
 
 FORMS += \
         mainwindow.ui \
@@ -74,7 +78,9 @@ FORMS += \
     dialog/dialogsize.ui \
     dialog/dialogtest/dialogtestcurve.ui \
     dialog/dialogrule/dialogruleedit.ui \
-    dialog/dialogrule/dialogrule.ui
+    dialog/dialogrule/dialogrule.ui \
+    dialog/dialogrule/dialogdefparameter.ui \
+    dialog/dialogrule/dialogaggignparameter.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

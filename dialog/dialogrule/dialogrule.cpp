@@ -29,6 +29,7 @@ DialogRule::DialogRule(QWidget *parent) :
 DialogRule::~DialogRule()
 {
     delete ui;
+    delete model;
 }
 
 /**
