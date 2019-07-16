@@ -1,10 +1,12 @@
 #include <QStringListModel>
 #include <QInputEvent>
+#include <QTextCodec>
+#include <QDir>
 #include "dialogruleedit.h"
 #include "ui_dialogruleedit.h"
 #include "dialogdefparameter.h"
 
-DialogRuleEdit::DialogRuleEdit(QWidget *parent) :
+DialogRuleEdit::DialogRuleEdit(QWidget *parent, QString d) :
     QDialog(parent),
     ui(new Ui::DialogRuleEdit)
 {
@@ -12,16 +14,23 @@ DialogRuleEdit::DialogRuleEdit(QWidget *parent) :
 
     // 参数类型
     strEntityTypes<<"请选择类型"<<"参数"<<"点"<<"直线"<<"曲线";
-    ui->comboBoxInput->insertItems(0,strEntityTypes);
     ui->comboBoxDefine->insertItems(0,strEntityTypes);
+    ui->comboBoxInput->insertItems(0,strEntityTypes);
+    ui->comboBoxInput->removeItem(4);
 
     // 实体名称
-    strEntities<<"请选择实体"<<"line1"<<"distance";
-    ui->comboBoxAssign->insertItems(0,strEntities);
-    ui->comboBoxOutput->insertItems(0,strEntities);
+    insertEntity("请选择实体");
+
+    if(d != ""){
+        dir = d;
+        if(dir.contains(".txt", Qt::CaseInsensitive))
+            readRuleFile();  // 读取dir文件到codeList
+    }else{
+        dir = QDir::currentPath() + "/rules";
+    }
+
 
     // 代码的列表视图
-    codeList<<"规则 向下平移"<<"输入 直线 line1"<<"输入 参数 distance";
     model = new QStringListModel(codeList);
     ui->listView->setModel(model);
     //ui->listView->setMovement(QListView::Free);  // 设置为可拖动
@@ -50,6 +59,81 @@ void DialogRuleEdit::newEntity(const QString type, bool isInput)
     dlg->setWindowTitle(title);
     dlg->exec();
     delete dlg;
+}
+
+/**
+ * @brief 根据codeList生成规则文件
+ */
+void DialogRuleEdit::writeRuleFile()
+{
+    if(dir.contains(".txt", Qt::CaseInsensitive)){
+        QString fileNameOld = getFileName(dir), fileNameNew = ui->lineEdit->text();
+        // case: 与原文件同名，则删除原文件
+        if(fileNameOld == fileNameNew)
+            QFile::remove(dir);
+        // case: 文件名已被修改，则修改dir
+        else {
+            int position = dir.lastIndexOf(fileNameOld);
+            dir.replace(position,fileNameOld.length(),fileNameNew);
+        }
+    }
+    else{
+        dir = dir + "/" + ui->lineEdit->text() + ".txt";
+        // todo: 检查文件名 ui->lineEdit->text() 的合法性，以及是否重复
+    }
+    QString s = "";
+    for(QStringList::iterator it = codeList.begin(); it != codeList.end(); ++it){
+        s = s + *it + "\n";
+    }
+    QFile file(dir);
+    file.open(QIODevice::ReadWrite | QIODevice::Text);
+    file.write(s.toUtf8());
+    file.close();
+}
+
+/**
+ * @brief 读取dir路径的规则文件
+ */
+void DialogRuleEdit::readRuleFile()
+{
+    QString line;
+    QFile file(dir);
+    if(!file.open(QIODevice::ReadOnly|QIODevice::Text))
+    {
+        // todo: 提示打开文件失败
+        return;
+    }
+    // 设置codeList
+    while (!file.atEnd()) {
+        QTextCodec *codec= QTextCodec::codecForName("utf8");
+        line = codec->toUnicode(file.readLine());
+        codeList << line.simplified();
+        // 设置strEntities
+        if(isDefinition(line))
+            insertEntity(getEntityName(line));
+    }
+    // 设置lineEdit规则名
+    QString fileName = getFileName(dir);
+    ui->lineEdit->setText(fileName);
+    // 设置comboBoxOutput输出实体
+    if(line.contains("输出")){
+        QString entityOutput = line.remove("输出").simplified();
+        ui->comboBoxOutput->setCurrentText(entityOutput);
+    }
+    file.close();
+}
+
+/**
+ * @brief 获取文件名
+ * @param d 文件路径
+ * @return
+ */
+QString DialogRuleEdit::getFileName(QString d)
+{
+    int i = d.lastIndexOf("/");
+    d = d.mid(i+1);
+    i = d.lastIndexOf(".");
+    return d.left(i);
 }
 
 /**
@@ -185,11 +269,25 @@ void DialogRuleEdit::on_listView_clicked(const QModelIndex &index)
 }
 
 /**
- * @brief Confirm
+ * @brief 点击Confirm按钮
  */
 void DialogRuleEdit::on_pushButton_clicked()
 {
-    // 检查规则合法性
+    // todo: 检查规则名称合法性
+
+    // todo: 检查输入实体合法性
+
+    // todo: 检查规则体的语法正确性
+
+    // 检查是否有输出实体
+    int idOutputEntity = ui->comboBoxOutput->currentIndex();
+    if(idOutputEntity == 0){
+        // todo: 提示未选择输出实体
+        return;
+    }
+
+    writeRuleFile();
+    this->close();
 }
 
 /**
@@ -198,10 +296,13 @@ void DialogRuleEdit::on_pushButton_clicked()
  */
 void DialogRuleEdit::keyPressEvent(QKeyEvent *ev)
 {
+    // 回车：
     if(ev->key() == Qt::Key_Return){
         insertCode("");
         ui->listView->edit(model->index(currentIndex));
-    }else if(ev->key() == Qt::Key_Delete){
+    }
+    // 删除：
+    else if(ev->key() == Qt::Key_Delete){
         deleteCode(currentIndex);
     }
 }
@@ -225,12 +326,11 @@ bool DialogRuleEdit::isDefinition(const QString &code)
 /**
  * @brief 从code中提取实体名称
  * @param code
- * @param definition 是否为定义语句
  * @return ""表示没有找到
  */
 QString DialogRuleEdit::getEntityName(const QString &code)
 {
-    QString name;
+    QString name = code;
 
     // case: 是定义（亦即包含实体类型）
     for(QStringList::iterator it = strEntityTypes.begin()+1; it != strEntityTypes.end(); ++it){
@@ -251,6 +351,10 @@ QString DialogRuleEdit::getEntityName(const QString &code)
     if(idEnd != -1){
         name.remove(code.mid(idEnd));
         return name.simplified();
+    }
+
+    if(code.contains("输出")){
+        return name.remove("输出").simplified();
     }
 
     return "";

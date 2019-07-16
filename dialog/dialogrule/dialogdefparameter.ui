@@ -63,6 +63,12 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="text">
+    <string>entity</string>
+   </property>
+   <property name="maxLength">
+    <number>32</number>
+   </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
@@ -82,12 +88,25 @@
     <rect>
      <x>150</x>
      <y>40</y>
-     <width>131</width>
+     <width>151</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string/>
+    <string>= 0</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>20</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>（数字单位cm）</string>
    </property>
   </widget>
  </widget>

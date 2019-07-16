@@ -42,16 +42,21 @@ void DialogRule::refresh()
 
 /**
  * @brief 双击视图中某一项规则，打开规则编辑器
- * @param index 选项索引
+ * @param index
  */
 void DialogRule::on_treeView_doubleClicked(const QModelIndex &index)
 {
     currentDir = model->filePath(index);
+    if(currentDir.contains(".txt", Qt::CaseInsensitive)){
+        DialogRuleEdit* dlg = new DialogRuleEdit(this,currentDir);
+        dlg->exec();
+        delete dlg;
+    }
 }
 
 /**
  * @brief 点视图中某一项规则
- * @param index 选项索引
+ * @param index
  */
 void DialogRule::on_treeView_clicked(const QModelIndex &index)
 {
@@ -63,7 +68,12 @@ void DialogRule::on_treeView_clicked(const QModelIndex &index)
  */
 void DialogRule::on_pushButtonAdd_clicked()
 {
-    DialogRuleEdit* dlg = new DialogRuleEdit;
+    QString d = currentDir;
+    if(d.contains(".txt", Qt::CaseInsensitive)){
+        int i = d.lastIndexOf("/");
+        d = d.left(i);
+    }
+    DialogRuleEdit* dlg = new DialogRuleEdit(this,d);
     dlg->exec();
     delete dlg;
 }
@@ -84,4 +94,16 @@ void DialogRule::on_pushButtonDelete_clicked()
             QFile::remove(currentDir);
         }
     }
+}
+
+/**
+ * @brief 根据当前选择的规则进行绘制
+ */
+void DialogRule::on_pushButton_clicked()
+{
+    // 解析规则，转换为QPainterPath
+
+    // 在painterArea上指定一点
+
+    // 将QPainterPath绘制到指定点
 }

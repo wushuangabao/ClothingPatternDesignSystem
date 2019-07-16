@@ -14,9 +14,9 @@ class MyPath
 public:
     MyPath(PainterArea *parent);
     ~MyPath();
-    PainterArea *parent; /**< 绘图区指针 */
+    PainterArea *parent;  /**< 绘图区指针 */
     QPainterPath *myPath; /**< 绘图路径 */
-    QPointF *startPoint; /**< 坐标系中的位置参照点 */
+    QPointF *startPoint;  /**< 坐标系中的位置参照点 */
 
     void setStartPoint(qreal x,qreal y);
     void setStartPoint(QPointF point);

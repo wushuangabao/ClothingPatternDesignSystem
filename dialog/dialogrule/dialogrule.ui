@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
+    <width>595</width>
     <height>495</height>
    </rect>
   </property>
@@ -24,7 +24,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QTreeView" name="treeView"/>
+      <widget class="QTreeView" name="treeView">
+       <attribute name="headerDefaultSectionSize">
+        <number>150</number>
+       </attribute>
+      </widget>
      </item>
     </layout>
    </item>
@@ -42,6 +46,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>绘制</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonAdd">

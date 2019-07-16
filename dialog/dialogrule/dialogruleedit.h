@@ -14,10 +14,13 @@ class DialogRuleEdit : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogRuleEdit(QWidget *parent = nullptr);
+    explicit DialogRuleEdit(QWidget *parent, QString d = "");
     ~DialogRuleEdit();
 
     void newEntity(const QString type, bool isInput);
+    void writeRuleFile();
+    void readRuleFile();
+    QString getFileName(QString d);
 
 public slots:
     void insertCode(const QString &code);
@@ -34,12 +37,12 @@ private slots:
 private:
     Ui::DialogRuleEdit *ui;
 
-    QStringListModel* model; /**< 列表数据模型 */
-
-    QStringList strEntityTypes; /**< 实体类型 */
-    QStringList strEntities; /**< 所有已定义的实体 */
-    QStringList codeList; /**< 制板语言的代码集合 */
-    int currentIndex; /**< 当前选择的语句 */
+    QString dir; /**< 文件所在目录 */
+    QStringListModel* model;    /**< 列表的数据模型 */
+    QStringList strEntityTypes; /**< 实体类型的集合 */
+    QStringList strEntities;    /**< 所有已定义实体的集合 */
+    QStringList codeList;       /**< 规则代码语句的集合 */
+    int currentIndex;           /**< 当前选择语句的索引 */
 
     void keyPressEvent(QKeyEvent *ev);
 
