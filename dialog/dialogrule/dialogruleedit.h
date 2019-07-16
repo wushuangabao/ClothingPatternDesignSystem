@@ -22,6 +22,7 @@ public:
 public slots:
     void insertCode(const QString &code);
     void deleteCode(int id);
+    void changeCode(const QModelIndex &topLeft,const QModelIndex &bottomRight);
 
 private slots:
     void on_comboBoxInput_currentIndexChanged(const QString &arg1);

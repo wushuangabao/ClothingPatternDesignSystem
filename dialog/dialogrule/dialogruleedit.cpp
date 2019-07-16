@@ -10,19 +10,24 @@ DialogRuleEdit::DialogRuleEdit(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // 参数类型
     strEntityTypes<<"请选择类型"<<"参数"<<"点"<<"直线"<<"曲线";
     ui->comboBoxInput->insertItems(0,strEntityTypes);
     ui->comboBoxDefine->insertItems(0,strEntityTypes);
 
+    // 实体名称
     strEntities<<"请选择实体"<<"line1"<<"distance";
     ui->comboBoxAssign->insertItems(0,strEntities);
     ui->comboBoxOutput->insertItems(0,strEntities);
 
+    // 代码的列表视图
     codeList<<"规则 向下平移"<<"输入 直线 line1"<<"输入 参数 distance";
-    currentIndex = 2;
     model = new QStringListModel(codeList);
     ui->listView->setModel(model);
-    //ui->listView->setMovement(QListView::Free);
+    //ui->listView->setMovement(QListView::Free);  // 设置为可拖动
+    currentIndex = codeList.length() - 1;
+
+    connect(model,SIGNAL(dataChanged(const QModelIndex,const QModelIndex)),this,SLOT(changeCode(const QModelIndex,const QModelIndex)));
 }
 
 DialogRuleEdit::~DialogRuleEdit()
@@ -84,6 +89,27 @@ void DialogRuleEdit::deleteCode(int id)
             deleteEntity(name);
         }
     }
+}
+
+/**
+ * @brief 修改了代码
+ * @param topLeft
+ * @param bottomRight
+ */
+void DialogRuleEdit::changeCode(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    int id = topLeft.row();  // 修改代码的行数（理应等于currentIndex）
+    QString codeNew = model->data(topLeft).toString();  // 将QModelIndex转换为QString数据类型
+    QString codeOld = codeList.at(id);
+
+    if(isDefinition(codeOld)){
+        deleteEntity(getEntityName(codeOld));
+    }
+    if(isDefinition(codeNew)){
+        insertEntity(getEntityName(codeNew));
+    }
+    codeList.removeAt(id);
+    codeList.insert(id,codeNew);
 }
 
 /**
