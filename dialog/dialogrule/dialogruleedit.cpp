@@ -10,7 +10,7 @@ DialogRuleEdit::DialogRuleEdit(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    strEntityTypes<<"请选择类型"<<"参数"<<"点"<<"直线段"<<"曲线段";
+    strEntityTypes<<"请选择类型"<<"参数"<<"点"<<"直线"<<"曲线";
     ui->comboBoxInput->insertItems(0,strEntityTypes);
     ui->comboBoxDefine->insertItems(0,strEntityTypes);
 
@@ -22,7 +22,7 @@ DialogRuleEdit::DialogRuleEdit(QWidget *parent) :
     currentIndex = 2;
     model = new QStringListModel(codeList);
     ui->listView->setModel(model);
-    ui->listView->setMovement(QListView::Free);
+    //ui->listView->setMovement(QListView::Free);
 }
 
 DialogRuleEdit::~DialogRuleEdit()
@@ -56,7 +56,68 @@ void DialogRuleEdit::insertCode(const QString &code)
     codeList.insert(currentIndex+1,code);
     model->setStringList(codeList);
     currentIndex++;
-    // todo:选中刚加入的语句（找不到API）
+    ui->listView->setCurrentIndex(model->index(currentIndex));  // 选中刚加入的语句
+
+    // case: 定义了新的实体
+    if(code.contains("输入") || isDefinition(code)){
+        QString name = getEntityName(code);
+        insertEntity(name);
+    }
+}
+
+/**
+ * @brief 删除一句代码
+ * @param id
+ */
+void DialogRuleEdit::deleteCode(int id)
+{
+    if(id>0 && id<codeList.size()){
+        QString code = codeList[id];
+        codeList.removeAt(id);
+        model->setStringList(codeList);
+        currentIndex--;
+        ui->listView->setCurrentIndex(model->index(currentIndex));  // 选中前一句
+
+        // case: 删除了实体定义语句
+        if(code.contains("输入") || isDefinition(code)){
+            QString name = getEntityName(code);
+            deleteEntity(name);
+        }
+    }
+}
+
+/**
+ * @brief 将新实体name加入strEntities
+ * @param name
+ */
+void DialogRuleEdit::insertEntity(const QString &name)
+{
+    // 检查是否有重名
+    if(strEntities.contains(name)){
+        // todo: 重新命名
+        return;  // 权宜之计
+    }
+
+    int len = strEntities.length();
+    strEntities.push_back(name);
+
+    // 更新comboBox
+    QStringList sl;
+    sl << name;
+    ui->comboBoxAssign->insertItems(len,sl);
+    ui->comboBoxOutput->insertItems(len,sl);
+}
+
+/**
+ * @brief 从strEntities中删除实体
+ * @param name
+ */
+void DialogRuleEdit::deleteEntity(const QString &name)
+{
+    int id = strEntities.indexOf(name);
+    strEntities.removeAt(id);
+    ui->comboBoxAssign->removeItem(id);
+    ui->comboBoxOutput->removeItem(id);
 }
 
 /**
@@ -107,10 +168,64 @@ void DialogRuleEdit::on_pushButton_clicked()
 
 /**
  * @brief 键盘输入事件
- * @param ev
+ * @param key event
  */
 void DialogRuleEdit::keyPressEvent(QKeyEvent *ev)
 {
-    if (ev->key() == Qt::EnterKeyType
+    if(ev->key() == Qt::Key_Return){
+        insertCode("");
+        ui->listView->edit(model->index(currentIndex));
+    }else if(ev->key() == Qt::Key_Delete){
+        deleteCode(currentIndex);
+    }
 }
 
+/**
+ * @brief 是否为实体定义语句
+ * @param code
+ * @return bool
+ */
+bool DialogRuleEdit::isDefinition(const QString &code)
+{
+    for(QStringList::iterator it = strEntityTypes.begin()+1; it != strEntityTypes.end(); ++it){
+        QString type = *it;
+        if(code.contains(type)){
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @brief 从code中提取实体名称
+ * @param code
+ * @param definition 是否为定义语句
+ * @return ""表示没有找到
+ */
+QString DialogRuleEdit::getEntityName(const QString &code)
+{
+    QString name;
+
+    // case: 是定义（亦即包含实体类型）
+    for(QStringList::iterator it = strEntityTypes.begin()+1; it != strEntityTypes.end(); ++it){
+        QString type = *it;
+        int idStart = code.indexOf(type);
+        if(idStart != -1){
+            idStart += type.length();
+            int idEnd = code.indexOf("=");
+            name = code.mid(idStart);
+            if(idEnd != -1)
+                name.remove(code.mid(idEnd));
+            return name.simplified();
+        }
+    }
+
+    // case: 是赋值
+    int idEnd = code.indexOf("=");
+    if(idEnd != -1){
+        name.remove(code.mid(idEnd));
+        return name.simplified();
+    }
+
+    return "";
+}
