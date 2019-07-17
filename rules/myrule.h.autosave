@@ -32,6 +32,8 @@ public:
     ~MyRule();
 
     // 基本约束方法:
+    // 求点的方法集合
+    QPointF pFunc(QString func, int idFunc = -1);
     // 求偏移 位置参考点，距离参数，方向向量
     QPointF offset(QPointF p1, qreal distance, QPointF direction);
     // 定长延长 方向参考线，长度参数，定长线段

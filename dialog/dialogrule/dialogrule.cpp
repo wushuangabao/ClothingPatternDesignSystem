@@ -1,9 +1,12 @@
+#include <QFileSystemModel>
+#include <QTreeView>
+#include <QMessageBox>
+#include <QPainterPath>
 #include "dialogrule.h"
 #include "ui_dialogrule.h"
 #include "dialogruleedit.h"
-#include "qfilesystemmodel.h"
-#include "qtreeview.h"
-#include "qmessagebox.h"
+#include "../../rules/myrule.h"
+
 
 DialogRule::DialogRule(QWidget *parent) :
     QDialog(parent),
@@ -102,6 +105,10 @@ void DialogRule::on_pushButtonDelete_clicked()
 void DialogRule::on_pushButton_clicked()
 {
     // 解析规则，转换为QPainterPath
+    if(currentDir.contains(".txt",Qt::CaseInsensitive)){
+        MyRule rule(currentDir);
+        QPainterPath path = rule.drawPath();
+    }
 
     // 在painterArea上指定一点
 

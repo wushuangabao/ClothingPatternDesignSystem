@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+class MyRule;
+
 namespace Ui {
 class DialogAggignParameter;
 }
