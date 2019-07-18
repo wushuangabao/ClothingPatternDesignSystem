@@ -1,6 +1,7 @@
 #include <QInputDialog>
 #include "dialogaggignparameter.h"
 #include "ui_dialogaggignparameter.h"
+#include "../../rules/myrule.h"
 
 DialogAggignParameter::DialogAggignParameter(QString arg, QWidget *parent) :
     QDialog(parent),
@@ -69,5 +70,14 @@ void DialogAggignParameter::on_radioButton2_clicked()
  */
 void DialogAggignParameter::on_radioButton3_clicked()
 {
-
+    bool ok = true;
+    QString v = QInputDialog::getText(nullptr,"过程参数","设置公式（可使用已定义的参数名）：",QLineEdit::Normal,"单位：cm（不要加上单位）",&ok);
+    if(ok){
+        // 测试表达式v是否可以求值：
+        qreal value = MyRule::calculate(v, &ok);
+        if(ok)
+            ui->labelValue->setText(QString::number(value));
+        else
+            ui->labelValue->setText(v);
+    }
 }

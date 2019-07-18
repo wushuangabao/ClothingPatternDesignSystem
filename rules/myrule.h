@@ -31,20 +31,13 @@ public:
     MyRule(QString file);
     ~MyRule();
 
-    // 基本约束方法:
-    // 求点的方法集合
-    QPointF pFunc(QString func, int idFunc = -1);
-    // 求偏移 位置参考点，距离参数，方向向量
+    // 基本约束方法
+    QPointF pFunc(QString func, int idFunc = -1); // 求点的方法集合
     QPointF offset(QPointF p1, qreal distance, QPointF direction);
-    // 定长延长 方向参考线，长度参数，定长线段
     QPointF extend(Line l1, qreal length, Line lFixLength);
-    // 求垂足 垂线上的点，直线
     QPointF foot(QPointF p1, Line l1);
-    // 等分点	 线段上参考端点，线段另一端点，比例
     QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
-    // 求交点 直线，另一斜率不同的直线
     QPointF cross(Line l1, Line l2);
-    // 连接 线段的端点，线段另一端点
     Line line(QPointF p1, QPointF p2);
     // 圆滑 直接用drawPath(QList<QPointF> curve)实现
 
@@ -84,6 +77,9 @@ public:
     // 辅助工具函数：
     static bool left(QPointF p1, QPointF p2);
     static bool up(QPointF p1, QPointF p2);
+    static qreal calculate(QString expression, bool* ok = nullptr);
+    static QPointF endPoint(Line l, QString s, bool* ok = nullptr);
+    static QPointF endPoint(QPointF p1, QPointF p2, QString s, bool* ok = nullptr);
 };
 
 #endif // MYRULE_H

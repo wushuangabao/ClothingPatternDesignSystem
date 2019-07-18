@@ -106,8 +106,9 @@ void DialogRule::on_pushButton_clicked()
 {
     // 解析规则，转换为QPainterPath
     if(currentDir.contains(".txt",Qt::CaseInsensitive)){
-        MyRule rule(currentDir);
-        QPainterPath path = rule.drawPath();
+        MyRule* rule = new MyRule(currentDir);  // 为什么不用指针就无法初始化currentDir？
+        QPainterPath path = rule->drawPath();
+        delete  rule;
     }
 
     // 在painterArea上指定一点
