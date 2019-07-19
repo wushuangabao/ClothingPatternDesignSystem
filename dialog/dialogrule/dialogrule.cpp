@@ -6,7 +6,8 @@
 #include "ui_dialogrule.h"
 #include "dialogruleedit.h"
 #include "../../rules/myrule.h"
-
+#include "../../mainwindow.h"
+#include "../../painterarea.h"
 
 DialogRule::DialogRule(QWidget *parent) :
     QDialog(parent),
@@ -104,14 +105,17 @@ void DialogRule::on_pushButtonDelete_clicked()
  */
 void DialogRule::on_pushButton_clicked()
 {
-    // 解析规则，转换为QPainterPath
     if(currentDir.contains(".txt",Qt::CaseInsensitive)){
+        // 解析规则，转换为QPainterPath
         MyRule* rule = new MyRule(currentDir);  // 为什么不用指针就无法初始化currentDir？
         QPainterPath path = rule->drawPath();
-        delete  rule;
+        if(rule != nullptr){
+            delete  rule;
+            rule = nullptr;
+        }
+        // 将QPainterPath绘制
+        MainWindow* mw = static_cast<MainWindow*>(parent());
+        mw->painterArea->yellowPath = path;
+        mw->painterArea->update();
     }
-
-    // 在painterArea上指定一点
-
-    // 将QPainterPath绘制到指定点
 }

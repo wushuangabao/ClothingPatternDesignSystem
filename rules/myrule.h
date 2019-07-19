@@ -19,25 +19,28 @@ struct Line{
 class MyRule
 {
 private:
-    QStringList types;  /**< 实体类型表 */
-    QStringList pFuncs; /**< 点的方法名称表 */
-    QString file;       /**< 规则文件路径 */
-    QString entityOut;  /**< 输出实体名 */
+    QStringList types;      /**< 实体类型表 */
+    QStringList pFuncs;     /**< 点的方法名称表 */
+    QString file;           /**< 规则文件路径 */
+    QString entityOut;      /**< 输出实体名 */
+    QStringList entitiesIn; /**< 输入实体值的队列 */
+    MyRule *parentRule;     /**< 本规则的调用者 */
 
     void info(QString info);
     bool setInput(QString type, QString name);
+    QString findRulePath(QString ruleName);
 
 public:
     MyRule(QString file);
     ~MyRule();
 
     // 基本约束方法
-    QPointF pFunc(QString func, int idFunc = -1); // 求点的方法集合
+    QPointF pFunc(QString func, int idFunc = -1, bool* ok = nullptr); // 求点的方法集合
     QPointF offset(QPointF p1, qreal distance, QPointF direction);
-    QPointF extend(Line l1, qreal length, Line lFixLength);
-    QPointF foot(QPointF p1, Line l1);
+    QPointF direction(QPointF p1, QPointF p2, bool* ok = nullptr);
+    QPointF foot(QPointF p1, Line l1, bool* ok = nullptr);
     QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
-    QPointF cross(Line l1, Line l2);
+    QPointF cross(Line l1, Line l2, bool* ok = nullptr);
     Line line(QPointF p1, QPointF p2);
     // 圆滑 直接用drawPath(QList<QPointF> curve)实现
 
@@ -49,6 +52,7 @@ public:
 
     // 规则代码解析：
     bool parseCode(QString code);
+    QString pretreat(QString code);
     QStringList getEntityNames(QString code);
     QString getEntityType(QString code);
     QString getTypeOf(QString name);
@@ -63,9 +67,9 @@ public:
     QList<QPointF> curve(QString value, bool* ok = nullptr);
 
     // 使用自定义规则：
-    QString callRule(QString file);
-    QString callRule(QString file,QString input);
-    QString callRule(QString file,QStringList input);
+    QString callRule(QString f, QString in = "", MyRule* parent = nullptr);
+    QPointF pointByRule(QString f, QString in, bool* ok = nullptr);
+    Line lineByRule(QString f, QString in, bool* ok = nullptr);
 
     // 生成绘图路径：
     QPainterPath drawPath();
@@ -75,7 +79,11 @@ public:
     QPainterPath drawPath(QList<QPointF> curve);  // todo: 实现贝塞尔插值曲线
 
     // 辅助工具函数：
+    static bool zero(qreal r);
+    static bool equal(qreal r1, qreal r2);
     static bool left(QPointF p1, QPointF p2);
+    static bool right(QPointF p1, QPointF p2);
+    static bool down(QPointF p1, QPointF p2);
     static bool up(QPointF p1, QPointF p2);
     static qreal calculate(QString expression, bool* ok = nullptr);
     static QPointF endPoint(Line l, QString s, bool* ok = nullptr);

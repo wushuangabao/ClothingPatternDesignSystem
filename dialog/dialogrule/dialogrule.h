@@ -15,7 +15,7 @@ class DialogRule : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogRule(QWidget *parent = nullptr);
+    explicit DialogRule(QWidget *parent);
     ~DialogRule();
 
     QString dir; /**< rules文件夹的路径 */

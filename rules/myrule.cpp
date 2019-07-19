@@ -24,10 +24,43 @@ void MyRule::info(QString info)
 bool MyRule::setInput(QString type, QString name)
 {
     bool ok = true;
-    QString v = QInputDialog::getText(nullptr,"初始化-输入实体",type+name+" =",QLineEdit::Normal,"单位：cm（不要保留单位）",&ok);
+    QPointF point;
+    Line line;
+    QString v = "";
+    if(parentRule == nullptr)
+        v = QInputDialog::getText(nullptr,"初始化-输入实体",type+name+" =",
+                                  QLineEdit::Normal,"单位：cm（不要保留单位）",&ok);
+    else if(entitiesIn.isEmpty()){
+        info("找不到输入的"+type+"实体"+name);
+        v = QInputDialog::getText(nullptr,"初始化-输入实体",type+name+" =",
+                                  QLineEdit::Normal,"单位：cm（不要保留单位）",&ok);
+    }else{
+        v = entitiesIn.first();
+        entitiesIn.removeFirst();
+        switch(types.indexOf(type)){
+        case 0:
+            v = QString::number(parentRule->param(v, &ok));
+            if(ok)
+                params.insert(name,v);
+            break;
+        case 1:
+            point = parentRule->point(v, &ok);
+            if(ok)
+                points.insert(name,point);
+            break;
+        case 2:
+            line = parentRule->line(v, &ok);
+            if(ok)
+                lines.insert(name,line);
+            break;
+        case 3:
+        case -1:
+            ok = false;
+        }
+        return ok;
+    }
+    v = pretreat(v);
     if(ok){
-        QPointF point;
-        Line line;
         switch(types.indexOf(type)){
         case 0:
             v = QString::number(param(v, &ok));
@@ -53,6 +86,17 @@ bool MyRule::setInput(QString type, QString name)
 }
 
 /**
+ * @brief 找到同文件下的ruleName对应的路径
+ * @param ruleName 规则文件名（不含后缀）
+ * @return 失败返回""
+ */
+QString MyRule::findRulePath(QString ruleName)
+{
+    QString s = file.left(file.lastIndexOf('/')+1);
+    return s + ruleName + ".txt";
+}
+
+/**
  * @brief p1是否在p2的左侧（x轴向右）
  * @param p1
  * @param p2
@@ -61,7 +105,33 @@ bool MyRule::setInput(QString type, QString name)
 bool MyRule::left(QPointF p1, QPointF p2)
 {
     qreal dx = p1.x()-p2.x();
-    if(dx <= -0.001) return true;
+    if(dx <= -0.0001) return true;
+    else return false;
+}
+
+/**
+ * @brief p1是否在p2的右侧（x轴向右）
+ * @param p1
+ * @param p2
+ * @return
+ */
+bool MyRule::right(QPointF p1, QPointF p2)
+{
+    qreal dx = p1.x()-p2.x();
+    if(dx >= 0.0001) return true;
+    else return false;
+}
+
+/**
+ * @brief p1是否在p2的下方（y轴向下）
+ * @param p1
+ * @param p2
+ * @return
+ */
+bool MyRule::down(QPointF p1, QPointF p2)
+{
+    qreal dy = p1.y()-p2.y();
+    if(dy >= 0.0001) return true;
     else return false;
 }
 
@@ -74,7 +144,7 @@ bool MyRule::left(QPointF p1, QPointF p2)
 bool MyRule::up(QPointF p1, QPointF p2)
 {
     qreal dy = p1.y()-p2.y();
-    if(dy <= -0.001) return true;
+    if(dy <= -0.0001) return true;
     else return false;
 }
 
@@ -173,8 +243,8 @@ qreal MyRule::calculate(QString s, bool *ok)
 /**
  * @brief 取直线的端点
  * @param l 直线
- * @param s 上下左右
- * @param ok s非法时赋值为false
+ * @param s 上下左右（注意竖直线的左=上、右=下，水平线的上=左、下=右）
+ * @param ok s非法 或 直线两端点重合 时赋值为false
  * @return
  */
 QPointF MyRule::endPoint(Line l, QString s, bool* ok)
@@ -186,8 +256,8 @@ QPointF MyRule::endPoint(Line l, QString s, bool* ok)
  * @brief 取两点中的一点
  * @param p1
  * @param p2
- * @param s 上下左右（注意竖直线不区分左右端点、水平线不区分上下端点）
- * @param ok s非法时赋值为false
+ * @param s 上下左右（注意竖直两点的左=上、右=下，水平两点的上=左、下=右）
+ * @param ok s非法 或 两点重合 时赋值为false
  * @return
  */
 QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
@@ -195,28 +265,37 @@ QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
     s = s.simplified();
     if(s == "左端点" || s == "左"){
         if(left(p1,p2)) return p1;
-        else return p1;
+        else if(right(p1,p2)) return p2;
+        else if(up(p1,p2)) return p1;
+        else if(down(p1,p2)) return p2;
     }else if(s == "右端点" || s == "右"){
         if(left(p1,p2)) return p2;
-        else return p1;
-    }else if(s == "上端点" || s == "上"){
+        else if(right(p1,p2)) return p1;
+        else if(up(p1,p2)) return p2;
+        else if(down(p1,p2)) return p1;
+    }
+    if(s == "上端点" || s == "上"){
         if(up(p1,p2)) return p1;
-        else return p2;
+        else if(down(p1,p2)) return p2;
+        else if(left(p1,p2)) return p1;
+        else if(right(p1,p2)) return p2;
     }else if(s == "下端点" || s == "下"){
         if(up(p1,p2)) return p2;
-        else return p1;
-    }else {
-        if(ok != nullptr) *ok =false;
-        return p1;
+        else if(down(p1,p2)) return p1;
+        else if(left(p1,p2)) return p2;
+        else if(right(p1,p2)) return p1;
     }
+    if(ok != nullptr) *ok =false;
+    return p1;
 }
 
 MyRule::MyRule(QString f)
 {
     types << "参数" << "点" << "直线" << "曲线";
-    pFuncs << "求偏移" << "定长延长" << "求垂足" << "等分点" << "求交点";
+    pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点";
     file = f;
     entityOut = "";
+    parentRule = nullptr;
 }
 
 MyRule::~MyRule(){}
@@ -225,9 +304,10 @@ MyRule::~MyRule(){}
  * @brief 基本约束方法的前5种（求点）
  * @param func 形如“方法名(实体参数表)”的字符串
  * @param idFunc 方法的索引，默认为-1
+ * @param ok 必要时赋值为false
  * @return
  */
-QPointF MyRule::pFunc(QString func, int idFunc)
+QPointF MyRule::pFunc(QString func, int idFunc, bool* ok)
 {
     QPointF p = QPointF(0,0);
     if(idFunc == -1){
@@ -235,26 +315,24 @@ QPointF MyRule::pFunc(QString func, int idFunc)
             if(func.contains(pFuncs[idFunc]))
                 break;
         if(idFunc == pFuncs.length()){
-            // todo: 在参数中加入bool标志，赋值为false
+            if(ok != nullptr) *ok = false;
             return p;
         }
     }
     QStringList en = func.split(QRegExp("\\(|\\)|,"),QString::SkipEmptyParts);
     for(int i=1;i<en.length();i++)
         en[i] = en[i].simplified();
-    // todo: switch中的方法调用失败时，加入bool判别标识
-    // todo: 参数不要直接调用实体表中的，会有bug，要改成都用解析和转化实体的数据类型的函数！还可以在上述函数中调用规则！还可以加入ok标识！
     switch (idFunc) {
     case 0:
-        return offset(point(en[1]),param(en[2]),point(en[3]));
+        return offset(point(en[1],ok),param(en[2],ok),point(en[3],ok));
     case 1:
-        return extend(lines[en[1]],param(en[2]),lines[en[3]]);
+        return direction(point(en[1],ok),point(en[2],ok));
     case 2:
-        return foot(point(en[1]),lines[en[2]]);
+        return foot(point(en[1],ok),line(en[2],ok));
     case 3:
-        return divide(point(en[1]),point(en[2]),param(en[3]));
+        return divide(point(en[1],ok),point(en[2],ok),param(en[3],ok));
     case 4:
-        return cross(lines[en[1]],lines[en[2]]);
+        return cross(line(en[1],ok),line(en[2],ok));
     }
     return p;
 }
@@ -274,28 +352,57 @@ QPointF MyRule::offset(QPointF p1, qreal distance, QPointF direction)
 }
 
 /**
- * @brief 定长延长点
- * @param l1 方向参照线
- * @param length 参照长度
- * @param lFixLength 定长的直线段
+ * @brief 求方向向量
+ * @param p1 起点
+ * @param p2 终点
+ * @param ok 两点重合时赋值为false
  * @return
  */
-QPointF MyRule::extend(Line l1, qreal length, Line lFixLength)
+QPointF MyRule::direction(QPointF p1, QPointF p2, bool *ok)
 {
-    QPointF p;
-    return p;
+    qreal dx=p2.x()-p1.x(), dy=p2.y()-p1.y();
+    if(zero(dx)){
+        if(zero(dy)){
+            if(ok != nullptr) *ok = false;
+            return QPointF(0,0);
+        }
+        return QPointF(0,dy);
+    }
+    if(zero(dy))
+        return QPointF(dx,0);
+    else
+        return QPointF(dx,dy);
 }
+
+
 
 /**
  * @brief 求垂足
- * @param p1 垂线上（、直线外 ？）的一点
+ * @param p1 垂线上、直线外的一点
  * @param l1 直线
- * @return
+ * @param ok p1在直线上时赋值为false
+ * @return p1在直线上时返回p1
  */
-QPointF MyRule::foot(QPointF p1, Line l1)
+QPointF MyRule::foot(QPointF p1, Line l1, bool *ok)
 {
-    QPointF p;
-    return p;
+    qreal x1=p1.x(), y1=p1.y(),
+          dxl1=l1.p1.x()-l1.p2.x(),
+          dyl1=l1.p1.y()-l1.p2.y();
+    // case: l1竖直
+    if(zero(dxl1))
+        return QPointF(l1.p1.x(),y1);
+    else{
+        qreal k1 = dyl1/dxl1;
+        // case: l1倾斜
+        if(!zero(k1)){
+            qreal k2 = -1/k1, b2 = y1-k2*x1, b1 = l1.p1.y()-l1.p1.x()*k1,
+                  x = (b2 - b1)/(k1 - k2), y = k1*x + b1;
+            return QPointF(x,y);
+        }
+        // case: l1水平
+        else
+            return QPointF(x1,l1.p1.y());
+    }
 }
 
 /**
@@ -307,20 +414,70 @@ QPointF MyRule::foot(QPointF p1, Line l1)
  */
 QPointF MyRule::divide(QPointF p1, QPointF p2, qreal proprtion)
 {
-    QPointF p;
-    return p;
+    qreal dx = p2.x()-p1.x(), dy = p2.y()-p1.y(),
+          x = p1.x()+dx*proprtion, y = p1.y()+dy*proprtion;
+    return QPointF(x,y);
 }
 
 /**
  * @brief 求交点
  * @param l1
  * @param l2
- * @return
+ * @param ok 无交点时赋值为false
+ * @return 无交点时返回(0,0)
  */
-QPointF MyRule::cross(Line l1, Line l2)
+QPointF MyRule::cross(Line l1, Line l2, bool *ok)
 {
-    QPointF p;
-    return p;
+    qreal x11=l1.p1.x(), x21=l2.p1.x(), y11=l1.p1.y(), y21=l2.p1.y(),
+          x12=l1.p2.x(), x22=l2.p2.x(), y12=l1.p2.y(), y22=l2.p2.y(),
+          dx1 = x11-x12, dy1 = y11-y12, dx2 = x21-x22, dy2 = y21-y22;
+    // case: l1竖直
+    if(zero(dx1)){
+        // case: l2水平
+        if(zero(dy2))
+            return QPointF(x11,y21);
+        // case: l2竖直
+        else if(zero(dx2)){
+            if(ok != nullptr) *ok = false;
+            return QPointF(0,0);
+        }
+        // case: l2倾斜
+        else{
+            qreal k2=dy2/dx2, b2=y21-x21*k2;
+            return QPointF(x11,k2*x11+b2);
+        }
+    }
+    // case: l1水平
+    else if(zero(dy1)){
+        // case: l2水平
+        if(zero(dy2)){
+            if(ok != nullptr) *ok = false;
+            return QPointF(0,0);
+        }
+        // case: l2竖直
+        else if(zero(dx2))
+            return QPointF(x21,y11);
+        // case: l2倾斜
+        else{
+            qreal k2=dy2/dx2, b2=y21-x21*k2;
+            return QPointF((y11-b2)/k2,y11);
+        }
+    }
+    // case: l1倾斜
+    else{
+        qreal k1=dy1/dx1, b1=y11-x11*k1;
+        // case: l2水平
+        if(zero(dy2))
+            return QPointF((y21-b1)/k1,y21);
+        // case: l2竖直
+        else if(zero(dx2))
+            return QPointF(x21,k1*x21+b1);
+        // case: l2倾斜
+        else{
+            qreal k2=dy2/dx2, b2=y21-x21*k2, x=(b2-b1)/(k1-k2);
+            return QPointF(x,k1*x+b1);
+        }
+    }
 }
 
 /**
@@ -343,7 +500,7 @@ Line MyRule::line(QPointF p1, QPointF p2)
  */
 bool MyRule::parseCode(QString code)
 {
-    code = code.simplified();
+    code = pretreat(code);
     if(code == "")
         return true;
     QStringList names = getEntityNames(code);
@@ -379,11 +536,8 @@ bool MyRule::parseCode(QString code)
         }
         // case: 单纯的定义语句
         else{
-            if(names.length() != 1) info(code + "语法错误：\n定义中的实体名数目!=1");
-            else{
-                defineEntity(type,names[0]);
-                return true;
-            }
+            defineEntity(type,names[0]);
+            return true;
         }
     }else{
         QStringList items = code.split("=",QString::SkipEmptyParts);
@@ -412,6 +566,26 @@ bool MyRule::parseCode(QString code)
 }
 
 /**
+ * @brief 对单句code进行预处理
+ * @param code
+ * @return 处理之后的语句
+ */
+QString MyRule::pretreat(QString code)
+{
+    code = code.simplified();
+    // 将中文标点 替换为 英文标点
+    code.replace("（","(");
+    code.replace("）",")");
+    code.replace("，",",");
+    // 在负号前面加上"0"，如"(-1,-2-3)"变成"(0-1,0-2-3)"
+    if(code[0]=='-')
+        code = "0" + code;
+    code.replace("(-","(0-");
+    code.replace(",-",",0-");
+    return code;
+}
+
+/**
  * @brief 读取代码中的实体名称
  * @param code
  * @return
@@ -432,9 +606,9 @@ QStringList MyRule::getEntityNames(QString code)
 QString MyRule::getEntityType(QString code)
 {
     for(int i=0;i<types.length();i++){
-        int id = code.indexOf(types[i]);
-        if(id != -1)
-            return code.mid(id,types[i].length());
+        int id = code.indexOf(types[i]), idAdd = id + types[i].length();
+        if(id != -1 && (idAdd==code.length() || code[idAdd]==' ') && (id==0 || code[id-1]==' '))
+            return types[i];
     }
     return "";
 }
@@ -566,7 +740,7 @@ QPointF MyRule::point(QString value, bool *ok)
 {
     value = value.simplified();
     QStringList numbers = value.split(QRegExp("\\(|\\)|,"),QString::SkipEmptyParts);
-    if(numbers.length() != 2){
+    if(numbers.length() != 2 || value[0] != '('){
         // case: 赋值为 另一个点
         if(getTypeOf(value) == types[1])
             return points[value];
@@ -584,18 +758,25 @@ QPointF MyRule::point(QString value, bool *ok)
                     if(numbers.length() == 2 && getTypeOf(numbers[0]) == types[2])
                         return endPoint(lines[numbers[0]],numbers[1],ok);
                 }
+                // case: 调用自定义规则 赋值
+                else if(value.contains("(") && value.contains(")")){
+                    int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
+                    QString ruleName = numbers[0],
+                            enIn = value.mid(i1+1,i2-i1-1).simplified();
+                    return pointByRule(ruleName, enIn, ok);
+                }
             }
             // case: 调用基本约束方法 赋值
             else
-                return pFunc(value, idFunc);
+                return pFunc(value, idFunc, ok);
         }
     }
-    // case: 采用 参数名或数值公式 赋值
+    // case: 采用 ( , ) 赋值
     else{
         qreal x = param(numbers[0],ok),y = param(numbers[1],ok);
         return QPointF(x,y);
     }
-    info("点值解析出错");
+    info("点值"+value+"解析出错");
     if(ok != nullptr)
         *ok = false;
     return QPointF(0,0);
@@ -612,11 +793,22 @@ Line MyRule::line(QString value, bool *ok)
     value = value.simplified();
     QStringList p = value.split("连接",QString::SkipEmptyParts);
     if(p.length() != 2){
-        info("直线值解析出错");
+        // case: 赋值为 另一条直线
+        if(getTypeOf(value) == types[2])
+            return lines[value];
+        // case: 调用自定义规则 赋值
+        else if(value.contains("(") && value.contains(")")){
+            int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
+            QString ruleName = value.left(i1),
+                    enIn = value.mid(i1+1,i2-i1-1).simplified();
+            return lineByRule(ruleName, enIn, ok);
+        }
+        info("直线值"+value+"解析出错");
         if(ok != nullptr)
             *ok = false;
         return line(QPointF(0,0),QPointF(0,0));
     }
+    // case: 连接两点赋值
     QPointF p1 = point(p[0], ok), p2 = point(p[1], ok);
     return line(p1, p2);
 }
@@ -662,10 +854,19 @@ QString MyRule::getTypeOf(QString name)
 /**
  * @brief 调用自定义规则，会弹框要求用户赋值输入实体
  * @param f 规则文件的路径
- * @return 输出实体的代码
+ * @param in 输入实体的代码
+ * @param parent 发起call的MyRule对象指针
+ * @return 输出实体的名称。""表示失败
  */
-QString MyRule::callRule(QString f)
+QString MyRule::callRule(QString f, QString in, MyRule* parent)
 {
+    // 解析输入实体
+    if(in != "" && parent != nullptr){
+        parentRule = parent;
+        // 将输入实体（的名称）加入entitiesIn队列
+        entitiesIn = pretreat(in).split(',');
+    }
+    // 打开规则文件
     QFile rule(f);
     if(!rule.open(QIODevice::ReadOnly|QIODevice::Text)){
         info("打开文件失败");
@@ -675,7 +876,7 @@ QString MyRule::callRule(QString f)
     while (!rule.atEnd()) {
         QTextCodec *codec= QTextCodec::codecForName("utf8");
         if(!parseCode(codec->toUnicode(rule.readLine()))){
-            info("规则文件解析出错");
+            info("规则文件解析出错\n"+f);
             break;
         }
     }
@@ -688,25 +889,53 @@ QString MyRule::callRule(QString f)
 }
 
 /**
- * @brief 调用自定义规则
- * @param f 规则文件的路径
- * @param in 输入实体的代码块
- * @return 输出实体的代码
+ * @brief 调用自定义规则获取点
+ * @param f 规则的名称
+ * @param in 输入实体的名称，形式为"name1,name2,..."（目前只能填写名称，绝不能出现","）
+ * @param ok 失败时赋值为false
+ * @return
  */
-QString MyRule::callRule(QString f,QString in)
+QPointF MyRule::pointByRule(QString f, QString in, bool *ok)
 {
-
+    QPointF p = QPointF(0,0);
+    QString type = "";
+    f = findRulePath(f);
+    MyRule *rule = new MyRule(f);
+    QString name = rule->callRule(f, in, this);
+    if(name != ""){
+        type = rule->getTypeOf(name);
+        if(type == types[1])
+            p = rule->points[name];
+    }
+    if(name == "" || type != types[1])
+        if(ok != nullptr) *ok = false;
+    delete rule;
+    return p;
 }
 
 /**
- * @brief 调用自定义规则
- * @param file 规则文件的路径
- * @param in 输入实体的代码列表
- * @return 输出实体的代码
+ * @brief 调用自定义规则获取直线
+ * @param f 规则的名称
+ * @param in 输入实体的名称，形式为"name1,name2,..."（目前只能填写名称，绝不能出现","、"连接"）
+ * @param ok 失败时赋值为false
+ * @return
  */
-QString MyRule::callRule(QString f, QStringList in)
+Line MyRule::lineByRule(QString f, QString in, bool *ok)
 {
-
+    Line l = { QPointF(0,0), QPointF(0,0) };
+    QString type = "";
+    f = findRulePath(f);
+    MyRule *rule = new MyRule(f);
+    QString name = rule->callRule(f, in, this);
+    if(name != ""){
+        type = rule->getTypeOf(name);
+        if(type == types[2])
+            l = rule->lines[name];
+    }
+    if(name == "" || type != types[2])
+        if(ok != nullptr) *ok = false;
+    delete rule;
+    return l;
 }
 
 /**
@@ -771,4 +1000,27 @@ QPainterPath MyRule::drawPath(QList<QPointF> curve)
     QPainterPath p;
     // todo: 画插值曲线
     return p;
+}
+
+/**
+ * @brief 判断r是否可以视作0
+ * @param r
+ * @return
+ */
+bool MyRule::zero(qreal r)
+{
+    if(r<0.0001 && r>-0.0001) return true;
+    else return false;
+}
+
+/**
+ * @brief 判断两个实数是否相等
+ * @param r1
+ * @param r2
+ * @return
+ */
+bool MyRule::equal(qreal r1, qreal r2)
+{
+    if(zero(r1 - r2)) return true;
+    else return false;
 }
