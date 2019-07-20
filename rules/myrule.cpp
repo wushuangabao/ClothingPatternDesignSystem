@@ -4,7 +4,7 @@
 #include <QTextCodec>
 #include <QMessageBox>
 #include <QInputDialog>
-#include "../mypath.h"
+#include "mypath.h"
 
 /**
  * @brief 弹出提示
@@ -291,7 +291,7 @@ QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
 
 MyRule::MyRule(QString f)
 {
-    types << "参数" << "点" << "直线" << "曲线";
+    types << "参数" << "点" << "直线" << "路径";
     pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点";
     file = f;
     entityOut = "";
@@ -319,7 +319,11 @@ QPointF MyRule::pFunc(QString func, int idFunc, bool* ok)
             return p;
         }
     }
-    QStringList en = func.split(QRegExp("\\(|\\)|,"),QString::SkipEmptyParts);
+    int id = func.indexOf('(');
+    func[id] = ',';
+    id = func.lastIndexOf(')');
+    func[id] = ' ';
+    QStringList en = func.split(",",QString::SkipEmptyParts);
     for(int i=1;i<en.length();i++)
         en[i] = en[i].simplified();
     switch (idFunc) {
@@ -503,29 +507,28 @@ bool MyRule::parseCode(QString code)
     code = pretreat(code);
     if(code == "")
         return true;
+    else if(code.left(3) == "规则 "){
+        // todo
+        return true;
+    }
     QStringList names = getEntityNames(code);
     QString value = getValue(code);
     if(value == ""){
         QString type = getEntityType(code);
         if(type == ""){
             // case: 指示输出实体
-            if(code.contains("输出")){
+            if(code.left(3) == "输出 "){
                 if(names.length() == 1){
                     if(entityOut != "") info("输出实体被重复定义，\n以最后一次定义为准");
                     entityOut = names[0];
                     return true;
                 }else info(code + "语法错误：\n输出实体名数目>1");
             }
-            // case: 指示规则名
-            else if(code.contains("规则")){
-                // todo
-                return true;
-            }
             // case: 其他语句
             else info(code + "无法解析");
         }
         // case: 指示输入实体
-        else if(code.contains("输入")){
+        else if(code.left(3) == "输入 "){
             if(names.length() != 1) info(code + "语法错误：\n输入实体名数目!=1");
             else{
                 if(getTypeOf(names[0]) == "")
@@ -572,11 +575,14 @@ bool MyRule::parseCode(QString code)
  */
 QString MyRule::pretreat(QString code)
 {
-    code = code.simplified();
     // 将中文标点 替换为 英文标点
     code.replace("（","(");
     code.replace("）",")");
     code.replace("，",",");
+    // 将换行符去掉
+    code.remove("\n");
+    // 将负号前的空格去掉
+    code.replace(" -","-");
     // 在负号前面加上"0"，如"(-1,-2-3)"变成"(0-1,0-2-3)"
     if(code[0]=='-')
         code = "0" + code;
@@ -634,10 +640,10 @@ QString MyRule::getValue(QString code)
  */
 void MyRule::defineEntity(QString type, QString name)
 {
-    // 重名检查
-    if(getTypeOf(name) != ""){
-        info("语法错误：" + name + "被多次定义。\n以最后一次为准。");
-    }
+//    // 重名检查
+//    if(getTypeOf(name) != ""){
+//        info("语法错误：" + name + "被多次定义。\n以最后一次为准。");
+//    }
     switch(types.indexOf(type)){
     case -1:
         info("无法定义实体：类型错误");
@@ -699,7 +705,7 @@ void MyRule::assignEntity(QString name, QString value)
  */
 qreal MyRule::param(QString value, bool *ok)
 {
-    QString s = value.remove(' ');
+    QString s = pretreat(value.remove(' '));
     QMap<QString,QString>::iterator it = params.find(s);
     // case: 值为参数名
     if(it != params.end())
@@ -814,7 +820,7 @@ Line MyRule::line(QString value, bool *ok)
 }
 
 /**
- * @brief 曲线值字符串解析
+ * @brief 路径值字符串解析
  * @param value
  * @param ok bool指针 必要时赋值为false
  * @return

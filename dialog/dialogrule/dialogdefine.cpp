@@ -1,10 +1,10 @@
-#include "dialogdefparameter.h"
-#include "ui_dialogdefparameter.h"
+#include "dialogdefine.h"
+#include "ui_DialogDefine.h"
 #include "dialogaggignparameter.h"
 
-DialogDefParameter::DialogDefParameter(QString arg, QWidget *parent, bool input) :
+DialogDefine::DialogDefine(QString arg, QWidget *parent, bool input) :
     QDialog(parent),
-    ui(new Ui::DialogDefParameter)
+    ui(new Ui::DialogDefine)
 {
     type = arg;
     code = "";
@@ -24,7 +24,7 @@ DialogDefParameter::DialogDefParameter(QString arg, QWidget *parent, bool input)
     connect(this,SIGNAL(newCode(const QString)),parent,SLOT(insertCode(const QString)));
 }
 
-DialogDefParameter::~DialogDefParameter()
+DialogDefine::~DialogDefine()
 {
     delete ui;
 }
@@ -32,7 +32,7 @@ DialogDefParameter::~DialogDefParameter()
 /**
  * @brief Ok
  */
-void DialogDefParameter::on_buttonBox_accepted()
+void DialogDefine::on_buttonBox_accepted()
 {
     QString name = ui->lineEdit->text();
 
@@ -57,7 +57,7 @@ void DialogDefParameter::on_buttonBox_accepted()
 /**
  * @brief Cancel
  */
-void DialogDefParameter::on_buttonBox_rejected()
+void DialogDefine::on_buttonBox_rejected()
 {
 
 }
@@ -65,7 +65,7 @@ void DialogDefParameter::on_buttonBox_rejected()
 /**
  * @brief 点击初始化赋值按钮
  */
-void DialogDefParameter::on_pushButton_clicked()
+void DialogDefine::on_pushButton_clicked()
 {
     QString name = ui->lineEdit->text();
     if(name == "")
@@ -84,7 +84,7 @@ void DialogDefParameter::on_pushButton_clicked()
  * @brief 初始化赋值槽函数
  * @param value
  */
-void DialogDefParameter::assignValue(const QString &value)
+void DialogDefine::assignValue(const QString &value)
 {
     code = value;
     ui->labelAssign->setText(QString("= %1").arg(code));

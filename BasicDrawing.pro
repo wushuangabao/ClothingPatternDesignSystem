@@ -26,61 +26,66 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     painterarea.cpp \
-    mypath.cpp \
-    dialog/dialogms.cpp \
-    dialog/dialogmm.cpp \
+    dialog/dialogmodify/dialogms.cpp \
+    dialog/dialogmodify/dialogmm.cpp \
     data/mypathdata.cpp \
     data/curvepoint.cpp \
     splash/splash.cpp \
     data/labelpoint.cpp \
-    dialog/dialogdesign.cpp \
+    dialog/dialogdesign/dialogdesign.cpp \
     dialog/dialogdesign/dialogpantsh.cpp \
-    dialog/dialogsize.cpp \
+    dialog/dialogsize/dialogsize.cpp \
     dxflib/dl_dxf.cpp \
     dxflib/dl_writer_ascii.cpp \
     components/mycomponent.cpp \
+    rules/mypath.cpp \
     rules/myrule.cpp \
     dialog/dialogtest/dialogtestcurve.cpp \
     dialog/dialogrule/dialogruleedit.cpp \
     dialog/dialogrule/dialogrule.cpp \
-    dialog/dialogrule/dialogdefparameter.cpp \
-    dialog/dialogrule/dialogaggignparameter.cpp
+    dialog/dialogrule/dialogdefine.cpp \
+    dialog/dialogrule/dialogaggignparameter.cpp \
+    dialog/dialogstyle/dialogstyle.cpp \
+    rules/mypainter.cpp
 
 HEADERS += \
     mainwindow.h \
     painterarea.h \
-    mypath.h \
-    dialog/dialogms.h \
-    dialog/dialogmm.h \
+    dialog/dialogmodify/dialogms.h \
+    dialog/dialogmodify/dialogmm.h \
     data/mypathdata.h \
     data/curvepoint.h \
     splash/splash.h \
     data/labelpoint.h \
-    dialog/dialogdesign.h \
+    dialog/dialogdesign/dialogdesign.h \
     dialog/dialogdesign/dialogpantsh.h \
-    dialog/dialogsize.h \
+    dialog/dialogsize/dialogsize.h \
     dxflib/dl_dxf.h \
     components/mycomponent.h \
+    rules/mypath.h \
     rules/myrule.h \
     dialog/dialogtest/dialogtestcurve.h \
     dialog/dialogrule/dialogruleedit.h \
     dialog/dialogrule/dialogrule.h \
-    dialog/dialogrule/dialogdefparameter.h \
-    dialog/dialogrule/dialogaggignparameter.h
+    dialog/dialogrule/dialogdefine.h \
+    dialog/dialogrule/dialogaggignparameter.h \
+    dialog/dialogstyle/dialogstyle.h \
+    rules/mypainter.h
 
 FORMS += \
         mainwindow.ui \
-    dialog/dialogms.ui \
-    dialog/dialogmm.ui \
+    dialog/dialogmodify/dialogms.ui \
+    dialog/dialogmodify/dialogmm.ui \
     splash/splash.ui \
-    dialog/dialogdesign.ui \
+    dialog/dialogdesign/dialogdesign.ui \
     dialog/dialogdesign/dialogpantsh.ui \
-    dialog/dialogsize.ui \
+    dialog/dialogsize/dialogsize.ui \
     dialog/dialogtest/dialogtestcurve.ui \
     dialog/dialogrule/dialogruleedit.ui \
     dialog/dialogrule/dialogrule.ui \
-    dialog/dialogrule/dialogdefparameter.ui \
-    dialog/dialogrule/dialogaggignparameter.ui
+    dialog/dialogrule/dialogdefine.ui \
+    dialog/dialogrule/dialogaggignparameter.ui \
+    dialog/dialogstyle/dialogstyle.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

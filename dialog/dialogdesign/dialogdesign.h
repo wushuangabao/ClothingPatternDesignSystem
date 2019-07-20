@@ -21,25 +21,12 @@ public slots:
     void enterStep2(int i);
 
 public:
-    /**
-     * @brief
-     *
-     * @param parent
-     */
-    explicit DialogDesign(QWidget *parent = 0);
-    /**
-     * @brief
-     *
-     */
+    explicit DialogDesign(QWidget *parent = nullptr);
     ~DialogDesign();
 
     int step; /**< TODO: describe */
 
 private slots:
-    /**
-     * @brief
-     *
-     */
     void on_pushButton_1_clicked();
 
 private:
@@ -48,11 +35,6 @@ private:
     DialogPantsH *pantsH; /**< TODO: describe */
 
 signals:
-    /**
-     * @brief
-     *
-     * @param i
-     */
     void selectKuoXing(int i);
 };
 

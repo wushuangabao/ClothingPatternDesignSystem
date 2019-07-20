@@ -69,6 +69,7 @@
     <addaction name="action_P_2"/>
     <addaction name="separator"/>
     <addaction name="action_T_2"/>
+    <addaction name="action_Style"/>
     <addaction name="separator"/>
     <addaction name="action_8"/>
     <addaction name="action_9"/>
@@ -408,6 +409,11 @@
    </property>
    <property name="toolTip">
     <string>管理制板规则(R)</string>
+   </property>
+  </action>
+  <action name="action_Style">
+   <property name="text">
+    <string>界面风格</string>
    </property>
   </action>
  </widget>

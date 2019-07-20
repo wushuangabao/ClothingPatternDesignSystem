@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QRect>
 #include "painterarea.h"
-#include "mypath.h"
+#include "rules/mypath.h"
 #include "data/mypathdata.h"
 #include "data/labelpoint.h"
 
@@ -34,11 +34,10 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 
     myPath = new MyPath(this); //必须等设置完上面的一系列尺寸再构造
 
-    // 设置背景为黑色
-    QPalette pal(this->palette());
-    pal.setColor(QPalette::Background, Qt::black);
+    // 设置背景颜色
+    color = Qt::black;
     this->setAutoFillBackground(true);
-    this->setPalette(pal);
+    setColor();
 
     setMouseTracking(true);//始终跟踪鼠标
     selectedLabelPoint=nullptr;
@@ -567,5 +566,18 @@ void PainterArea::setCenterToYellowPath()
     intLeft=static_cast<int>((centerRect.x()-xCenter)*scalingMulti);
 
     emit scalingMultiChanged();
+}
+
+/**
+ * @brief 设置背景颜色
+ * @param color
+ */
+void PainterArea::setColor(QString color)
+{
+    if(color != "")
+        this->color = QColor(color);
+    QPalette pal(this->palette());
+    pal.setColor(QPalette::Background, this->color);
+    this->setPalette(pal);
 }
 

@@ -4,12 +4,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "painterarea.h"
-#include "mypath.h"
-#include "dialog/dialogms.h"
-#include "dialog/dialogmm.h"
-#include "dialog/dialogdesign.h"
+#include "rules/mypath.h"
+#include "dialog/dialogmodify/dialogms.h"
+#include "dialog/dialogmodify/dialogmm.h"
+#include "dialog/dialogdesign/dialogdesign.h"
 #include "dialog/dialogrule/dialogrule.h"
 #include "dialog/dialogtest/dialogtestcurve.h"
+#include "dialog/dialogstyle/dialogstyle.h"
 #include "data/mypathdata.h"
 //#include <QHeaderView>
 
@@ -391,4 +392,27 @@ void MainWindow::on_action_Rule_triggered()
     DialogRule* dialogRule = new DialogRule(this);
     dialogRule->exec();
     delete dialogRule;
+}
+
+/**
+ * @brief action触发 设置界面风格样式
+ */
+void MainWindow::on_action_Style_triggered()
+{
+    DialogStyle* dlg = new DialogStyle(this);
+    dlg->exec();
+    delete dlg;
+}
+
+/**
+ * @brief 设置界面颜色
+ *
+ * @param color
+ * @param object 修改颜色的对象
+ */
+void MainWindow::setColor(QString color, QString object)
+{
+    if(object == "painterArea"){
+        painterArea->setColor(color);
+    }
 }

@@ -47,8 +47,10 @@ private slots:
     void on_actiontest_curve_triggered();
     void on_tablePaths_clicked(const QModelIndex &index);
     void on_tablePaths_activated(const QModelIndex &index);
-
     void on_action_Rule_triggered();
+    void on_action_Style_triggered();
+
+    void setColor(QString color, QString object);
 
 private:
     Ui::MainWindow *ui;

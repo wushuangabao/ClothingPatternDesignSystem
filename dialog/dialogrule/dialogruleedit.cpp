@@ -4,7 +4,7 @@
 #include <QDir>
 #include "dialogruleedit.h"
 #include "ui_dialogruleedit.h"
-#include "dialogdefparameter.h"
+#include "dialogdefine.h"
 
 DialogRuleEdit::DialogRuleEdit(QWidget *parent, QString d) :
     QDialog(parent),
@@ -55,7 +55,7 @@ void DialogRuleEdit::newEntity(const QString type, bool isInput)
     if(type == strEntityTypes[0])
         return;
     QString title = type + "定义";
-    DialogDefParameter* dlg = new DialogDefParameter(type,this,isInput);
+    DialogDefine* dlg = new DialogDefine(type,this,isInput);
     dlg->setWindowTitle(title);
     dlg->exec();
     delete dlg;

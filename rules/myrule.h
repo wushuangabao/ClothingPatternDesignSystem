@@ -26,13 +26,13 @@ private:
     QStringList entitiesIn; /**< 输入实体值的队列 */
     MyRule *parentRule;     /**< 本规则的调用者 */
 
-    void info(QString info);
     bool setInput(QString type, QString name);
     QString findRulePath(QString ruleName);
 
 public:
     MyRule(QString file);
     ~MyRule();
+    void info(QString info);
 
     // 基本约束方法
     QPointF pFunc(QString func, int idFunc = -1, bool* ok = nullptr); // 求点的方法集合

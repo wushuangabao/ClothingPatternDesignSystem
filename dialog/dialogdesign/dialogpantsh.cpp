@@ -1,6 +1,6 @@
 #include "dialogpantsh.h"
 #include "ui_dialogpantsh.h"
-#include "../dialogsize.h"
+#include "../dialogsize/dialogsize.h"
 #include "../../mainwindow.h"
 
 DialogPantsH::DialogPantsH(QWidget *parent) :

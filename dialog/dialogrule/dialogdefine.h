@@ -1,13 +1,13 @@
-#ifndef DIALOGDEFPARAMETER_H
-#define DIALOGDEFPARAMETER_H
+#ifndef DIALOGDEFINE_H
+#define DIALOGDEFINE_H
 
 #include <QDialog>
 
 namespace Ui {
-class DialogDefParameter;
+class DialogDefine;
 }
 
-class DialogDefParameter : public QDialog
+class DialogDefine : public QDialog
 {
     Q_OBJECT
 
@@ -15,8 +15,8 @@ public slots:
     void assignValue(const QString &value);
 
 public:
-    explicit DialogDefParameter(QString type, QWidget *parent,bool input = false);
-    ~DialogDefParameter();
+    explicit DialogDefine(QString type, QWidget *parent,bool input = false);
+    ~DialogDefine();
 
 private slots:
     void on_buttonBox_accepted();
@@ -24,7 +24,7 @@ private slots:
     void on_pushButton_clicked();
 
 private:
-    Ui::DialogDefParameter *ui;
+    Ui::DialogDefine *ui;
 
     bool isInput; /**< 是否为输入实体 */
     QString type; /**< 实体类型 */
@@ -34,4 +34,4 @@ signals:
     void newCode(const QString &s);
 };
 
-#endif // DIALOGDEFPARAMETER_H
+#endif // DIALOGDEFINE_H

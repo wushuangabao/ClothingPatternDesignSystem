@@ -2,7 +2,7 @@
 #include "curvepoint.h"
 #include "../painterarea.h"
 #include "../mainwindow.h"
-#include "../mypath.h"
+#include "../rules/mypath.h"
 #include "mypathdata.h"
 #include <QMenu>
 #include <QDebug>

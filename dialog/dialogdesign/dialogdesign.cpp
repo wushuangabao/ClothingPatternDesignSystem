@@ -1,9 +1,9 @@
 #include "dialogdesign.h"
 #include "ui_dialogdesign.h"
-#include "dialogdesign/dialogpantsh.h"
-#include "../mainwindow.h"
-#include "../painterarea.h"
-#include "../data/mypathdata.h"
+#include "dialogpantsh.h"
+#include "../../mainwindow.h"
+#include "../../painterarea.h"
+#include "../../data/mypathdata.h"
 
 DialogDesign::DialogDesign(QWidget *parent) :
     QDialog(parent),
@@ -34,15 +34,15 @@ void DialogDesign::enterStep2(int intKuoXing)
     QObject *mainWin=parent();
     switch (intKuoXing) {
     case 1:
-        pantsH=new DialogPantsH((QWidget*)mainWin);
+        pantsH=new DialogPantsH(static_cast<QWidget*>(mainWin));
         pantsH->exec();
         delete pantsH;
         break;
     default:
         break;
     }
-    this->close();//然而这个窗口会一直存在到退出pantH->exec()为止
-    MainWindow *m=(MainWindow*)mainWin;
+    this->close();
+    MainWindow *m=static_cast<MainWindow*>(mainWin);
     m->painterArea->myPathData->clear();
     m->painterArea->setMyPath();
 }

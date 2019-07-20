@@ -1,6 +1,6 @@
 #include "dialogtestcurve.h"
 #include "ui_dialogtestcurve.h"
-#include "mypath.h"
+#include "rules/mypainter.h"
 
 #include <QtWidgets>
 
@@ -22,7 +22,7 @@ DialogTestCurve::DialogTestCurve(QWidget *parent) :
     labels[2]->move(200,100);
     labels[3]->move(100,200);
 
-    myPath = new MyPath((PainterArea*)this);
+    myPath = new MyPainter((PainterArea*)this);
     drawCurve();
 
     ui->setupUi(this);
@@ -92,7 +92,7 @@ void DialogTestCurve::drawCurve()
     for(int i=0;i<len;i++){
         points<<labels[i]->pos();
     }
-    myPath->curveThrough_data(points,points.first(),points.last());
+    myPath->curveThroughData(points,points.first(),points.last());
     update();
 }
 

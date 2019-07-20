@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class QLabel;
-class MyPath;
+class MyPainter;
 
 namespace Ui {
 class DialogTestCurve;
@@ -29,7 +29,7 @@ private:
     Ui::DialogTestCurve *ui;
 
     QLabel* selectedLabel;
-    MyPath* myPath;
+    MyPainter* myPath;
 
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent *event);

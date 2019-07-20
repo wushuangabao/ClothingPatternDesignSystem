@@ -23,6 +23,7 @@ private:
     bool isMoving=false;
     int xBeforeMoving;
     int yBeforeMoving;
+    QColor color;
 
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -76,6 +77,7 @@ public:
     bool writeDXF();
 
     void setCenterToYellowPath();
+    void setColor(QString color = "");
 
 public slots:
     void setTypeSang(int frontOrBack,int intCase);

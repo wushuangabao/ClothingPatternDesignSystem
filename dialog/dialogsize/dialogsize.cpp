@@ -1,7 +1,7 @@
 #include "dialogsize.h"
 #include "ui_dialogsize.h"
-#include "../mainwindow.h"
-#include "../painterarea.h"
+#include "../../mainwindow.h"
+#include "../../painterarea.h"
 
 /**
  * @brief 构造函数
