@@ -4,7 +4,7 @@
 #include <QTextCodec>
 #include <QMessageBox>
 #include <QInputDialog>
-#include "mypath.h"
+#include "mypainter.h"
 
 /**
  * @brief 弹出提示
@@ -289,6 +289,10 @@ QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
     return p1;
 }
 
+/**
+ * @brief 构造函数
+ * @param f 规则文件的路径
+ */
 MyRule::MyRule(QString f)
 {
     types << "参数" << "点" << "直线" << "路径";
@@ -658,9 +662,7 @@ void MyRule::defineEntity(QString type, QString name)
         lines.insert(name,Line{QPointF(0,0),QPointF(0,0)});
         break;
     case 3:
-        QList<QPointF> pList;
-        pList<<QPointF(0,0)<<QPointF(0,0)<<QPointF(0,0);
-        curves.insert(name,pList);
+        paths.insert(name,"空路径");
     }
 }
 
@@ -689,10 +691,9 @@ void MyRule::assignEntity(QString name, QString value)
         *it3 = line(value);
         return;
     }
-    QMap<QString,QList<QPointF>>::iterator it4;
-    it4 = curves.find(name);
-    if(it4 != curves.end()){
-        *it4 = curve(value);
+    it1 = paths.find(name);
+    if(it1 != paths.end()){
+        *it1 = path(value);
         return;
     }
 }
@@ -753,7 +754,8 @@ QPointF MyRule::point(QString value, bool *ok)
         else{
             int idFunc = 0;
             for(;idFunc < pFuncs.length(); idFunc++){
-                if(value.contains(pFuncs[idFunc]))
+                if(value.left(pFuncs[idFunc].length()) == pFuncs[idFunc]
+                   && value[pFuncs[idFunc].length()] == '(')
                     break;
             }
             if(idFunc == pFuncs.length())
@@ -825,10 +827,16 @@ Line MyRule::line(QString value, bool *ok)
  * @param ok bool指针 必要时赋值为false
  * @return
  */
-QList<QPointF> MyRule::curve(QString value, bool *ok)
+QString MyRule::path(QString value, bool *ok)
 {
-    QList<QPointF> curve;
-    return curve;
+    QMap<QString,QString>::iterator it = paths.find(value);
+    // case: 值为参数名
+    if(it != paths.end())
+        return path(*it, ok);
+    // case: 值为字面量（字符串）
+    else {
+        return value;
+    }
 }
 
 /**
@@ -850,9 +858,8 @@ QString MyRule::getTypeOf(QString name)
     it3 = lines.find(name);
     if(it3 != lines.end())
         return types[2];
-    QMap<QString,QList<QPointF>>::iterator it4;
-    it4 = curves.find(name);
-    if(it4 != curves.end())
+    it1 = paths.find(name);
+    if(it1 != paths.end())
         return types[3];
     return "";
 }
@@ -974,9 +981,9 @@ QPainterPath MyRule::drawPath(QString name)
     case 2:
         return drawPath(lines[name]);
     case 3:
-        return drawPath(curves[name]);
+        return drawPathByCode(paths[name]);
     default:
-        info("无法绘制");
+        info("无法绘制"+name);
         return path;
     }
 }
@@ -1001,10 +1008,16 @@ QPainterPath MyRule::drawPath(Line line)
     return p;
 }
 
-QPainterPath MyRule::drawPath(QList<QPointF> curve)
+/**
+ * @brief 根据path的代码生成路径(使用MyPainter类）
+ * @param path
+ * @return
+ */
+QPainterPath MyRule::drawPathByCode(QString path)
 {
-    QPainterPath p;
-    // todo: 画插值曲线
+    MyPainter painter;
+    painter.parseCode(this, path);
+    QPainterPath p = *(painter.myPath);
     return p;
 }
 

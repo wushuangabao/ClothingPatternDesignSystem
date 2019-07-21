@@ -1,21 +1,20 @@
 #include "mypainter.h"
 #include "myrule.h"
-#include "../painterarea.h"
-#include "../mainwindow.h"
 #include "../data/mypathdata.h"
 #include <QPainter>
 
-MyPainter::MyPainter(PainterArea* parent)
+MyPainter::MyPainter()
 {
-    this->parent = parent;
     myPath = new QPainterPath;
+    myData = new MyPathData("未命名");
     startPoint = new QPointF(0,0);
 }
 
 MyPainter::~MyPainter()
 {
-    delete  myPath;
-    delete  startPoint;
+    delete myPath;
+    delete myData;
+    delete startPoint;
 }
 
 void MyPainter::setStartPoint(qreal x, qreal y)
@@ -36,24 +35,69 @@ void MyPainter::setStartPoint(QPointF point)
  */
 void MyPainter::parseCode(MyRule *rule, QString pathCode)
 {
+    // 去除pathCode中的所有空格
     pathCode = pathCode.remove(' ');
-    QPointF point;
+    if(pathCode.contains("移至")){
+        // 将pathCode根据"移至"操作符，拆分成几段
+        QStringList sl = pathCode.split("移至");
+        foreach(const QString &code, sl){
+            parseCode(rule, code);
+        }
+        return;
+    }
+    int n = 1;
     QList<QPointF> points;
     QString type = connectType(pathCode);
-    int id = 0;
-    // 取出第一个点，加入points队列末尾
-    if(type == "连接")
-        id = pathCode.indexOf("连");
-    else
-        id = pathCode.indexOf("圆");
-    if(!addPointByRule(&points, rule, pathCode.left(id)))
+    if(type == ""){
+        rule->info(pathCode+"无法解析！");
         return;
-    // 将点名从字符串中删除
-    pathCode.remove(0,id);
-    // 循环解析后面的连接
+    }
+    // 删除第一个点和type，将点加入points队列
+    if(!addPointByRule(&points, rule, &pathCode))
+        return;
     while(pathCode.length()>0){
-        // case: 一直连接
-        // todo
+        QString nextType = connectType(pathCode);
+        // case: 进行绘图操作
+        if(nextType != type && nextType != ""){
+            if(!addPointByRule(&points, rule, &pathCode))
+                return;
+            // 用points中的n+1个点画路径
+            if(type == "圆滑"){
+                if(points.size()>2) curveThrough(points);
+                else brokenLineThrough(points);
+            }
+            else brokenLineThrough(points);
+            // 删除points的前n个点
+            for(int i=0; i<n; ++i)
+                points.removeFirst();
+            type = nextType;
+            n = 1;
+        }
+        // case: 到达末尾，剩最后一个点
+        else if(nextType == ""){
+            bool ok = true;
+            QPointF point = convertPoint(rule->point(pathCode,&ok));
+            addPointData(point,pathCode); // 添加点数据到myPathData
+            if(ok){
+                points << point;
+                if(type == "圆滑") {
+                    if(points.size()>2) curveThrough(points);
+                    else brokenLineThrough(points);
+                }
+                else brokenLineThrough(points);
+                return;
+            }
+            else{
+                rule->info(pathCode+"无法解析！");
+                return;
+            }
+        }
+        // case: 提取下一个点
+        else{
+            if(addPointByRule(&points, rule, &pathCode))
+                n++;
+            else return;
+        }
     }
 }
 
@@ -90,13 +134,9 @@ void MyPainter::curve(QList<QPointF> points, QPointF firstCtrlPoint, QPointF las
  */
 QString MyPainter::connectType(QString code)
 {
-    int idL = code.indexOf("连接"),
-        idC = code.indexOf("圆滑");
-    if(idL != -1 && idL < idC)
-        return "连接";
-    // 下一个连接类型是曲线
-    else if(idC != -1)
-        return "圆滑";
+    int id = code.indexOf(QRegExp("连接|圆滑"));
+    if(id != -1)
+        return code.mid(id,2);
     else
         return "";
 }
@@ -111,17 +151,16 @@ void MyPainter::brokenLineThrough(QList<QPointF> points)
         return;
     QPointF point;
     point = points.takeAt(0);
-    qreal dx=point.x()-myPath->currentPosition().x(),
-            dy=point.y()-myPath->currentPosition().y();
-    if(dx>0.1 || dx<-0.1 || dy<-0.1 ||dy>0.1)
+    qreal d = distanceBetween(point,myPath->currentPosition());
+    if(!equal(d,0.0))
         myPath->moveTo(point);
     myPath->lineTo(points.at(0));
-    parent->myPathData->addLine(point,points.takeAt(0));
+    myData->addLine(point,points.takeAt(0));
     while(!points.isEmpty())
     {
         point = points.takeAt(0);
         myPath->lineTo(point);
-        parent->myPathData->addLineTo(point);
+        myData->addLineTo(point);
     }
 }
 
@@ -152,9 +191,9 @@ void MyPainter::brokenLineThrough(QPainterPath brokenLine)
 void MyPainter::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
 {
     curve(points,firstCtrlPoint,lastCtrlPoint);
-    MyPainter path(parent);
+    MyPainter path;
     path.curve(points,firstCtrlPoint,lastCtrlPoint);
-    parent->myPathData->addCurve(points,firstCtrlPoint,lastCtrlPoint,*(path.myPath));
+    myData->addCurve(points,firstCtrlPoint,lastCtrlPoint,*(path.myPath));
 }
 
 /**
@@ -184,6 +223,18 @@ QPointF MyPainter::getSymmetryPoint(QPointF point, QPointF center)
 }
 
 /**
+ * @brief 将MyRule中点的坐标值放大10倍
+ * @param pFromRule
+ * @return
+ */
+QPointF MyPainter::convertPoint(QPointF pFromRule)
+{
+    qreal x = pFromRule.x() * 10,
+          y = pFromRule.y() * 10;
+    return QPointF(x, y);
+}
+
+/**
  * @brief path的currentPosition是否和p的位置相符
  * @param path
  * @param p
@@ -196,18 +247,28 @@ bool MyPainter::currentPositionequal(QPainterPath path, QPointF p)
 }
 
 /**
- * @brief MyPainter::addPointById
+ * @brief 将pathCode中下一个“操作符”之前的点加入points，并删除pathCode中的点名和“操作符”
  * @param points
  * @param rule
- * @param namePoint
+ * @param pathCode
  * @return
  */
-bool MyPainter::addPointByRule(QList<QPointF> *points, MyRule *rule, QString namePoint)
+bool MyPainter::addPointByRule(QList<QPointF> *points, MyRule *rule, QString* pathCode)
 {
+    int id;
     bool ok = true;
-    QPointF point = rule->point(namePoint, &ok);
+    QString type = connectType(*pathCode);
+    if(type == ""){
+        rule->info(*pathCode+"无法解析");
+        return false;
+    }
+    else id = pathCode->indexOf(type);
+    QString namePoint = pathCode->left(id);
+    QPointF point = convertPoint(rule->point(namePoint, &ok));
     if(ok){
-        points->append(point);
+        points->append(point); // 将点加入points队末
+        pathCode->remove(0,id+type.length()); // 将namePoint和type从字符串中删除
+        addPointData(point,namePoint); // 添加点数据到myPathData
         return true;
     }
     else{
@@ -219,7 +280,10 @@ bool MyPainter::addPointByRule(QList<QPointF> *points, MyRule *rule, QString nam
 qreal MyPainter::distanceBetween(QPointF p1, QPointF p2)
 {
     qreal x1=p1.x(), y1=p1.y(), x2=p2.x(),y2=p2.y();
-    return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+    if(equal(x1,x2) && equal(y1,y2))
+        return 0.0;
+    qreal dx=x1-x2, dy=y1-y2;
+    return sqrt(dx*dx + dy*dy);
 }
 
 /**
@@ -243,7 +307,7 @@ QPointF MyPainter::getPointOnLine(QPointF p1,QPointF p2,qreal proportion)
  */
 void MyPainter::addPointData(QPointF point, QString name)
 {
-    parent->myPathData->addPoint(point,name);
+    myData->addPoint(point,name);
 }
 
 /**

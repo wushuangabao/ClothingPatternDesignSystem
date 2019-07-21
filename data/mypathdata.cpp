@@ -4,18 +4,16 @@
 #include <QtDebug>
 #include <QPainterPath>
 #include <QDateTime>
-#include "../mypath.h"
+#include "../rules/mypainter.h"
 
 /**
  * @brief 构造函数
  *
  * @param name 名称
- * @param parent
  */
-MyPathData::MyPathData(QString name,PainterArea* parent)
+MyPathData::MyPathData(QString name)
 {
     this->name = name;
-    this->parent=parent;
 }
 
 /**
@@ -309,7 +307,7 @@ void MyPathData::writePolyL(QFile *file, PathData path, int layer)
         writePolyL(file,painterPath,layer);
     }
     else{
-        MyPath myPath(parent);
+        MyPainter myPainter;
         QList<QPointF> points;
         CurvePoint *p = path.startPoint->pre;
         QPointF firstCtrlPoint = pointData[p->id];
@@ -318,8 +316,8 @@ void MyPathData::writePolyL(QFile *file, PathData path, int layer)
         }
         p=p->next;
         QPointF lastCtrlPoint = pointData[p->id];
-        myPath.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
-        writePolyL(file,*myPath.myPath,layer);
+        myPainter.curve(points,firstCtrlPoint,lastCtrlPoint);
+        writePolyL(file,*myPainter.myPath,layer);
         //        CurvePoint* cp=path.startPoint;
         //        while(cp->isLast==false){
         //            content=vertex+stringPoint(pointData[cp->id]);

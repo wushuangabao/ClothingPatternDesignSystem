@@ -22,7 +22,7 @@ DialogTestCurve::DialogTestCurve(QWidget *parent) :
     labels[2]->move(200,100);
     labels[3]->move(100,200);
 
-    myPath = new MyPainter((PainterArea*)this);
+    myPath = new MyPainter();
     drawCurve();
 
     ui->setupUi(this);
@@ -92,7 +92,7 @@ void DialogTestCurve::drawCurve()
     for(int i=0;i<len;i++){
         points<<labels[i]->pos();
     }
-    myPath->curveThroughData(points,points.first(),points.last());
+    myPath->curve(points,points.first(),points.last());
     update();
 }
 

@@ -20,7 +20,7 @@
  */
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
-    myPathData = new MyPathData("myTrousers",this);
+    myPathData = new MyPathData("myTrousers");
     //old_typePants = -1;
     typePants = 0;
 

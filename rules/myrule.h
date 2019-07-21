@@ -42,13 +42,13 @@ public:
     QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
     QPointF cross(Line l1, Line l2, bool* ok = nullptr);
     Line line(QPointF p1, QPointF p2);
-    // 圆滑 直接用drawPath(QList<QPointF> curve)实现
+    // 圆滑 用MyPainter实现
 
     // 所有实体的表：
-    QMap<QString,QString> params;        /**< 参数型实体 */
-    QMap<QString,QPointF> points;        /**< 点类型实体 */
-    QMap<QString,Line> lines;            /**< 直线型实体 */
-    QMap<QString,QList<QPointF>> curves; /**< 曲线型实体 */
+    QMap<QString,QString> params; /**< 参数型实体 */
+    QMap<QString,QPointF> points; /**< 点类型实体 */
+    QMap<QString,Line> lines;     /**< 直线型实体 */
+    QMap<QString,QString> paths;  /**< 路径型实体 */
 
     // 规则代码解析：
     bool parseCode(QString code);
@@ -64,7 +64,7 @@ public:
     qreal param(QString value, bool* ok = nullptr);
     QPointF point(QString value, bool* ok = nullptr);
     Line line(QString value, bool* ok = nullptr);
-    QList<QPointF> curve(QString value, bool* ok = nullptr);
+    QString path(QString value, bool* ok = nullptr);
 
     // 使用自定义规则：
     QString callRule(QString f, QString in = "", MyRule* parent = nullptr);
@@ -76,7 +76,7 @@ public:
     QPainterPath drawPath(QString name);
     QPainterPath drawPath(QPointF p);
     QPainterPath drawPath(Line l);
-    QPainterPath drawPath(QList<QPointF> curve);  // todo: 实现贝塞尔插值曲线
+    QPainterPath drawPathByCode(QString path);
 
     // 辅助工具函数：
     static bool zero(qreal r);

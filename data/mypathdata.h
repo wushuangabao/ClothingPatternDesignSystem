@@ -24,10 +24,9 @@ struct PathData{
 class MyPathData
 {
 public:
-    MyPathData(QString name,PainterArea* parent);
+    MyPathData(QString name);
     ~MyPathData();
 
-    PainterArea* parent=nullptr;
     QString name=""; /**< MyPathData实例的名称 */
     const static int MAX_NUM_POINT=250; /**< 点的数目上限 */
     const static int MAX_NUM_PATH=120; /**< 路径数目上限 */
