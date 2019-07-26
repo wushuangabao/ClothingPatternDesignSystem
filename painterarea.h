@@ -11,7 +11,6 @@
 #include <QPixmap>
 
 class MyPathData;
-class MyPath;
 class CurvePoint;
 class LabelPoint;
 
@@ -35,8 +34,7 @@ public:
     explicit PainterArea(QWidget *parent = nullptr);
     ~PainterArea();
 
-    MyPathData *myPathData; /**< 纸样数据 */
-    MyPath *myPath; /**< 绘图路径 */
+    QList<MyPathData*> myPaths ; /**< 纸样数据 */
     QPainterPath auxiliaryLines; /**< 辅助线 */
     QPainterPath yellowPath; /**< 黄线 */
     QPainterPath greenPath; /**< 绿线 */
@@ -55,9 +53,6 @@ public:
     qreal scalingMulti=1.0; /**< 缩放倍数，数值越大图形越大 */
     int intUp=0; /**< 原点向上偏移值 */
     int intLeft=0; /**< 原点向左偏移值 */
-
-//    bool dataChanged=false; /**< TODO: describe */
-    void setMyPath();
 
     LabelPoint *selectedLabelPoint; /**< 选中的点标签 */
     QList<LabelPoint*> labelPoints; /**< 点标签列表 */

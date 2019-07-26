@@ -38,15 +38,15 @@ SOURCES += \
     dxflib/dl_dxf.cpp \
     dxflib/dl_writer_ascii.cpp \
     components/mycomponent.cpp \
-    rules/mypath.cpp \
     rules/myrule.cpp \
+    rules/mypainter.cpp \
     dialog/dialogtest/dialogtestcurve.cpp \
     dialog/dialogrule/dialogruleedit.cpp \
     dialog/dialogrule/dialogrule.cpp \
     dialog/dialogrule/dialogdefine.cpp \
     dialog/dialogrule/dialogaggignparameter.cpp \
-    dialog/dialogstyle/dialogstyle.cpp \
-    rules/mypainter.cpp
+    dialog/dialogstyle/dialogstyle.cpp
+
 
 HEADERS += \
     mainwindow.h \
@@ -62,15 +62,14 @@ HEADERS += \
     dialog/dialogsize/dialogsize.h \
     dxflib/dl_dxf.h \
     components/mycomponent.h \
-    rules/mypath.h \
     rules/myrule.h \
+    rules/mypainter.h \
     dialog/dialogtest/dialogtestcurve.h \
     dialog/dialogrule/dialogruleedit.h \
     dialog/dialogrule/dialogrule.h \
     dialog/dialogrule/dialogdefine.h \
     dialog/dialogrule/dialogaggignparameter.h \
-    dialog/dialogstyle/dialogstyle.h \
-    rules/mypainter.h
+    dialog/dialogstyle/dialogstyle.h
 
 FORMS += \
         mainwindow.ui \

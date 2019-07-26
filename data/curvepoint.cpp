@@ -19,6 +19,18 @@ CurvePoint::CurvePoint(int id,CurvePoint* pre)
     }
 }
 
+/**
+ * @brief 拷贝构造函数
+ * @param copyObj
+ */
+CurvePoint::CurvePoint(const CurvePoint *copyObj)
+{
+    id = copyObj->id;
+    isFirst = copyObj->isFirst;
+    isLast = copyObj->isLast;
+    isCtrlPoint = copyObj->isCtrlPoint;
+}
+
 CurvePoint::~CurvePoint()
 {
 }

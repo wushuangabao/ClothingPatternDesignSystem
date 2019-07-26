@@ -197,6 +197,43 @@ void MyPainter::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPoint
 }
 
 /**
+ * @brief 根据MyPathData画QPainterPath
+ * @param pathData
+ * @return
+ */
+QPainterPath MyPainter::drawByPathData(MyPathData *data)
+{
+    MyPainter painter;
+    QPainterPath* path = painter.myPath;
+    int numPaths = data->numberPath, i;
+    for(i=0;i<numPaths;++i)
+    {
+        PathData pathData = data->pathData[i];
+        QPointF startPoint = data->pointData[pathData.startPoint->id];
+        if(!currentPositionequal(*path,startPoint))
+            path->moveTo(startPoint);
+        if(pathData.isLine){
+            QPointF endPoint = data->pointData[pathData.endPoint->id];
+            path->lineTo(endPoint);
+        }
+        // 如果pathData表示曲线
+        else{
+            QList<QPointF> points;
+            CurvePoint *p = pathData.startPoint->pre;
+            QPointF firstCtrlPoint = data->pointData[p->id];
+            while(p->next->isCtrlPoint!=true)
+            {
+                p=p->next; points<<data->pointData[p->id];
+            }
+            p=p->next;
+            QPointF lastCtrlPoint = data->pointData[p->id];
+            painter.curve(points,firstCtrlPoint,lastCtrlPoint);
+        }
+    }
+    return *path;
+}
+
+/**
  * @brief 画曲线并添加数据（无控制点）
  * @param points 曲线经过点的列表
  */

@@ -20,6 +20,7 @@ public:
 
     void setStartPoint(qreal x,qreal y);
     void setStartPoint(QPointF point);
+    QPainterPath drawByPathData(MyPathData* pathData);  // 根据数据画图
     void curve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
     void parseCode(MyRule* rule, QString pathCode);

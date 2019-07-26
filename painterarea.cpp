@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QRect>
 #include "painterarea.h"
-#include "rules/mypath.h"
+#include "rules/mypainter.h"
 #include "data/mypathdata.h"
 #include "data/labelpoint.h"
 
@@ -20,10 +20,6 @@
  */
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
-    myPathData = new MyPathData("myTrousers");
-    //old_typePants = -1;
-    typePants = 0;
-
     pantsHeight=1650;
     pantsL=1020;
     pantsW=720;
@@ -32,14 +28,12 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
     typeSang1=0;
     typeSang2=1;
 
-    myPath = new MyPath(this); //必须等设置完上面的一系列尺寸再构造
-
     // 设置背景颜色
     color = Qt::black;
     this->setAutoFillBackground(true);
     setColor();
 
-    setMouseTracking(true);//始终跟踪鼠标
+    setMouseTracking(true);  // 始终跟踪鼠标
     selectedLabelPoint=nullptr;
 }
 
@@ -49,33 +43,6 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
  */
 PainterArea::~PainterArea()
 {
-    delete myPathData;
-}
-
-/**
- * @brief 重置路径
- *
- */
-void PainterArea::setMyPath()
-{
-    myPath->initializeSize();
-    if(!myPath->myPath->isEmpty()){
-        delete myPath->myPath;
-        myPath->myPath=new QPainterPath;
-        myPathData->clear();
-    }
-    QPainterPath path;
-    auxiliaryLines=path;
-
-    myPath->setStartPoint(500.0,100.0);
-    auxiliaryLines.addPath(myPath->auxiliaryLinesH_1());
-    myPath->drawOutline1(typeSang1);
-
-    myPath->setStartPoint(100.0,100.0);
-    auxiliaryLines.addPath(myPath->auxiliaryLinesH_2());
-    myPath->drawOutline2(typeSang2);
-
-    emit resetModel();
 }
 
 /**
@@ -103,19 +70,17 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawPath(auxiliaryLines);
 
-    //    if(old_typePants!=typePants)
-    //    {
-    //        QString filePath = QDir::currentPath() + "/" + myPathData->name;
-    //        myPathData->saveTo(filePath+".txt");
-    //        old_typePants = typePants;
-    //        emit resetModel();
-    //    }
-
     //    pen.setWidthF(1);
     pen.setColor(Qt::white);
     painter.setPen(pen);
-    //painter.drawPath(*(myPath->myPath));
-    painter.drawPath(myPath->outLines_data());
+
+    // 遍历 myPaths 进行 drawByPathData
+    QList<MyPathData*>::iterator it;
+    MyPainter myPainter;
+    if(!myPaths.isEmpty())
+        for(it=myPaths.begin();it!=myPaths.end();++it){
+            painter.drawPath(myPainter.drawByPathData(*it));
+        }
 
     pen.setColor(Qt::yellow);
     painter.setPen(pen);
@@ -325,7 +290,7 @@ void PainterArea::wheelEvent(QWheelEvent *event)
  */
 void PainterArea::setLabelPoint(CurvePoint *point)
 {
-    QPointF p = myPathData->pointData[point->id];
+    QPointF p = myPaths[0]->pointData[point->id];
     int lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
     LabelPoint *lp=new LabelPoint(this);
     if(point->isCtrlPoint)
@@ -336,7 +301,7 @@ void PainterArea::setLabelPoint(CurvePoint *point)
     }
     else
     {
-        lp->setText(myPathData->findName(point->id));
+        lp->setText(myPaths[0]->findName(point->id));
         lp->setStyleSheet("QLabel{background-color:green;}");
         lp->move(lpx,lpy);
     }
@@ -369,7 +334,7 @@ void PainterArea::updateLabelPoints()
     for(i=0;i<num;i++)
     {
         LabelPoint* lp=labelPoints.at(i);
-        QPointF p=myPathData->pointData[lp->point->id];
+        QPointF p=myPaths[0]->pointData[lp->point->id];
         int lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
         lp->move(lpx,lpy);
     }
@@ -387,12 +352,12 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
         typeSang1 = intCase;
     else if(frontOrBack==2)
         typeSang2 = intCase;
-    setMyPath();
+    emit resetModel();
     update();
 }
 
 /**
- * @brief 输出dxf文件（AutoCAD标准
+ * @brief 输出dxf文件（AutoCAD标准）
  *
  * @return bool
  */
@@ -481,7 +446,7 @@ bool PainterArea::writeDXF() {
     dw->sectionEnd();
     dw->sectionEntities();
     // write all entities in model space:
-    MyPathData *data = myPathData;
+    MyPathData *data = myPaths[0];
     int numPaths = data->numberPath, i;
     for(i=0;i<numPaths;++i)
     {
@@ -504,7 +469,7 @@ bool PainterArea::writeDXF() {
         else //曲线
         {
             QList<QPointF> points;
-            MyPath path(this);
+            MyPainter painter;
             qreal t=0.0;
             CurvePoint *p = pathData.startPoint->pre;
             QPointF firstCtrlPoint = data->pointData[p->id];
@@ -514,15 +479,15 @@ bool PainterArea::writeDXF() {
             }
             p=p->next;
             QPointF lastCtrlPoint = data->pointData[p->id];
-            path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
-            qreal dt=1.0/path.myPath->length();  //以每1mm为一根小线段
+            painter.curve(points,firstCtrlPoint,lastCtrlPoint);
+            qreal dt=1.0/painter.myPath->length();  //以每1mm为一根小线段
             while(t<1) /**< TODO:使曲线的经过点成为小线段的端点 */
             {
-                QPointF sp=path.myPath->pointAtPercent(t);
+                QPointF sp=painter.myPath->pointAtPercent(t);
                 t=t+dt;
                 if(t>1)
                     t=1;
-                QPointF ep=path.myPath->pointAtPercent(t);
+                QPointF ep=painter.myPath->pointAtPercent(t);
                 dxf->writeLine(
                             *dw,
                             DL_LineData(sp.x()/10,

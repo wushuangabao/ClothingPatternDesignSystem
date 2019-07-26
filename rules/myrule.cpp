@@ -955,7 +955,7 @@ Line MyRule::lineByRule(QString f, QString in, bool *ok)
  * @brief 根据自身规则文件生成输出实体的绘图路径
  * @return
  */
-QPainterPath MyRule::drawPath()
+MyPainter MyRule::drawPath()
 {
     return drawPath(callRule(file));
 }
@@ -965,9 +965,9 @@ QPainterPath MyRule::drawPath()
  * @param name
  * @return
  */
-QPainterPath MyRule::drawPath(QString name)
+MyPainter MyRule::drawPath(QString name)
 {
-    QPainterPath path;
+    MyPainter path;
     if(name == "")
         return  path;
     QString type = getTypeOf(name);
@@ -988,24 +988,31 @@ QPainterPath MyRule::drawPath(QString name)
     }
 }
 
-QPainterPath MyRule::drawPath(QPointF point)
+MyPainter MyRule::drawPath(QPointF point)
 {
     QPainterPath p;
+    MyPainter mp;
     // 画一个×
     qreal x = point.x(), y = point.y();
     p.moveTo(QPointF(x-5,y-5));
     p.lineTo(QPointF(x+5,y+5));
     p.moveTo(QPointF(x-5,y+5));
     p.lineTo(QPointF(x+5,y-5));
-    return p;
+
+    mp.myPath->addPath(p);
+    // todo: mp.myData中加入点
+    return mp;
 }
 
-QPainterPath MyRule::drawPath(Line line)
+MyPainter MyRule::drawPath(Line line)
 {
     QPainterPath p;
+    MyPainter mp;
     p.moveTo(line.p1);
     p.lineTo(line.p2);
-    return p;
+    mp.myPath->addPath(p);
+    // todo: mp.myData中加入直线
+    return mp;
 }
 
 /**
@@ -1013,12 +1020,11 @@ QPainterPath MyRule::drawPath(Line line)
  * @param path
  * @return
  */
-QPainterPath MyRule::drawPathByCode(QString path)
+MyPainter MyRule::drawPathByCode(QString path)
 {
     MyPainter painter;
     painter.parseCode(this, path);
-    QPainterPath p = *(painter.myPath);
-    return p;
+    return painter;
 }
 
 /**

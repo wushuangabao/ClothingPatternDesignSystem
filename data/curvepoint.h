@@ -11,7 +11,7 @@ class CurvePoint
 {
 public:
     CurvePoint(int id,CurvePoint *pre=nullptr);
-
+    CurvePoint(const CurvePoint *copyObj);
     ~CurvePoint();
 
     CurvePoint *pre=nullptr; /**< 前指针 */

@@ -8,6 +8,8 @@
 #include <QMap>
 #include <QStringList>
 
+class MyPainter;
+
 struct Line{
     QPointF p1;
     QPointF p2;
@@ -72,11 +74,11 @@ public:
     Line lineByRule(QString f, QString in, bool* ok = nullptr);
 
     // 生成绘图路径：
-    QPainterPath drawPath();
-    QPainterPath drawPath(QString name);
-    QPainterPath drawPath(QPointF p);
-    QPainterPath drawPath(Line l);
-    QPainterPath drawPathByCode(QString path);
+    MyPainter drawPath();
+    MyPainter drawPath(QString name);
+    MyPainter drawPath(QPointF p);
+    MyPainter drawPath(Line l);
+    MyPainter drawPathByCode(QString path);
 
     // 辅助工具函数：
     static bool zero(qreal r);

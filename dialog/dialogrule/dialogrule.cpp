@@ -5,7 +5,9 @@
 #include "dialogrule.h"
 #include "ui_dialogrule.h"
 #include "dialogruleedit.h"
+#include "../../data/mypathdata.h"
 #include "../../rules/myrule.h"
+#include "../../rules/mypainter.h"
 #include "../../mainwindow.h"
 #include "../../painterarea.h"
 
@@ -106,12 +108,11 @@ void DialogRule::on_pushButtonDelete_clicked()
 void DialogRule::on_pushButton_clicked()
 {
     if(currentDir.contains(".txt",Qt::CaseInsensitive)){
-        // 解析规则，转换为QPainterPath
         MyRule rule(currentDir);
-        QPainterPath path = rule.drawPath();
-        // 将QPainterPath绘制
+        MyPainter mp = rule.drawPath();
+        MyPathData* data = new MyPathData(*mp.myData); // todo: 命名data，现在是"未命名_副本"
         MainWindow* mw = static_cast<MainWindow*>(parent());
-        mw->painterArea->yellowPath = path;
+        mw->painterArea->myPaths << data;
         mw->painterArea->update();
     }
 }

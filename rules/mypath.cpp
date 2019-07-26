@@ -169,43 +169,7 @@ QPainterPath MyPath::auxiliaryLinesH_2()
     return myPath;
 }
 
-/**
- * @brief 根据myPathData画轮廓线
- *
- * @return QPainterPath
- */
-QPainterPath MyPath::outLines_data()
-{
-    MyPath path(parent);
-    MyPathData *data = parent->myPathData;
-    int numPaths = data->numberPath, i;
-    for(i=0;i<numPaths;++i)
-    {
-        PathData pathData = data->pathData[i];
-        QPointF startPoint = data->pointData[pathData.startPoint->id];
-        if(!currentPositionequal(*(path.myPath),startPoint))
-            path.myPath->moveTo(startPoint);
-        if(pathData.isLine)
-        {
-            QPointF endPoint = data->pointData[pathData.endPoint->id];
-            path.myPath->lineTo(endPoint);
-        }
-        else //如果pathData表示曲线
-        {
-            QList<QPointF> points;
-            CurvePoint *p = pathData.startPoint->pre;
-            QPointF firstCtrlPoint = data->pointData[p->id];
-            while(p->next->isCtrlPoint!=true)
-            {
-                p=p->next; points<<data->pointData[p->id];
-            }
-            p=p->next;
-            QPointF lastCtrlPoint = data->pointData[p->id];
-            path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
-        }
-    }
-    return *(path.myPath);
-}
+
 
 /**
  * @brief 增添点的数据
@@ -621,46 +585,9 @@ QList<QPointF> MyPath::drawSang2(QPointF point,QPointF vertex,qreal sang)
     return pList;
 }
 
-/**
- * @brief
- *
- * @param A
- * @param B
- * @return QPainterPath
- */
-QPainterPath MyPath::lineThrough2P(QPointF A,QPointF B)
-{
-    QPainterPath path;
-    path.moveTo(A);
-    path.lineTo(B);
-    parent->myPathData->addLine(A,B);
-    return path;
-}
 
-/**
- * @brief 用myPath画折线，并添加数据到myPathData数组
- *
- * @param points 有序的折线顶点列表
- */
-void MyPath::brokenLineThrough(QList<QPointF> points)
-{
-    if(points.size()<2)
-        return;
-    QPointF point;
-    point = points.takeAt(0);
-    qreal dx=point.x()-myPath->currentPosition().x(),
-            dy=point.y()-myPath->currentPosition().y();
-    if(dx>0.1 || dx<-0.1 || dy<-0.1 ||dy>0.1)
-        myPath->moveTo(point);
-    myPath->lineTo(points.at(0));
-    parent->myPathData->addLine(point,points.takeAt(0));
-    while(!points.isEmpty())
-    {
-        point = points.takeAt(0);
-        myPath->lineTo(point);
-        parent->myPathData->addLineTo(point);
-    }
-}
+
+
 
 /**
  * @brief 画过3点的曲线（贝塞尔插值法
@@ -734,20 +661,7 @@ void MyPath::curveThrough_data(QList<QPointF> points,QPointF firstCtrlPoint,QPoi
     delete ctrlPoints;
 }
 
-/**
- * @brief 画曲线并添加数据（有首尾控制点
- *
- * @param points 曲线经过点的列表
- * @param firstCtrlPoint
- * @param lastCtrlPoint
- */
-void MyPath::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
-{
-    curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
-    MyPath path(parent);
-    path.curveThrough_data(points,firstCtrlPoint,lastCtrlPoint);
-    parent->myPathData->addCurve(points,firstCtrlPoint,lastCtrlPoint,*(path.myPath));
-}
+
 
 /**
  * @brief 画曲线并添加数据（无控制点

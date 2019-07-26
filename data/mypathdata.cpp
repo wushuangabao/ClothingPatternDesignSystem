@@ -17,6 +17,51 @@ MyPathData::MyPathData(QString name)
 }
 
 /**
+ * @brief 拷贝构造函数
+ * @param copyObj
+ */
+MyPathData::MyPathData(const MyPathData &copyObj)
+{
+    name = copyObj.name + "_副本";
+    numberPath = copyObj.numberPath;
+    numberPoint = copyObj.numberPoint;
+    pointData = copyObj.pointData;
+    for(int i=0;i<numberPath;i++)
+    {
+        //QPainterPath path = pathData[i].path;
+        CurvePoint *curvePoint = copyObj.pathData[i].startPoint;
+        CurvePoint *startPoint = new CurvePoint(curvePoint);
+        if(curvePoint->pre!=nullptr){
+            CurvePoint *beforeStart = new CurvePoint(curvePoint->pre);
+            startPoint->pre = beforeStart;
+            beforeStart->next = startPoint;
+        }
+        CurvePoint *current = startPoint;
+        while(curvePoint->next != nullptr)
+        {
+            curvePoint = curvePoint->next;
+            CurvePoint *p = new CurvePoint(curvePoint);
+            p->pre = current;
+            current->next = p;
+            current = p;
+        }
+        CurvePoint *endPoint;
+        if(current->isCtrlPoint)
+            endPoint = current->pre;
+        else
+            endPoint = current;
+        PathData pathStruct = {
+            i,
+            copyObj.pathData[i].isLine,
+            startPoint,
+            endPoint
+        };
+        pathData << pathStruct;
+    }
+    pointMap = copyObj.pointMap;
+}
+
+/**
  * @brief
  *
  * @param point
@@ -161,7 +206,7 @@ MyPathData::~MyPathData()
 {
     for(int i=0;i<numberPath;i++)
     {
-        delete pathData[i].path;
+        //delete pathData[i].path;
         CurvePoint *curvePoint=pathData[i].startPoint;
         if(curvePoint->pre!=nullptr)
             delete  curvePoint->pre;
@@ -200,9 +245,9 @@ bool MyPathData::addLineTo(QPointF endPoint,int idSP)
         true,
         startCPoint,
         endCPoint,
-        path
+        //path
     };
-    pathData[numberPath] = pathDataStruct;
+    pathData << pathDataStruct;
     numberPath++;
     idCurrentPoint = endCPoint->id;
     return true;
@@ -231,7 +276,7 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
 {
     CurvePoint *ctrlPoint1 = new CurvePoint(addCtrlPoint(firstCtrlPoint));
     CurvePoint *ctrlPoint2 = new CurvePoint(addCtrlPoint(lastCtrlPoint));
-    QPainterPath *pathPointer = new QPainterPath(path);
+    //QPainterPath *pathPointer = new QPainterPath(path);
     //取出并删除points中的第一个点
     QPointF point = points.takeAt(0);
     CurvePoint *pFirstCPoint = new CurvePoint(findPoint(point,true));
@@ -251,9 +296,9 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
         false,
         pFirstCPoint,
         pCPoint,
-        pathPointer
+        //pathPointer
     };
-    pathData[numberPath]=pathDataStruct;
+    pathData << pathDataStruct;
     numberPath++;
     idCurrentPoint = pCPoint->id;
 }
@@ -476,7 +521,7 @@ int MyPathData::addPoint(QPointF point,QString name)
     if(i==numberPoint)
     {
         numberPoint++;
-        pointData[i]=point;
+        pointData << point;
     }
     if(name!="")
         pointMap.insert(name,i);
@@ -493,7 +538,7 @@ int MyPathData::addCtrlPoint(QPointF ctrlPoint)
 {
     int i=numberPoint;
     numberPoint++;
-    pointData[i]=ctrlPoint;
+    pointData << ctrlPoint;
     return i;
 }
 
@@ -507,33 +552,24 @@ int MyPathData::addCtrlPoint(QPointF ctrlPoint)
 int MyPathData::findPoint(QPointF point,bool addIfNotFind)
 {
     int i=0;
-    if(numberPoint<1)
-    {
-        if(addIfNotFind)
-        {
+    if(numberPoint<1){
+        if(addIfNotFind){
             i=numberPoint;
-            pointData[i]=point;
+            pointData << point;
             numberPoint++;
             return i;
-        }
-        else
-            return -1;
+        }else return -1;
     }
     for(;i<numberPoint;i++)
         if(equal(point,pointData[i]))
             return i;
-    if(i==numberPoint)
-    {
-        if(addIfNotFind)
-        {
-            i=numberPoint;
-            pointData[i]=point;
-            numberPoint++;
-            return i;
-        }
-        else
-            return -1;
+    if(i==numberPoint && addIfNotFind){
+        i=numberPoint;
+        pointData << point;
+        numberPoint++;
+        return i;
     }
+    return -1;
 }
 
 /**

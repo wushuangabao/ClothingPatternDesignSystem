@@ -18,22 +18,21 @@ struct PathData{
     bool isLine; /**< 是否为直线 */
     CurvePoint* startPoint; /**< 起点指针 */
     CurvePoint* endPoint; /**< 终点指针 */
-    QPainterPath *path; /**< 原始路径数据 */
+    //QPainterPath *path; /**< 原始路径数据 */
 };
 
 class MyPathData
 {
 public:
     MyPathData(QString name);
+    MyPathData(const MyPathData &copyObj);
     ~MyPathData();
 
     QString name=""; /**< MyPathData实例的名称 */
-    const static int MAX_NUM_POINT=250; /**< 点的数目上限 */
-    const static int MAX_NUM_PATH=120; /**< 路径数目上限 */
     int numberPath=0; /**< 路径数目 */
     int numberPoint=0; /**< 点的数目 */
-    PathData pathData[MAX_NUM_PATH]; /**< 路径数组 */
-    QPointF pointData[MAX_NUM_POINT]; /**< 点的数组 */
+    QList<PathData> pathData; /**< 路径数组 */
+    QList<QPointF> pointData; /**< 点的数组 */
     QMap<QString,int> pointMap; /**< 记录点的名称 */
 
     bool addLineTo(QPointF endPoint,int idStartPoint=-1);

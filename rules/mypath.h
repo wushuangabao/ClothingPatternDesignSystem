@@ -65,13 +65,6 @@ public:
     static QPointF getVertexOfSang_Up(QPointF p1,QPointF ps,qreal ls);
     static QPointF getVertexOfSang_Down(QPointF p1,QPointF ps,qreal ls);
 
-    QPainterPath lineThrough2P(QPointF startPoint,QPointF endPoint);
-    void brokenLineThrough(QList<QPointF> points);
-    void brokenLineThrough(QPainterPath brokenLine);
-    QPainterPath curveThrough3P(QPointF A,QPointF B,QPointF C,QPointF ctrl1,QPointF ctrl4);
-    void curveThrough(QList<QPointF> points);
-    void curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
-
 private:
     int pantsHeight;
     int pantsL;

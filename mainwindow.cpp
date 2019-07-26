@@ -4,7 +4,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "painterarea.h"
-#include "rules/mypath.h"
+#include "rules/mypainter.h"
 #include "dialog/dialogmodify/dialogms.h"
 #include "dialog/dialogmodify/dialogmm.h"
 #include "dialog/dialogdesign/dialogdesign.h"
@@ -117,7 +117,7 @@ void MainWindow::setStatusScalingMulti(){
 void MainWindow::resetModel(){
     modelPoints->clear();
     modelPaths->clear();
-    MyPathData *data = painterArea->myPathData;
+    MyPathData *data = painterArea->myPaths[0];
     int nPaths = data->numberPath,
             nPoints = data->numberPoint;
     for(int i=0;i<nPoints;++i)
@@ -174,7 +174,7 @@ void MainWindow::on_action_F_S_triggered()
     //    painterArea->update();
 
     //保获取路径
-    QString filePath = QDir::currentPath() + "/" + painterArea->myPathData->name;
+    QString filePath = QDir::currentPath() + "/" + painterArea->myPaths[0]->name;
     //    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
     //                       filePath + ".dxf",
     //                       tr("%1 Files (*.%2)")
@@ -188,9 +188,9 @@ void MainWindow::on_action_F_S_triggered()
     //        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
 
     bool boolDXFSaved=painterArea->writeDXF();
-    bool boolASTMSaved=painterArea->myPathData->writeASTM(filePath+".dxf");
+    bool boolASTMSaved=painterArea->myPaths[0]->writeASTM(filePath+".dxf");
 
-    if(painterArea->myPathData->saveTo(filePath+".txt") && boolDXFSaved && boolASTMSaved)
+    if(painterArea->myPaths[0]->saveTo(filePath+".txt") && boolDXFSaved && boolASTMSaved)
         QMessageBox::information(nullptr,"Save","The dxf and txt files have saved successfully.");
     else
         QMessageBox::information(nullptr,"Save","The dxf and txt files failed to save!");
@@ -231,12 +231,12 @@ void MainWindow::on_tablePaths_clicked(const QModelIndex &index)
  */
 void MainWindow::showPath(int id)
 {
-    PathData pathData = painterArea->myPathData->pathData[id];
+    PathData pathData = painterArea->myPaths[0]->pathData[id];
     QPainterPath yellowPath;
     if(pathData.isLine)
     {
-        QPointF sp = painterArea->myPathData->pointData[pathData.startPoint->id],
-                ep = painterArea->myPathData->pointData[pathData.endPoint->id];
+        QPointF sp = painterArea->myPaths[0]->pointData[pathData.startPoint->id],
+                ep = painterArea->myPaths[0]->pointData[pathData.endPoint->id];
         yellowPath.moveTo(sp);
         yellowPath.lineTo(ep);
         painterArea->yellowPath = yellowPath;
@@ -259,19 +259,19 @@ void MainWindow::showPath(int id)
         QList<CurvePoint*> cPoints;
         cPoints<<c1<<p;
         QList<QPointF> points;
-        points.append(painterArea->myPathData->pointData[p->id]);
+        points.append(painterArea->myPaths[0]->pointData[p->id]);
         while(!p->next->isCtrlPoint)
         {
             p = p->next;
             cPoints.append(p);
-            points.append(painterArea->myPathData->pointData[p->id]);
+            points.append(painterArea->myPaths[0]->pointData[p->id]);
         }
         c2 = p->next;
         cPoints.append(c2);
         // 画yellowPath
-        MyPath path(painterArea);
-        path.curveThrough_data(points,painterArea->myPathData->pointData[c1->id],painterArea->myPathData->pointData[c2->id]);
-        yellowPath = *(path.myPath);
+        MyPainter painter;
+        painter.curve(points,painterArea->myPaths[0]->pointData[c1->id],painterArea->myPaths[0]->pointData[c2->id]);
+        yellowPath = *(painter.myPath);
         painterArea->yellowPath = yellowPath;
         painterArea->setCenterToYellowPath();
         // 画greenPath
@@ -352,8 +352,8 @@ void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
     else
         return;
     QPainterPath greenPath;
-    greenPath.moveTo(painterArea->myPathData->pointData[pointBeCtrled->id]);
-    greenPath.lineTo(painterArea->myPathData->pointData[ctrlPoint->id]);
+    greenPath.moveTo(painterArea->myPaths[0]->pointData[pointBeCtrled->id]);
+    greenPath.lineTo(painterArea->myPaths[0]->pointData[ctrlPoint->id]);
     painterArea->greenPath.addPath(greenPath);
 }
 
@@ -380,8 +380,8 @@ void MainWindow::on_actiontest_curve_triggered()
  */
 void MainWindow::on_action_F_A_triggered()
 {
-    QString filePath=painterArea->myPathData->name+".dxf";
-    painterArea->myPathData->writeASTM(filePath);
+    QString filePath=painterArea->myPaths[0]->name+".dxf";
+    painterArea->myPaths[0]->writeASTM(filePath);
 }
 
 /**

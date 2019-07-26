@@ -43,8 +43,7 @@ void DialogDesign::enterStep2(int intKuoXing)
     }
     this->close();
     MainWindow *m=static_cast<MainWindow*>(mainWin);
-    m->painterArea->myPathData->clear();
-    m->painterArea->setMyPath();
+    m->painterArea->myPaths.clear();
 }
 
 /**
