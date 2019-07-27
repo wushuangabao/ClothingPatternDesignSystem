@@ -32,7 +32,7 @@ public:
 public slots:
     void setStatusMouseCoordinate();
     void setStatusScalingMulti();
-    void resetModel();
+    void resetModel(int i);
     void showPath(int id);
     void showCtrlPoint(CurvePoint *ctrlPoint);
     void selectTablePoint(QPointF point);
@@ -46,10 +46,9 @@ private slots:
     void on_action_Design_triggered();
     void on_actiontest_curve_triggered();
     void on_tablePaths_clicked(const QModelIndex &index);
-    void on_tablePaths_activated(const QModelIndex &index);
     void on_action_Rule_triggered();
     void on_action_Style_triggered();
-
+    void on_action_MovePath_triggered();
     void setColor(QString color, QString object);
 
 private:

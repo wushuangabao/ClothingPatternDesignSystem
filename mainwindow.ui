@@ -92,6 +92,8 @@
     <addaction name="separator"/>
     <addaction name="action_M_M"/>
     <addaction name="action_M_S"/>
+    <addaction name="separator"/>
+    <addaction name="action_MovePath"/>
    </widget>
    <widget class="QMenu" name="menu_H">
     <property name="title">
@@ -131,6 +133,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Rule"/>
+   <addaction name="action_MovePath"/>
+   <addaction name="actiontest_curve"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockPointData">
@@ -414,6 +419,11 @@
   <action name="action_Style">
    <property name="text">
     <string>界面风格</string>
+   </property>
+  </action>
+  <action name="action_MovePath">
+   <property name="text">
+    <string>移动位置</string>
    </property>
   </action>
  </widget>

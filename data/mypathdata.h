@@ -29,6 +29,7 @@ public:
     ~MyPathData();
 
     QString name=""; /**< MyPathData实例的名称 */
+    QPointF basePoint; /**< 基准点 */
     int numberPath=0; /**< 路径数目 */
     int numberPoint=0; /**< 点的数目 */
     QList<PathData> pathData; /**< 路径数组 */
@@ -47,7 +48,9 @@ public:
     QString stringOf(CurvePoint *point);
     QString stringsOf(CurvePoint *point);
 
-    bool saveTo(QString path);
+    void setName(QString name);
+    void moveBasePointTo(QPointF p);
+    bool saveTxtTo(QString path);
     bool writeASTM(QString filePath);
     void clear();
 

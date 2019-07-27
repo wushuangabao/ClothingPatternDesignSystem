@@ -76,6 +76,6 @@ void LabelPoint::changePos()
         parent->update();
         //重设表格
         MainWindow *mainWin=(MainWindow*)parent->parent();
-        mainWin->resetModel();
+        mainWin->resetModel(parent->currentId);
     }
 }

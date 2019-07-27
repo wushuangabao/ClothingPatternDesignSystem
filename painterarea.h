@@ -34,14 +34,15 @@ public:
     explicit PainterArea(QWidget *parent = nullptr);
     ~PainterArea();
 
-    QList<MyPathData*> myPaths ; /**< 纸样数据 */
+    QList<MyPathData*> myPaths; /**< 纸样数据 */
+    QList<QPushButton*> btnPaths; /**< 纸样数据对应的按钮 */
     QPainterPath auxiliaryLines; /**< 辅助线 */
     QPainterPath yellowPath; /**< 黄线 */
     QPainterPath greenPath; /**< 绿线 */
-    int typePants; /**< 裤子类型 */
-    int old_typePants; /**< 原来的裤子类型 */
+    int currentId; /**< 当前正在操作的纸样数据的索引 */
 
-    int pantsHeight; /**< 身高 */
+    void addPath(MyPathData* path);
+
     int pantsL; /**< 裤长 */
     int pantsW; /**< 腰围 */
     int pantsH; /**< 臀围 */
@@ -76,11 +77,12 @@ public:
 
 public slots:
     void setTypeSang(int frontOrBack,int intCase);
+    bool setCurrentPath(int i = -1);
 
 signals:
     void mouseCoordinateChanged();
     void scalingMultiChanged();
-    void resetModel();
+    void resetModel(int i);
 };
 
 #endif // PAINTERAREA_H

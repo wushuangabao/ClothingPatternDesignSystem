@@ -51,7 +51,7 @@ MainWindow::MainWindow() :
 
     connect(painterArea,SIGNAL(mouseCoordinateChanged()),this,SLOT(setStatusMouseCoordinate()));
     connect(painterArea,SIGNAL(scalingMultiChanged()),this,SLOT(setStatusScalingMulti()));
-    connect(painterArea,SIGNAL(resetModel()),this,SLOT(resetModel()));
+    connect(painterArea,SIGNAL(resetModel(int)),this,SLOT(resetModel(int)));
     connect(dialogMS,SIGNAL(typeSangChanged(int,int)),painterArea,SLOT(setTypeSang(int,int)));
     //    connect(ui->tablePaths->model(),SIGNAL(itemChanged(QStandardItem*)),painterArea,SLOT(changePath()));
 
@@ -112,12 +112,12 @@ void MainWindow::setStatusScalingMulti(){
 
 /**
  * @brief 根据myPathData修改tablePoints和tablePaths
- *
+ * @param i 绘图路径在myPaths中的索引
  */
-void MainWindow::resetModel(){
+void MainWindow::resetModel(int i){
     modelPoints->clear();
     modelPaths->clear();
-    MyPathData *data = painterArea->myPaths[0];
+    MyPathData *data = painterArea->myPaths[i];
     int nPaths = data->numberPath,
             nPoints = data->numberPoint;
     for(int i=0;i<nPoints;++i)
@@ -190,7 +190,7 @@ void MainWindow::on_action_F_S_triggered()
     bool boolDXFSaved=painterArea->writeDXF();
     bool boolASTMSaved=painterArea->myPaths[0]->writeASTM(filePath+".dxf");
 
-    if(painterArea->myPaths[0]->saveTo(filePath+".txt") && boolDXFSaved && boolASTMSaved)
+    if(painterArea->myPaths[painterArea->currentId]->saveTxtTo(filePath+".txt") && boolDXFSaved && boolASTMSaved)
         QMessageBox::information(nullptr,"Save","The dxf and txt files have saved successfully.");
     else
         QMessageBox::information(nullptr,"Save","The dxf and txt files failed to save!");
@@ -206,7 +206,7 @@ void MainWindow::on_action_M_M_triggered()
     {
         painterArea->pantsCrotchH=dialogMM->Cro;
         painterArea->pantsH=dialogMM->H;
-        painterArea->pantsHeight=dialogMM->Height;
+        //painterArea->pantsHeight=dialogMM->Height;
         painterArea->pantsL=dialogMM->L;
         painterArea->pantsW=dialogMM->W;
         painterArea->update();
@@ -291,16 +291,6 @@ void MainWindow::showPath(int id)
     ui->labelPathLen->setText("Length:"+QString::number(yellowPath.length())+"mm");
     this->statusBar()->showMessage(modelPaths->item(id,1)->text(),0);
     painterArea->update();
-}
-
-/**
- * @brief 没有用
- *
- * @param index
- */
-void MainWindow::on_tablePaths_activated(const QModelIndex &index)
-{
-    qDebug()<<"on_tablePaths_activated";
 }
 
 /**
@@ -415,4 +405,26 @@ void MainWindow::setColor(QString color, QString object)
     if(object == "painterArea"){
         painterArea->setColor(color);
     }
+}
+
+/**
+ * @brief 移动painterArea中当前选中的路径的位置
+ */
+void MainWindow::on_action_MovePath_triggered()
+{
+    if(painterArea->myPaths.isEmpty())
+        return;
+    MyPathData* path = painterArea->myPaths[painterArea->currentId];
+    qreal x = path->basePoint.x(),
+          y = path->basePoint.y();
+    bool ok = false;
+    QString v = QInputDialog::getText(nullptr,"初始化-输入实体","基准点 =",QLineEdit::Normal,
+                                      QString::number(x)+","+QString::number(y),&ok);
+    int i = v.indexOf(',');
+    if(!ok) return;
+    x = v.left(i).toInt(&ok);
+    y = v.mid(i+1).toInt(&ok);
+    if(!ok) return;
+    path->moveBasePointTo(QPointF(x,y));
+    //painterArea->update();
 }

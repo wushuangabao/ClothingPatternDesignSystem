@@ -108,11 +108,14 @@ void DialogRule::on_pushButtonDelete_clicked()
 void DialogRule::on_pushButton_clicked()
 {
     if(currentDir.contains(".txt",Qt::CaseInsensitive)){
+        int i1 = currentDir.lastIndexOf("/"),
+            i2 = currentDir.lastIndexOf(".");
         MyRule rule(currentDir);
         MyPainter mp = rule.drawPath();
-        MyPathData* data = new MyPathData(*mp.myData); // todo: 命名data，现在是"未命名_副本"
+        MyPathData* data = new MyPathData(*mp.myData);
         MainWindow* mw = static_cast<MainWindow*>(parent());
-        mw->painterArea->myPaths << data;
-        mw->painterArea->update();
+        data->setName(currentDir.mid(i1+1).left(i2-i1-1));
+        mw->painterArea->addPath(data);
+        this->close();
     }
 }

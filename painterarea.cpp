@@ -7,6 +7,7 @@
 #include "rules/mypainter.h"
 #include "data/mypathdata.h"
 #include "data/labelpoint.h"
+#include "mainwindow.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -20,13 +21,14 @@
  */
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
-    pantsHeight=1650;
+    //pantsHeight=1650;
     pantsL=1020;
     pantsW=720;
     pantsH=940;
     pantsCrotchH=245;
     typeSang1=0;
     typeSang2=1;
+    currentId=-1;
 
     // 设置背景颜色
     color = Qt::black;
@@ -43,6 +45,48 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
  */
 PainterArea::~PainterArea()
 {
+    int size = myPaths.size();
+    if(size>0)
+        for(int i=0;i<size;++i){
+            delete myPaths[i];
+            delete btnPaths[i];
+        }
+}
+
+/**
+ * @brief 新增path到myPaths数组
+ * @param path
+ */
+void PainterArea::addPath(MyPathData *path)
+{
+    int i = myPaths.size();
+    myPaths << path;
+    setCurrentPath(i);
+
+    // 在状态栏添加按钮
+    MainWindow* mw = static_cast<MainWindow*>(parent());
+    QPushButton* btn = new QPushButton(myPaths[i]->name);
+    // todo: https://bbs.csdn.net/topics/360172355
+    btnPaths << btn;
+    mw->statusBar()->insertPermanentWidget(i+1, btn);
+}
+
+/**
+ * @brief 设置当前选中的path
+ * @param i -1表示不重新选择当前的currentId
+ * @return bool
+ */
+bool PainterArea::setCurrentPath(int i)
+{
+    if(i >= myPaths.size())
+        return false;
+    else if(i != -1)
+        currentId = i;
+    MainWindow* mw = static_cast<MainWindow*>(parent());
+    if(currentId>=0 && currentId<myPaths.size())
+        mw->resetModel(currentId);
+    else return false;
+    return true;
 }
 
 /**
@@ -70,16 +114,19 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawPath(auxiliaryLines);
 
-    //    pen.setWidthF(1);
-    pen.setColor(Qt::white);
-    painter.setPen(pen);
-
     // 遍历 myPaths 进行 drawByPathData
-    QList<MyPathData*>::iterator it;
     MyPainter myPainter;
     if(!myPaths.isEmpty())
-        for(it=myPaths.begin();it!=myPaths.end();++it){
-            painter.drawPath(myPainter.drawByPathData(*it));
+        for(int i=0; i<myPaths.size(); ++i){
+            if(i == currentId){
+                pen.setColor(Qt::cyan);
+                painter.setPen(pen);
+            }
+            else if(pen.color() != Qt::white){
+                pen.setColor(Qt::white);
+                painter.setPen(pen);
+            }
+            painter.drawPath(myPainter.drawByPathData(myPaths[i]));
         }
 
     pen.setColor(Qt::yellow);
@@ -352,7 +399,7 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
         typeSang1 = intCase;
     else if(frontOrBack==2)
         typeSang2 = intCase;
-    emit resetModel();
+    emit resetModel(currentId);
     update();
 }
 

@@ -14,6 +14,7 @@
 MyPathData::MyPathData(QString name)
 {
     this->name = name;
+    basePoint = QPointF(0,0);
 }
 
 /**
@@ -22,7 +23,7 @@ MyPathData::MyPathData(QString name)
  */
 MyPathData::MyPathData(const MyPathData &copyObj)
 {
-    name = copyObj.name + "_副本";
+    name = copyObj.name;
     numberPath = copyObj.numberPath;
     numberPoint = copyObj.numberPoint;
     pointData = copyObj.pointData;
@@ -118,12 +119,37 @@ QString MyPathData::stringsOf(CurvePoint *point)
 }
 
 /**
+ * @brief 命名
+ * @param name
+ */
+void MyPathData::setName(QString name)
+{
+    this->name = name;
+}
+
+/**
+ * @brief 移动基准点（亦即移动整个图形）
+ * @param p 新的基准点位置
+ */
+void MyPathData::moveBasePointTo(QPointF p)
+{
+    qreal dx = p.x() - basePoint.x(),
+          dy = p.y() - basePoint.y();
+    basePoint = p;
+    for(int i=0;i<numberPoint;++i){
+        qreal newX = pointData[i].x() + dx,
+              newY = pointData[i].y() + dy;
+        pointData[i] = QPointF(newX, newY);
+    }
+}
+
+/**
  * @brief myPathData保存为txt文件
  *
  * @param filePath
  * @return bool
  */
-bool MyPathData::saveTo(QString filePath)
+bool MyPathData::saveTxtTo(QString filePath)
 {
     //QFile file(QDir::currentPath()+"/pathData.txt");
     QFile file(filePath);
@@ -506,25 +532,31 @@ QString MyPathData::stringPoint(qreal x, qreal y)
 }
 
 /**
- * @brief 增添点的数据
- *
+ * @brief 增添点的数据 （若点已经存在、名称也相同，就不添加。即：pointData数组中可能存在不同名称的相同点。）
  * @param point
  * @param name
  * @return int 点在数组中的下标
  */
 int MyPathData::addPoint(QPointF point,QString name)
 {
-    int i=0;
-    for(;i<numberPoint;i++)
-        if(equal(pointData[i],point))
-            break;
-    if(i==numberPoint)
-    {
+    if(numberPoint == 0){
         numberPoint++;
         pointData << point;
+        return 0;
     }
-    if(name!="")
-        pointMap.insert(name,i);
+    int i=0;
+    for(;i<numberPoint;i++)
+        if(equal(pointData[i],point)){
+            if(name == "") break;
+            else if(pointMap.contains(name) && pointMap[name] == i)
+                break;
+        }
+    if(i == numberPoint){
+        numberPoint++;
+        pointData << point;
+        if(name!="")
+            pointMap.insert(name,i);
+    }
     return i;
 }
 
