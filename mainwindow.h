@@ -43,6 +43,7 @@ private slots:
     void on_action_F_S_triggered();
     void on_action_M_M_triggered();
     void on_action_F_A_triggered();
+    void on_action_F_D_triggered();
     void on_action_Design_triggered();
     void on_actiontest_curve_triggered();
     void on_tablePaths_clicked(const QModelIndex &index);

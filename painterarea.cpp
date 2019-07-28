@@ -7,6 +7,7 @@
 #include "rules/mypainter.h"
 #include "data/mypathdata.h"
 #include "data/labelpoint.h"
+#include "data/pathbutton.h"
 #include "mainwindow.h"
 
 #include <iostream>
@@ -65,10 +66,22 @@ void PainterArea::addPath(MyPathData *path)
 
     // 在状态栏添加按钮
     MainWindow* mw = static_cast<MainWindow*>(parent());
-    QPushButton* btn = new QPushButton(myPaths[i]->name);
-    // todo: https://bbs.csdn.net/topics/360172355
+    PathButton* btn = new PathButton(myPaths[i]->name,this);
+    btn->index = btnPaths.size();
+    connect(btn,SIGNAL(clicked()),btn,SLOT(beClicked()));
     btnPaths << btn;
     mw->statusBar()->insertPermanentWidget(i+1, btn);
+}
+
+/**
+ * @brief 获取当前的 MyPathData
+ * @return
+ */
+MyPathData *PainterArea::currentPath()
+{
+    if(myPaths.isEmpty() || currentId < 0 || currentId >= myPaths.size())
+        return nullptr;
+    else return myPaths[currentId];
 }
 
 /**
@@ -83,8 +96,10 @@ bool PainterArea::setCurrentPath(int i)
     else if(i != -1)
         currentId = i;
     MainWindow* mw = static_cast<MainWindow*>(parent());
-    if(currentId>=0 && currentId<myPaths.size())
+    if(currentId >= 0 && currentId < myPaths.size()){
         mw->resetModel(currentId);
+        this->update();
+    }
     else return false;
     return true;
 }
@@ -408,10 +423,10 @@ void PainterArea::setTypeSang(int frontOrBack,int intCase)
  *
  * @return bool
  */
-bool PainterArea::writeDXF() {
+bool PainterArea::writeDXF(QString fileName) {
     DL_Dxf* dxf = new DL_Dxf();
     DL_Codes::version exportVersion = DL_Codes::AC1015;
-    DL_WriterA* dw = dxf->out("myfile.dxf", exportVersion);
+    DL_WriterA* dw = dxf->out(fileName.toUtf8(), exportVersion);
     if (dw==nullptr)
         return false;
 
@@ -493,7 +508,7 @@ bool PainterArea::writeDXF() {
     dw->sectionEnd();
     dw->sectionEntities();
     // write all entities in model space:
-    MyPathData *data = myPaths[0];
+    MyPathData *data = myPaths[currentId];
     int numPaths = data->numberPath, i;
     for(i=0;i<numPaths;++i)
     {

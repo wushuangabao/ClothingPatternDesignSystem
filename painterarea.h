@@ -42,6 +42,7 @@ public:
     int currentId; /**< 当前正在操作的纸样数据的索引 */
 
     void addPath(MyPathData* path);
+    MyPathData* currentPath();
 
     int pantsL; /**< 裤长 */
     int pantsW; /**< 腰围 */
@@ -70,7 +71,7 @@ public:
     int xPhysical(qreal xLogical);
     int yPhysical(qreal yLogical);
 
-    bool writeDXF();
+    bool writeDXF(QString fileName);
 
     void setCenterToYellowPath();
     void setColor(QString color = "");

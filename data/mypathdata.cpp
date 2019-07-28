@@ -199,7 +199,7 @@ bool MyPathData::writeASTM(QString filePath)
     file.write(content.toUtf8());
 
     // 样片名称和号型
-    writeText(&file,"Piece Name: noname");
+    writeText(&file,"Piece Name: "+name);
     writeText(&file,"Size: M",0,15.0);
 
     // 边界线、内部线和剪口

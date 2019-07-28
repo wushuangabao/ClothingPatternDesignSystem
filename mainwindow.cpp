@@ -152,51 +152,6 @@ void MainWindow::on_action_M_S_triggered()
 }
 
 /**
- * @brief action触发 文件保存
- *
- */
-void MainWindow::on_action_F_S_triggered()
-{
-    //    //截取painterArea
-    //    int aLeft = 60, aTop = 60,
-    //        aRight = aLeft+440+painterArea->pantsH/4,
-    //        aBottom = aTop+painterArea->pantsL+50;
-    //    qreal oldScalingMulti = painterArea->scalingMulti;
-    //    int oldIntUp = painterArea->intUp, oldIntLeft = painterArea->intLeft;
-    //    painterArea->scalingMulti = 5.0;
-    //    painterArea->intUp = 0;
-    //    painterArea->intLeft = 0;
-    //    painterArea->update();
-    //    QPixmap pixMap = painterArea->grab(QRect(5*aLeft,5*aTop,5*aRight,5*aBottom));
-    //    painterArea->scalingMulti = oldScalingMulti;
-    //    painterArea->intUp = oldIntUp;
-    //    painterArea->intLeft = oldIntLeft;
-    //    painterArea->update();
-
-    //保获取路径
-    QString filePath = QDir::currentPath() + "/" + painterArea->myPaths[0]->name;
-    //    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-    //                       filePath + ".dxf",
-    //                       tr("%1 Files (*.%2)")
-    //                       .arg(QString::fromLatin1("DXF"))
-    //                       .arg(QString::fromLatin1("dxf")));
-    //    qDebug()<<"save to: "<<fileName;
-
-    //    //保存为jpg文件
-    //    bool boolPixMapSaved = pixMap.save(fileName,"JPG");
-    //    if(boolPixMapSaved)
-    //        QMessageBox::information(nullptr,"Save","The jpg file has saved successfully.");
-
-    bool boolDXFSaved=painterArea->writeDXF();
-    bool boolASTMSaved=painterArea->myPaths[0]->writeASTM(filePath+".dxf");
-
-    if(painterArea->myPaths[painterArea->currentId]->saveTxtTo(filePath+".txt") && boolDXFSaved && boolASTMSaved)
-        QMessageBox::information(nullptr,"Save","The dxf and txt files have saved successfully.");
-    else
-        QMessageBox::information(nullptr,"Save","The dxf and txt files failed to save!");
-}
-
-/**
  * @brief action触发 尺寸修改
  *
  */
@@ -231,12 +186,12 @@ void MainWindow::on_tablePaths_clicked(const QModelIndex &index)
  */
 void MainWindow::showPath(int id)
 {
-    PathData pathData = painterArea->myPaths[0]->pathData[id];
+    PathData pathData = painterArea->currentPath()->pathData[id];
     QPainterPath yellowPath;
     if(pathData.isLine)
     {
-        QPointF sp = painterArea->myPaths[0]->pointData[pathData.startPoint->id],
-                ep = painterArea->myPaths[0]->pointData[pathData.endPoint->id];
+        QPointF sp = painterArea->currentPath()->pointData[pathData.startPoint->id],
+                ep = painterArea->currentPath()->pointData[pathData.endPoint->id];
         yellowPath.moveTo(sp);
         yellowPath.lineTo(ep);
         painterArea->yellowPath = yellowPath;
@@ -259,18 +214,18 @@ void MainWindow::showPath(int id)
         QList<CurvePoint*> cPoints;
         cPoints<<c1<<p;
         QList<QPointF> points;
-        points.append(painterArea->myPaths[0]->pointData[p->id]);
+        points.append(painterArea->currentPath()->pointData[p->id]);
         while(!p->next->isCtrlPoint)
         {
             p = p->next;
             cPoints.append(p);
-            points.append(painterArea->myPaths[0]->pointData[p->id]);
+            points.append(painterArea->currentPath()->pointData[p->id]);
         }
         c2 = p->next;
         cPoints.append(c2);
         // 画yellowPath
         MyPainter painter;
-        painter.curve(points,painterArea->myPaths[0]->pointData[c1->id],painterArea->myPaths[0]->pointData[c2->id]);
+        painter.curve(points,painterArea->currentPath()->pointData[c1->id],painterArea->currentPath()->pointData[c2->id]);
         yellowPath = *(painter.myPath);
         painterArea->yellowPath = yellowPath;
         painterArea->setCenterToYellowPath();
@@ -342,8 +297,8 @@ void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
     else
         return;
     QPainterPath greenPath;
-    greenPath.moveTo(painterArea->myPaths[0]->pointData[pointBeCtrled->id]);
-    greenPath.lineTo(painterArea->myPaths[0]->pointData[ctrlPoint->id]);
+    greenPath.moveTo(painterArea->currentPath()->pointData[pointBeCtrled->id]);
+    greenPath.lineTo(painterArea->currentPath()->pointData[ctrlPoint->id]);
     painterArea->greenPath.addPath(greenPath);
 }
 
@@ -366,12 +321,47 @@ void MainWindow::on_actiontest_curve_triggered()
 }
 
 /**
- * @brief action触发 另存为（ASTM标准DXF格式)
+ * @brief action触发 当前路径保存为txt
+ *
+ */
+void MainWindow::on_action_F_S_triggered()
+{
+    QString filePath = QDir::currentPath() + "/" + painterArea->currentPath()->name;
+    //    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+    //                       filePath + ".dxf",
+    //                       tr("%1 Files (*.%2)")
+    //                       .arg(QString::fromLatin1("DXF"))
+    //                       .arg(QString::fromLatin1("dxf")));
+    //    qDebug()<<"save to: "<<fileName;
+
+    if(painterArea->currentPath()->saveTxtTo(filePath+".txt"))
+        QMessageBox::information(nullptr,"Save","The txt file have saved successfully.");
+    else
+        QMessageBox::information(nullptr,"Save","The txt file failed to save!");
+}
+
+/**
+ * @brief action触发 当前路径存为ASTM标准DXF格式
  */
 void MainWindow::on_action_F_A_triggered()
 {
-    QString filePath=painterArea->myPaths[0]->name+".dxf";
-    painterArea->myPaths[0]->writeASTM(filePath);
+    QString filePath=painterArea->currentPath()->name+".dxf";
+    if(painterArea->currentPath()->writeASTM(filePath))
+        QMessageBox::information(nullptr,"Save","The dxf file have saved successfully.");
+    else
+        QMessageBox::information(nullptr,"Save","The dxf file failed to save!");
+}
+
+/**
+ * @brief action触发 当前路径存为AutoCAD标准DXF格式
+ */
+void MainWindow::on_action_F_D_triggered()
+{
+    QString filePath=painterArea->currentPath()->name+".dxf";
+    if(painterArea->writeDXF(filePath))
+        QMessageBox::information(nullptr,"Save","The dxf file have saved successfully.");
+    else
+        QMessageBox::information(nullptr,"Save","The dxf file failed to save!");
 }
 
 /**
@@ -412,9 +402,8 @@ void MainWindow::setColor(QString color, QString object)
  */
 void MainWindow::on_action_MovePath_triggered()
 {
-    if(painterArea->myPaths.isEmpty())
-        return;
-    MyPathData* path = painterArea->myPaths[painterArea->currentId];
+    MyPathData* path = painterArea->currentPath();
+    if(path == nullptr) return;
     qreal x = path->basePoint.x(),
           y = path->basePoint.y();
     bool ok = false;
@@ -426,5 +415,5 @@ void MainWindow::on_action_MovePath_triggered()
     y = v.mid(i+1).toInt(&ok);
     if(!ok) return;
     path->moveBasePointTo(QPointF(x,y));
-    //painterArea->update();
+    this->resetModel(painterArea->currentId);
 }

@@ -30,6 +30,7 @@
     <addaction name="action_N"/>
     <addaction name="action_O"/>
     <addaction name="action_F_S"/>
+    <addaction name="action_F_D"/>
     <addaction name="action_F_A"/>
     <addaction name="action_B"/>
     <addaction name="action_E"/>
@@ -424,6 +425,11 @@
   <action name="action_MovePath">
    <property name="text">
     <string>移动位置</string>
+   </property>
+  </action>
+  <action name="action_F_D">
+   <property name="text">
+    <string>保存为dxf(&amp;D)</string>
    </property>
   </action>
  </widget>
