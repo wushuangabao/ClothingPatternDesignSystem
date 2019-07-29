@@ -11,10 +11,10 @@ LabelPoint::LabelPoint(PainterArea *parent) : QLabel(parent)
 {
     this->parent=parent;
     point = nullptr;
-    actionNew=new QAction("移动点到当前位置",this);
+    actionNew=new QAction("恢复到黄线位置",this);
     contextMenu=new QMenu(this);
     contextMenu->addAction(actionNew);
-    connect(actionNew,SIGNAL(triggered()),this,SLOT(changePos()));
+    connect(actionNew,SIGNAL(triggered()),this,SLOT(resetPos()));
 }
 
 LabelPoint::~LabelPoint()
@@ -65,17 +65,39 @@ void LabelPoint::contextMenuEvent(QContextMenuEvent *event)
  */
 void LabelPoint::changePos()
 {
-    if(point)
-    {
-        MyPathData *pathData = parent->myPaths[0];
-        //修改x,y的值     (TODO:更新pathData中的QPainterPath数据)
+    if(point != nullptr){
+        MyPathData *pathData = parent->currentPath();
+        // 修改x,y的值
         pathData->pointData[point->id].setX(parent->xLogical(this->x()));
         pathData->pointData[point->id].setY(parent->yLogical(this->y()));
-        //重绘图形
-//        parent->dataChanged=true;
+        // 重绘图形
+        // parent->dataChanged=true;
         parent->update();
-        //重设表格
-        MainWindow *mainWin=(MainWindow*)parent->parent();
+        // 重设表格
+        MainWindow *mainWin=static_cast<MainWindow*>(parent->parent());
         mainWin->resetModel(parent->currentId);
     }
+}
+
+/**
+ * @brief 设置旧的点坐标
+ * @param p
+ */
+void LabelPoint::setOldPoint(QPointF p)
+{
+    oldX = p.x();
+    oldY = p.y();
+}
+
+/**
+ * @brief 重置为旧的点坐标
+ */
+void LabelPoint::resetPos()
+{
+    MyPathData *pathData = parent->currentPath();
+    pathData->pointData[point->id].setX(oldX);
+    pathData->pointData[point->id].setY(oldY);
+    this->moveTo(QPoint(parent->xPhysical(oldX),parent->yPhysical(oldY)));
+    parent->greenPath = QPainterPath();
+    parent->update();
 }

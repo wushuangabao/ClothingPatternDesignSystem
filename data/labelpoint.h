@@ -27,15 +27,16 @@ public:
     QPoint setHandlerPos(QPoint mousePos); //根据鼠标在painterArea中的的物理位置计算handlerPos
     void moveTo(QPoint mousePos);
     void contextMenuEvent(QContextMenuEvent *event);
-
-signals:
+    void changePos();
+    void setOldPoint(QPointF p);
 
 public slots:
-    void changePos();
+    void resetPos();
 private:
-    QAction *actionNew; /**< TODO: describe */
-    QMenu *contextMenu; /**< TODO: describe */
-
+    QAction *actionNew;
+    QMenu *contextMenu;
+    qreal oldX;
+    qreal oldY;
 };
 
 #endif // LABELPOINT_H

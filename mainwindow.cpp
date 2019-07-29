@@ -223,16 +223,15 @@ void MainWindow::showPath(int id)
         }
         c2 = p->next;
         cPoints.append(c2);
+        showCtrlPoint(c1);
+        showCtrlPoint(c2);
+        painterArea->greenPath = QPainterPath();
         // 画yellowPath
         MyPainter painter;
         painter.curve(points,painterArea->currentPath()->pointData[c1->id],painterArea->currentPath()->pointData[c2->id]);
         yellowPath = *(painter.myPath);
         painterArea->yellowPath = yellowPath;
         painterArea->setCenterToYellowPath();
-        // 画greenPath
-        painterArea->greenPath = QPainterPath();
-        showCtrlPoint(c1);
-        showCtrlPoint(c2);
         // 显示labelPoint、选中表格中对应的点
         painterArea->clearLabelPoints();
         ui->tablePoints->clearSelection();
@@ -289,17 +288,13 @@ void MainWindow::showCtrlPoint(CurvePoint *ctrlPoint)
 {
     if(!ctrlPoint->isCtrlPoint)
         return;
-    CurvePoint *pointBeCtrled=nullptr;
+    CurvePoint *pointBeCtrled = nullptr;
     if(ctrlPoint->pre)
-        pointBeCtrled=ctrlPoint->pre;
+        pointBeCtrled = ctrlPoint->pre;
     else if(ctrlPoint->next)
-        pointBeCtrled=ctrlPoint->next;
+        pointBeCtrled = ctrlPoint->next;
     else
         return;
-    QPainterPath greenPath;
-    greenPath.moveTo(painterArea->currentPath()->pointData[pointBeCtrled->id]);
-    greenPath.lineTo(painterArea->currentPath()->pointData[ctrlPoint->id]);
-    painterArea->greenPath.addPath(greenPath);
 }
 
 /**
@@ -415,5 +410,7 @@ void MainWindow::on_action_MovePath_triggered()
     y = v.mid(i+1).toInt(&ok);
     if(!ok) return;
     path->moveBasePointTo(QPointF(x,y));
+    painterArea->greenPath = QPainterPath();
+    painterArea->yellowPath = QPainterPath();
     this->resetModel(painterArea->currentId);
 }

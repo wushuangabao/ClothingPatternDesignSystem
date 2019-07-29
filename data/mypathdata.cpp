@@ -542,6 +542,8 @@ int MyPathData::addPoint(QPointF point,QString name)
     if(numberPoint == 0){
         numberPoint++;
         pointData << point;
+        if(name!="")
+            pointMap.insert(name,0);
         return 0;
     }
     int i=0;

@@ -29,7 +29,7 @@ void MyPainter::setStartPoint(QPointF point)
 }
 
 /**
- * @brief 解析路径代码，添加数据到parent->myPahtData
+ * @brief 解析路径代码，添加数据到myData
  * @param rule 包含点坐标信息的MyRule数据
  * @param pathCode 形如"e 连接 i 连接 j 圆滑 a ..."
  */
@@ -77,8 +77,8 @@ void MyPainter::parseCode(MyRule *rule, QString pathCode)
         else if(nextType == ""){
             bool ok = true;
             QPointF point = convertPoint(rule->point(pathCode,&ok));
-            addPointData(point,pathCode); // 添加点数据到myPathData
             if(ok){
+                addPointData(point,pathCode); // 添加点数据到myData
                 points << point;
                 if(type == "圆滑") {
                     if(points.size()>2) curveThrough(points);
@@ -305,7 +305,7 @@ bool MyPainter::addPointByRule(QList<QPointF> *points, MyRule *rule, QString* pa
     if(ok){
         points->append(point); // 将点加入points队末
         pathCode->remove(0,id+type.length()); // 将namePoint和type从字符串中删除
-        addPointData(point,namePoint); // 添加点数据到myPathData
+        addPointData(point,namePoint); // 添加点数据到myData
         return true;
     }
     else{

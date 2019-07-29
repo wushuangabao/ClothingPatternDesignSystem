@@ -16,11 +16,10 @@ DialogTestCurve::DialogTestCurve(QWidget *parent) :
 
     setStyleSheet("QLabel{background-color:white;width:5px;}");
 
-    labels<<new QLabel(this)<<new QLabel(this)<<new QLabel(this)<<new QLabel(this);
+    labels<<new QLabel(this)<<new QLabel(this)<<new QLabel(this);
     labels[0]->move(0,100);
     labels[1]->move(100,0);
     labels[2]->move(200,100);
-    labels[3]->move(100,200);
 
     myPath = new MyPainter();
     drawCurve();
@@ -81,7 +80,9 @@ void DialogTestCurve::mouseMoveEvent(QMouseEvent *event)
     if(selectedLabel!=nullptr)
     {
         selectedLabel->move(pos.x(),pos.y());
-        update();
+        delete myPath->myPath;
+        myPath->myPath = new QPainterPath;
+        drawCurve();
     }
 }
 
@@ -97,16 +98,6 @@ void DialogTestCurve::drawCurve()
 }
 
 /**
- * @brief 清空以前的路径
- */
-void DialogTestCurve::on_pushButton_clicked()
-{
-    delete myPath->myPath;
-    myPath->myPath = new QPainterPath;
-    drawCurve();
-}
-
-/**
  * @brief 添加曲线途经点
  */
 void DialogTestCurve::on_pushButton_2_clicked()
@@ -115,5 +106,4 @@ void DialogTestCurve::on_pushButton_2_clicked()
     int i = labels.size()-1;
     labels[i]->move(10,10);
     labels[i]->show();
-    on_pushButton_clicked();
 }

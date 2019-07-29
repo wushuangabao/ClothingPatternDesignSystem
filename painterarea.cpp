@@ -46,6 +46,7 @@ PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
  */
 PainterArea::~PainterArea()
 {
+    clearLabelPoints();
     int size = myPaths.size();
     if(size>0)
         for(int i=0;i<size;++i){
@@ -246,19 +247,20 @@ void PainterArea::mousePressEvent(QMouseEvent *event)
     QWidget *w=this->childAt(pos);
     if(w!=nullptr && w->inherits("LabelPoint"))
     {
-        if(event->button()==Qt::LeftButton) //左键：拖动labelPoint
-        {
-            selectedLabelPoint=reinterpret_cast<LabelPoint *>(w);
+        // 左键拖动labelPoint
+        if(event->button()==Qt::LeftButton){
+            selectedLabelPoint = reinterpret_cast<LabelPoint *>(w);
             selectedLabelPoint->setHandlerPos(pos);
         }
     }
     if(event->button()==Qt::MidButton)
-    {   //拖动画布
+    {
+        // 拖动画布
         isMoving=true;
         xBeforeMoving=pos.x();
         yBeforeMoving=pos.y();
     }
-    //状态栏显示坐标
+    // 状态栏显示坐标
     stringTempStatus = tr("物理(")+QString::number(event->x()) + "," + QString::number(event->y()) +
             tr(") 逻辑(")+QString::number(xLogical(event->x())) + "," + QString::number(yLogical(event->y())) + ")";
     emit mouseCoordinateChanged();
@@ -289,12 +291,28 @@ void PainterArea::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint pos=event->pos();
     if(selectedLabelPoint!=nullptr)
-    {   //拖动labelPoint
+    {
+        // 拖动labelPoint
         selectedLabelPoint->moveTo(pos);
-        this->update();
+        // 改变曲线中间的控制点
+        CurvePoint* cp = selectedLabelPoint->point;
+        if(isCurvePath(&yellowPath) && !cp->isLast && !cp->isFirst){
+            selectedLabelPoint->changePos();
+            if(cp->isCtrlPoint){
+                // 改变绿线
+                greenPath = QPainterPath();
+                greenPath.moveTo(currentPath()->pointData[cp->id]);
+                if(cp->pre != nullptr)
+                    greenPath.lineTo(currentPath()->pointData[cp->pre->id]);
+                else if(cp->next != nullptr)
+                    greenPath.lineTo(currentPath()->pointData[cp->next->id]);
+            }
+            this->update();
+        }
     }
     else if(isMoving)
-    {   //拖动画布
+    {
+        // 拖动画布
         intLeft=intLeft-pos.x()+xBeforeMoving;
         intUp=intUp-pos.y()+yBeforeMoving;
         xBeforeMoving=pos.x();
@@ -315,26 +333,16 @@ void PainterArea::wheelEvent(QWheelEvent *event)
 {
     int x = event->x();
     int y = event->y();
-    //当滚轮远离使用者时进行放大，当滚轮向使用者方向旋转时进行缩小
-    if(event->delta() > 0)
-    {
-        if(scalingMulti<5)
-        {
+    // 当滚轮远离使用者时进行放大，当滚轮向使用者方向旋转时进行缩小
+    if(event->delta() > 0){
+        if(scalingMulti<5){
             scalingMulti = scalingMulti+0.1;
             intLeft+=qRound(0.1*x);
             intUp+=qRound(0.1*y);
         }
-        //        else
-        //        {
-        //            scalingMulti = scalingMulti+0.5;
-        //            intLeft+=qRound(0.5*x);
-        //            intUp+=qRound(0.5*y);
-        //        }
     }
-    else
-    {
-        if(scalingMulti>0.101)
-        {
+    else{
+        if(scalingMulti>0.101){
             scalingMulti = scalingMulti-0.1;
             intLeft-=0.1*x;
             intUp-=0.1*y;
@@ -343,6 +351,21 @@ void PainterArea::wheelEvent(QWheelEvent *event)
     this->update();
     updateLabelPoints();
     emit scalingMultiChanged();
+}
+
+/**
+ * @brief path是否是曲线
+ * @param path
+ * @return
+ */
+bool PainterArea::isCurvePath(QPainterPath *path)
+{
+    int sizePath = path->elementCount();
+    for(int i=0;i<sizePath;++i){
+        if(path->elementAt(i).type==QPainterPath::CurveToElement)
+            return true;
+    }
+    return false;
 }
 
 /**
@@ -359,7 +382,7 @@ void PainterArea::setLabelPoint(CurvePoint *point)
     {
         lp->setText("ctrlPoint");
         lp->setStyleSheet("QLabel{background-color:white;}");
-        lp->move(lpx,lpy-lp->height());
+        lp->move(lpx,lpy);
     }
     else
     {
@@ -368,7 +391,8 @@ void PainterArea::setLabelPoint(CurvePoint *point)
         lp->move(lpx,lpy);
     }
     lp->show();
-    lp->point=point;
+    lp->point = point;
+    lp->setOldPoint(p);
     labelPoints.append(lp);
 }
 
@@ -378,11 +402,11 @@ void PainterArea::setLabelPoint(CurvePoint *point)
  */
 void PainterArea::clearLabelPoints()
 {
-    int num=labelPoints.size(),i;
+    int num=labelPoints.size(), i;
+    if(num == 0)
+        return;
     for(i=0;i<num;i++)
-    {
         delete labelPoints.at(i);
-    }
     labelPoints.clear();
 }
 
@@ -607,4 +631,3 @@ void PainterArea::setColor(QString color)
     pal.setColor(QPalette::Background, this->color);
     this->setPalette(pal);
 }
-
