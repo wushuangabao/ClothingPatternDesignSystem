@@ -676,7 +676,10 @@ void MyRule::assignEntity(QString name, QString value)
     QMap<QString,QString>::iterator it1;
     it1 = params.find(name);
     if(it1 != params.end()){
-        *it1 = value;
+        bool ok = true;
+        qreal v = param(value, &ok);
+        if(ok) *it1 = QString::number(v,'f',3); // 精确到0.001
+        else *it1 = value;
         return;
     }
     QMap<QString,QPointF>::iterator it2;
@@ -711,12 +714,8 @@ qreal MyRule::param(QString value, bool *ok)
     // case: 值为参数名
     if(it != params.end())
         return param(*it, ok);
-    // case: 值为单个数值
-    else if(!s.contains(QRegExp("[+\\-\\*/]"))){
-        return s.toDouble(ok);
-    }
     // case: 制板公式
-    else{
+    else if(s.contains(QRegExp("[+\\-\\*/]"))){
         // 将公式中的参数名转化为数值
         QStringList paramNames = s.split(QRegExp("[+\\-\\*/\\(\\)]"),QString::SkipEmptyParts);
         paramNames = paramNames.filter(QRegExp("^[a-z]|[A-Z]"));
@@ -734,6 +733,19 @@ qreal MyRule::param(QString value, bool *ok)
         }
         // 再对公式求值
         return calculate(s, ok);
+    }
+    // case: 点的横纵坐标
+    else if(s.contains(".横坐标") || s.contains(".纵坐标")){
+        int i = s.lastIndexOf('.');
+        bool b = s[i+1] == "横";
+        s = s.left(i);
+        QPointF p = point(s, ok);
+        if(b) return p.x();
+        else return p.y();
+    }
+    // case: 值为单个数值
+    else{
+        return s.toDouble(ok);
     }
 }
 

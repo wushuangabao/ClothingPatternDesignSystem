@@ -29,7 +29,6 @@ MyPathData::MyPathData(const MyPathData &copyObj)
     pointData = copyObj.pointData;
     for(int i=0;i<numberPath;i++)
     {
-        //QPainterPath path = pathData[i].path;
         CurvePoint *curvePoint = copyObj.pathData[i].startPoint;
         CurvePoint *startPoint = new CurvePoint(curvePoint);
         if(curvePoint->pre!=nullptr){
@@ -54,6 +53,7 @@ MyPathData::MyPathData(const MyPathData &copyObj)
         PathData pathStruct = {
             i,
             copyObj.pathData[i].isLine,
+            copyObj.pathData[i].astmTag,
             startPoint,
             endPoint
         };
@@ -128,6 +128,46 @@ void MyPathData::setName(QString name)
 }
 
 /**
+ * @brief 将某点设置为剪口
+ * @param pointId
+ */
+void MyPathData::setNotch(int pointId)
+{
+    if(pointId>=numberPoint || pointId<0)
+        return;
+    notches << pointId;
+}
+
+/**
+ * @brief 将某路径设置为内部线
+ * @param pathId
+ */
+void MyPathData::setInLine(int pathId)
+{
+    if(pathId>=numberPath || pathId<0)
+        return;
+    pathData[pathId].astmTag = InLines;
+}
+
+/**
+ * @brief 将某路径设置为经向线
+ * @param pathId
+ */
+void MyPathData::setWarpLine(int pathId)
+{
+    if(pathId>=numberPath || pathId<0 || !pathData[pathId].isLine)
+        return;
+    int i = 0;
+    for(;i<numberPath;i++)
+        if(pathData[i].astmTag == WarpLine){
+            qDebug()<<"WarpLine已存在，添加失败！";
+            return;
+        }
+    pathData[pathId].astmTag = WarpLine;
+    idWrapLine = pathId;
+}
+
+/**
  * @brief 移动基准点（亦即移动整个图形）
  * @param p 新的基准点位置
  */
@@ -195,8 +235,13 @@ bool MyPathData::writeASTM(QString filePath)
     file.write(content.toUtf8());
 
     // 经向线
-    content=" 0\nLINE\n  8\n7\n"+stringPoint(590,655)+" 11\n590.0\n 21\n-455.0\n";
-    file.write(content.toUtf8());
+    if(idWrapLine != -1){
+        QPointF p1 = pointData[pathData[idWrapLine].startPoint->id],
+                p2 = pointData[pathData[idWrapLine].endPoint->id];
+        QString s1 = stringReal(p2.x()), s2 = stringReal(p2.y());
+        content=" 0\nLINE\n  8\n7\n"+stringPoint(p1.x(),p1.y())+" 11\n"+s1+"\n 21\n"+s2+"\n";
+        file.write(content.toUtf8());
+    }
 
     // 样片名称和号型
     writeText(&file,"Piece Name: "+name);
@@ -257,7 +302,7 @@ bool MyPathData::addLineTo(QPointF endPoint,int idSP)
 {
     if(numberPoint<1 || idSP<-1 || idSP>=numberPoint)
         return false;
-    if(idSP==-1) //表示起点为myPath路径的最后一个点
+    if(idSP==-1) // 表示起点为myPath路径的最后一个点
         idSP = idCurrentPoint;
     int idEP = findPoint(endPoint,true);
     CurvePoint *startCPoint = new CurvePoint(idSP);
@@ -269,6 +314,7 @@ bool MyPathData::addLineTo(QPointF endPoint,int idSP)
     PathData pathDataStruct={
         numberPath,
         true,
+        Boundary,
         startCPoint,
         endCPoint,
         //path
@@ -298,16 +344,15 @@ void MyPathData::addLine(QPointF startPoint,QPointF endPoint)
  * @param lastCtrlPoint
  * @param path
  */
-void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint,QPainterPath path)
+void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
 {
     CurvePoint *ctrlPoint1 = new CurvePoint(addCtrlPoint(firstCtrlPoint));
     CurvePoint *ctrlPoint2 = new CurvePoint(addCtrlPoint(lastCtrlPoint));
-    //QPainterPath *pathPointer = new QPainterPath(path);
-    //取出并删除points中的第一个点
+    // 取出并删除points中的第一个点
     QPointF point = points.takeAt(0);
     CurvePoint *pFirstCPoint = new CurvePoint(findPoint(point,true));
     CurvePoint *pCPoint = pFirstCPoint;
-    //将points中其余的点在之前取出的第一个点后面串成链表
+    // 将points中其余的点在之前取出的第一个点后面串成链表
     int numOfPoints = points.size();
     for(int i=0;i<numOfPoints;i++)
     {
@@ -316,10 +361,11 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
     }
     pFirstCPoint->setFirst(ctrlPoint1);
     pCPoint->setLast(ctrlPoint2);
-    //创建新的PathData，加入pathData数组
+    // 创建新的PathData，加入pathData数组
     PathData pathDataStruct={
         numberPath,
         false,
+        Boundary,
         pFirstCPoint,
         pCPoint,
         //pathPointer
@@ -389,14 +435,6 @@ void MyPathData::writePolyL(QFile *file, PathData path, int layer)
         QPointF lastCtrlPoint = pointData[p->id];
         myPainter.curve(points,firstCtrlPoint,lastCtrlPoint);
         writePolyL(file,*myPainter.myPath,layer);
-        //        CurvePoint* cp=path.startPoint;
-        //        while(cp->isLast==false){
-        //            content=vertex+stringPoint(pointData[cp->id]);
-        //            file->write(content.toUtf8());
-        //            cp=cp->next;
-        //        }
-        //        content=vertex+stringPoint(pointData[cp->id]);
-        //        file->write(content.toUtf8());
     }
 }
 
@@ -432,23 +470,31 @@ void MyPathData::writePolyL(QFile *file, const QPainterPath &path, int layer)
  */
 void MyPathData::writeBoundary(QFile *file)
 {
-    // TODO：采取某种手段，确保某路径属于边界线
-    // 目前从第一条路径开始，默认它是边界线，而且往后首尾衔接的路径都是边界线。
-    // 目前默认所有线在绘制时是按顺时针方向的。
-
+    // 需要保证：每条轮廓路径的起点不同，前一条的终点点是后一条的起点，
+    // 最后一条的终点是第一条的起点。也就是所有轮廓线必须首尾相接。
     if(numberPath<=0) return;
-    int i=0, idSP=pathData[i].startPoint->id;
+    int i=0, idSP=-1;
+    // 找到第一条轮廓线的起点
+    for(;i<numberPath;i++)
+        if(pathData[findPathBySP(i)].astmTag == Boundary){
+            idSP = pathData[i].startPoint->id;
+            break;
+        }
+    if(idSP == -1){
+        qDebug()<<"找不到 Boundary 路径！";
+        return;
+    }
+    // 向file写入轮廓
     QString content;
     writePolyLHead(file);
-
     while(true){
-        int idEP=pathData[i].endPoint->id;
-        writePolyL(file,pathData[i]);
-        if(idEP==idSP) break;
-        else i=findPathBySP(idEP);
-        if(i==-1){qDebug()<<"ERROR!找不到下一个路径！";break;}
+        int idEP = pathData[i].endPoint->id;
+        writePolyL(file, pathData[i]);
+        if(idEP == idSP) break;
+        else i = findPathBySP(idEP);
+        if(i == -1)
+            break;
     }
-
     content="  0\nSEQEND\n  8\n1\n";
     file->write(content.toUtf8());
 }
@@ -459,15 +505,15 @@ void MyPathData::writeBoundary(QFile *file)
  */
 void MyPathData::writeNotches(QFile *file)
 {
-    // TODO：采取某种手段，确保某点属于剪口
-
-    QString content;
-    int id = pathData[7].startPoint->id;
-    content="  0\nPOINT\n  8\n4\n"+stringPoint(pointData[id])+" 30\n0.2\n";
-    file->write(content.toUtf8());
-    id = pathData[8].endPoint->id;
-    content="  0\nPOINT\n  8\n4\n"+stringPoint(pointData[id])+" 30\n0.2\n";
-    file->write(content.toUtf8());
+    int size = notches.size();
+    if(size > 0){
+        QString content;
+        for(int i=0;i<size;i++){
+            QPointF p = pointData[notches[i]];
+            content = "  0\nPOINT\n  8\n4\n"+stringPoint(p)+" 30\n0.2\n";
+            file->write(content.toUtf8());
+        }
+    }
 }
 
 /**
@@ -476,16 +522,15 @@ void MyPathData::writeNotches(QFile *file)
  */
 void MyPathData::writeInLines(QFile *file)
 {
+    if(numberPath < 1)
+        return;
     QString content;
     writePolyLHead(file,8);
-
-    // TODO：采取某种手段，确保某路径属于内部线
-
-    int id=7;
-    writePolyL(file,pathData[id],8);
-    id=8;
-    writePolyL(file,pathData[id],8);
-
+    int id = 0;
+    for(;id<numberPath;++id){
+        if(pathData[id].astmTag == InLines)
+            writePolyL(file,pathData[id],8);
+    }
     content="  0\nSEQEND\n  8\n8\n";
     file->write(content.toUtf8());
 }
@@ -669,18 +714,15 @@ void MyPathData::clear()
 }
 
 /**
- * @brief 根据起点找到路径
+ * @brief 根据起点找到路径（轮廓线）
  * @param idSP 起点在数组中的的序号
  * @return 路径在数组中的序号。-1表示没找到。
  */
 int MyPathData::findPathBySP(int idSP)
 {
-    // TODO:有多条路径起点相同的情况，如何处理？
-
     int i=0;
-    for(;i<numberPath;i++){
-        if(pathData[i].startPoint->id==idSP)
+    for(;i<numberPath;i++)
+        if(pathData[i].startPoint->id==idSP && pathData[i].astmTag == Boundary)
             return i;
-    }
     return -1;
 }

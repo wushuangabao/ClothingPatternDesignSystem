@@ -193,7 +193,7 @@ void MyPainter::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPoint
     curve(points,firstCtrlPoint,lastCtrlPoint);
     MyPainter path;
     path.curve(points,firstCtrlPoint,lastCtrlPoint);
-    myData->addCurve(points,firstCtrlPoint,lastCtrlPoint,*(path.myPath));
+    myData->addCurve(points,firstCtrlPoint,lastCtrlPoint);
 }
 
 /**
