@@ -535,9 +535,18 @@ bool MyRule::parseCode(QString code)
         else if(code.left(3) == "输入 "){
             if(names.length() != 1) info(code + "语法错误：\n输入实体名数目!=1");
             else{
-                if(getTypeOf(names[0]) == "")
+                if(getTypeOf(names[0]) == ""){
+                    int i = 0;
                     while(!setInput(type,names[0]))
-                        info("你输入的值不合法，请重新输入……");
+                        if(i < 3){
+                            i++;
+                            info("你输入的值不合法，请重新输入……");
+                        }
+                        else{
+                            info("你输入的值不合法，退出");
+                            return false;
+                        }
+                }
                 return true;
             }
         }

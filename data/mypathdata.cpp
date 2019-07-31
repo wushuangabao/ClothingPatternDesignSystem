@@ -184,6 +184,15 @@ void MyPathData::moveBasePointTo(QPointF p)
 }
 
 /**
+ * @brief 获取经向线在pathData中的id
+ * @return
+ */
+int MyPathData::warpLineId()
+{
+    return idWrapLine;
+}
+
+/**
  * @brief myPathData保存为txt文件
  *
  * @param filePath
@@ -231,29 +240,9 @@ bool MyPathData::writeASTM(QString filePath)
     QFile file(filePath);
     file.open(QIODevice::ReadWrite | QIODevice::Text);
 
-    QString content = "999\nANSI/AAMA\n0\nSECTION\n2\nBLOCKS\n0\nBLOCK\n8\n1\n2\n"+name+"\n70\n0\n10\n0.0\n20\n0.0\n";
+    QString content = "999\nANSI/AAMA\n0\nSECTION\n2\nBLOCKS\n";
     file.write(content.toUtf8());
-
-    // 经向线
-    if(idWrapLine != -1){
-        QPointF p1 = pointData[pathData[idWrapLine].startPoint->id],
-                p2 = pointData[pathData[idWrapLine].endPoint->id];
-        QString s1 = stringReal(p2.x()), s2 = stringReal(p2.y());
-        content=" 0\nLINE\n  8\n7\n"+stringPoint(p1.x(),p1.y())+" 11\n"+s1+"\n 21\n"+s2+"\n";
-        file.write(content.toUtf8());
-    }
-
-    // 样片名称和号型
-    writeText(&file,"Piece Name: "+name);
-    writeText(&file,"Size: M",0,15.0);
-
-    // 边界线、内部线和剪口
-    writeBoundary(&file);
-    writeInLines(&file);
-    writeNotches(&file);
-
-    content="  0\nENDBLK\n  0\nENDSEC\n";
-    file.write(content.toUtf8());
+    writeASTMBlock(&file);
     content="  0\nSECTION\n  2\nENTITIES\n  0\nINSERT\n  8\n1\n  2\n-M\n"+stringPoint(0.0,0.0);
     file.write(content.toUtf8());
     writeText(&file,"Style Name: style");
@@ -268,6 +257,31 @@ bool MyPathData::writeASTM(QString filePath)
 
     file.close();
     return true;
+}
+
+/**
+ * @brief 写ASTM中的Block，包括边界线、内部线和剪口
+ * @param file
+ * @param infoSize 号型
+ */
+void MyPathData::writeASTMBlock(QFile *file, QString infoSize)
+{
+    QString content = "0\nBLOCK\n8\n1\n2\n"+name+"\n70\n0\n10\n0.0\n20\n0.0\n";
+    file->write(content.toUtf8());
+    if(idWrapLine != -1){
+        QPointF p1 = pointData[pathData[idWrapLine].startPoint->id],
+                p2 = pointData[pathData[idWrapLine].endPoint->id];
+        QString s1 = stringReal(p2.x()), s2 = stringReal(p2.y());
+        content=" 0\nLINE\n  8\n7\n"+stringPoint(p1.x(),p1.y())+" 11\n"+s1+"\n 21\n"+s2+"\n";
+        file->write(content.toUtf8());
+    }
+    writeText(file,"Piece Name: "+name);
+    writeText(file,"Size: "+infoSize,0,15.0);
+    writeBoundary(file);
+    writeInLines(file);
+    writeNotches(file);
+    content="  0\nENDBLK\n  0\nENDSEC\n";
+    file->write(content.toUtf8());
 }
 
 /**
@@ -490,9 +504,8 @@ void MyPathData::writeBoundary(QFile *file)
     while(true){
         int idEP = pathData[i].endPoint->id;
         writePolyL(file, pathData[i]);
-        if(idEP == idSP) break;
-        else i = findPathBySP(idEP);
-        if(i == -1)
+        i = findPathBySP(idEP);
+        if(i == -1 || idSP == idEP)
             break;
     }
     content="  0\nSEQEND\n  8\n1\n";
@@ -722,7 +735,9 @@ int MyPathData::findPathBySP(int idSP)
 {
     int i=0;
     for(;i<numberPath;i++)
-        if(pathData[i].startPoint->id==idSP && pathData[i].astmTag == Boundary)
+        if(pathData[i].startPoint->id == idSP &&
+           pathData[i].astmTag == Boundary &&
+           pathData[i].endPoint->id != idSP)
             return i;
     return -1;
 }

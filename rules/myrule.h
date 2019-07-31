@@ -3,7 +3,6 @@
 
 #include <QtMath>
 #include <QPointF>
-#include <QPainterPath>
 #include <QList>
 #include <QMap>
 #include <QStringList>

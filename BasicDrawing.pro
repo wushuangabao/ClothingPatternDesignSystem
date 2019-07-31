@@ -46,7 +46,8 @@ SOURCES += \
     dialog/dialogrule/dialogdefine.cpp \
     dialog/dialogrule/dialogaggignparameter.cpp \
     dialog/dialogstyle/dialogstyle.cpp \
-    data/pathbutton.cpp
+    data/pathbutton.cpp \
+    rules/mypattern.cpp
 
 
 HEADERS += \
@@ -71,7 +72,8 @@ HEADERS += \
     dialog/dialogrule/dialogdefine.h \
     dialog/dialogrule/dialogaggignparameter.h \
     dialog/dialogstyle/dialogstyle.h \
-    data/pathbutton.h
+    data/pathbutton.h \
+    rules/mypattern.h
 
 FORMS += \
         mainwindow.ui \

@@ -12,7 +12,7 @@
 #include "dialog/dialogtest/dialogtestcurve.h"
 #include "dialog/dialogstyle/dialogstyle.h"
 #include "data/mypathdata.h"
-//#include <QHeaderView>
+#include "rules/mypattern.h"
 
 
 /**
@@ -340,11 +340,17 @@ void MainWindow::on_action_F_S_triggered()
  */
 void MainWindow::on_action_F_A_triggered()
 {
-    QString filePath=painterArea->currentPath()->name+".dxf";
-    if(painterArea->currentPath()->writeASTM(filePath))
-        QMessageBox::information(nullptr,"Save","The dxf file have saved successfully.");
-    else
-        QMessageBox::information(nullptr,"Save","The dxf file failed to save!");
+    // 输出所有样板
+    MyPattern pattern(painterArea->myPaths);
+    QString filePath = QDir::currentPath() + "/" + pattern.infoName + ".dxf";
+    pattern.writeASTM(filePath);
+
+    // 输出当前的样板
+    //    QString filePath=QDir::currentPath()+"/"+painterArea->currentPath()->name+".dxf";
+    //    if(painterArea->currentPath()->writeASTM(filePath))
+    //        QMessageBox::information(nullptr,"Save","The dxf file have saved successfully.");
+    //    else
+    //        QMessageBox::information(nullptr,"Save","The dxf file failed to save!");
 }
 
 /**

@@ -375,7 +375,7 @@ bool PainterArea::isCurvePath(QPainterPath *path)
  */
 void PainterArea::setLabelPoint(CurvePoint *point)
 {
-    QPointF p = myPaths[0]->pointData[point->id];
+    QPointF p = currentPath()->pointData[point->id];
     int lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
     LabelPoint *lp=new LabelPoint(this);
     if(point->isCtrlPoint)
@@ -386,7 +386,7 @@ void PainterArea::setLabelPoint(CurvePoint *point)
     }
     else
     {
-        lp->setText(myPaths[0]->findName(point->id));
+        lp->setText(currentPath()->findName(point->id));
         lp->setStyleSheet("QLabel{background-color:green;}");
         lp->move(lpx,lpy);
     }

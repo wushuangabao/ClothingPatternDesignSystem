@@ -55,9 +55,16 @@ public:
     void setInLine(int pathId);
     void setWarpLine(int pathId);
     void moveBasePointTo(QPointF p);
+    int warpLineId();
     bool saveTxtTo(QString path);
     bool writeASTM(QString filePath);
+    void writeASTMBlock(QFile* file, QString infoSize = "M");
     void clear();
+
+    static QString stringReal(qreal n);
+    static QString stringPoint(QPointF p);
+    static QString stringPoint(qreal x,qreal y);
+    static void writeText(QFile* file,QString str,qreal x=0,qreal y=0,int layer=1);
 
 private:
     const qreal E=0.1;
@@ -66,16 +73,12 @@ private:
     QList<int> notches;
     int findPathBySP(int idSP);
     bool equal(QPointF p1,QPointF p2); //判断两点是否相等（对应坐标相差不超过常量(E)mm）
-    void writeText(QFile* file,QString str,qreal x=0,qreal y=0,int layer=1);
     void writePolyL(QFile* file,PathData path,int layer=1);
     void writePolyL(QFile* file,const QPainterPath& path,int layer);
     void writePolyLHead(QFile* file,int layer=1);
     void writeBoundary(QFile* file);
     void writeNotches(QFile* file);
     void writeInLines(QFile* file);
-    QString stringReal(qreal n);
-    QString stringPoint(QPointF p);
-    QString stringPoint(qreal x,qreal y);
 };
 
 #endif // MYPATHDATA_H
