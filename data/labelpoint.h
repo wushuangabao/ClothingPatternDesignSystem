@@ -21,10 +21,10 @@ public:
     ~LabelPoint();
 
     PainterArea *parent; /**< 绘图区 */
-    CurvePoint *point; /**< 对应的点 */
-    QPoint handlerPos; /**< 拖动时鼠标的位置（在自身坐标系中） */
+    CurvePoint *point;   /**< 对应的点 */
+    QPoint handlerPos;   /**< 拖动时鼠标的位置（在自身坐标系中） */
 
-    QPoint setHandlerPos(QPoint mousePos); //根据鼠标在painterArea中的的物理位置计算handlerPos
+    QPoint setHandlerPos(QPoint mousePos);  // 根据鼠标在painterArea中的的物理位置计算handlerPos
     void moveTo(QPoint mousePos);
     void contextMenuEvent(QContextMenuEvent *event);
     void changePos();
