@@ -1,3 +1,5 @@
+#include <QDir>
+#include <QDebug>
 #include "dialogpantsh.h"
 #include "ui_dialogpantsh.h"
 #include "../dialogsize/dialogsize.h"
@@ -9,21 +11,30 @@ DialogPantsH::DialogPantsH(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setLabels(ui->page_1);
-    setLabels(ui->page_3);
-    setLabels(ui->page_4);
-    setLabels(ui->page_5);
-    setLabels(ui->page_6);
-    setLabels(ui->page_7);
-    setLabels(ui->page_8);
-    setLabels(ui->tab_1);
-    setLabels(ui->tab_2);
-    setLabels(ui->tab_3);
-    setLabels(ui->page_10);
+    stringList<<"裤长"<<"腰位"<<"前腰头"<<"后腰头"<<"裤袢"<<"门襟"<<"前褶省"<<"前袋"<<"后褶省"<<"后袋"<<"裤脚";
+//    stringList<<tr("长裤")<<tr("低腰")<<tr("延伸宝剑头")<<tr("有裤袢")<<tr("暗门襟")<<tr("单省")<<tr("斜插袋")<<tr("双省")<<tr("双挖袋")<<tr("无翻边");
+    updateString();
+
+//    setLabels(ui->page_1);
+//    setLabels(ui->page_3);
+//    setLabels(ui->page_4);
+//    setLabels(ui->page_5);
+//    setLabels(ui->page_6);
+//    setLabels(ui->page_7);
+//    setLabels(ui->page_8);
+//    setLabels(ui->tab_1);
+//    setLabels(ui->tab_2);
+//    setLabels(ui->tab_3);
+//    setLabels(ui->page_10);
+
+
+    setStackedPages();
+
 
     pushButtons.append(ui->pantsLength);
     pushButtons.append(ui->waistPostion);
-    pushButtons.append(ui->waistHead);
+    pushButtons.append(ui->waistHead1);
+    pushButtons.append(ui->waistHead2);
     pushButtons.append(ui->pantsLoop);
     pushButtons.append(ui->door);
     pushButtons.append(ui->sang1);
@@ -39,14 +50,15 @@ DialogPantsH::DialogPantsH(QWidget *parent) :
     scene->addPixmap(pm);
     ui->graphicsView->setScene(scene);
 
-    stringList<<tr("长裤")<<tr("中腰")<<tr("挂钩1")<<tr("无裤袢")<<tr("直门襟")<<tr("前片双褶")<<tr("斜插袋")<<tr("后片双省")<<tr("无袋")<<tr("无翻边");
-    updateString();
+
 }
 
 DialogPantsH::~DialogPantsH()
 {
     delete ui;
     delete scene;
+
+    // todo: 释放 stackedPages 中所有手动创建的 按钮、页面
 }
 
 /**
@@ -57,65 +69,159 @@ DialogPantsH::~DialogPantsH()
 void DialogPantsH::setLabels(QWidget *w)
 {
     QList<QPushButton*> buttonList = w->findChildren<QPushButton*>();
-    for(int i=0;i<buttonList.size();i++)
-    {
-        QPushButton* b=buttonList.at(i);
-        QString text=b->text();
-        QPoint pos_b=b->pos();
-        qreal w_b=b->width();
-        qreal h_b=b->height();
+    for(int i=0; i<buttonList.size(); i++){
+        QPushButton* b = buttonList.at(i);
+        QString text = b->text();
+        QPoint pos_b = b->pos();
+        qreal w_b = b->width();
+        qreal h_b = b->height();
 
-        QLabel* l=new QLabel(w);
-        l->setGeometry(pos_b.x(),pos_b.y()+h_b,w_b,16);
+        QLabel* l = new QLabel(w);
+        l->setGeometry(pos_b.x(), pos_b.y()+h_b, w_b, 16);
         l->setText(text);
         l->setAlignment(Qt::AlignHCenter);
     }
 }
 
 /**
- * @brief
- *
+ * @brief 根据styles文件夹中的内容设置stackedPages
  */
+void DialogPantsH::setStackedPages()
+{
+    // 遍历 styles 文件夹中的 11 个子文件夹
+    QString dir = getDir("styles");
+    dir = dir + "/";
+    int len = stringList.size();
+    for(int id = 0; id < len; ++id){
+        // 在 stackedPages 中新建一个页面
+        QWidget* page = new QWidget();
+        ui->stackedPages->insertWidget(id, page);
+        // 改变 page 的大小、位置、样式
+//        page->setStyleSheet("QPushButton{color: rgba(255, 255, 255, 0);}QPushButton:hover{background-color: rgba(222, 222, 222, 55);}");
+        // 遍历 dirStyle 中的文件
+        QString dirStyle = getDir(dir + stringList[id]);
+        QDir dir(dirStyle);
+        QFileInfoList list = dir.entryInfoList();
+        QList<QPushButton*> listButton;
+        QTabWidget* tabWidget = new QTabWidget(page);
+        int i = 0;
+        while(i < list.size()){
+            QFileInfo fileInfo = list.at(i);
+            if(fileInfo.fileName() == "." | fileInfo.fileName() == ".."){
+                ++i;
+                continue;
+            }
+            // 新建一个 tab
+            if(fileInfo.isDir()){
+                createTabPage(tabWidget, fileInfo);
+                ++i;
+                continue;
+            }
+            // 新建一个 button 加入 listButton
+            if(fileInfo.suffix() == "png"){
+                listButton << createPushButton(page, fileInfo);
+            }
+            ++i;
+        }
+        if(listButton.size() == 0){
+            // 改变 tabWidget 大小和位置
+        }else{
+            btnInStackedPages << listButton;
+            // 排列按钮
+
+        }
+
+    }
+}
+
+/**
+ * @brief 获取路径（如果没有，就创建一个）
+ * @param dir
+ * @return 完整的路径名（在dir前面加上currentPath）
+ */
+QString DialogPantsH::getDir(QString dir)
+{
+    QString preDir = QDir::currentPath();
+    if(!dir.contains(preDir))
+        dir = preDir + "/" + dir;
+    QDir* folder = new QDir;
+    if(!folder->exists(dir))
+        folder->mkdir(dir);
+    delete folder;
+    return dir;
+}
+
+/**
+ * @brief 创建一个按钮
+ * @param parent 父widget
+ * @param info 文件信息
+ * @return
+ */
+QPushButton *DialogPantsH::createPushButton(QWidget *parent, const QFileInfo &info)
+{
+    QString imgPath = info.filePath();
+    QImage img(imgPath);
+    QPushButton* pb = new QPushButton(info.baseName(), parent);
+    connect(pb,SIGNAL(clicked()),this,SLOT(selectPushButton()));  // 给 pb 加上槽函数
+    pb->setStyleSheet("background-image:url(" + imgPath + ");");
+    pb->resize(img.width(),img.height());
+    return pb;
+}
+
+/**
+ * @brief 创建一个 tab 页面，加入 tabWidget 中
+ * @param parent tabWidget
+ * @param info 文件信息
+ */
+void DialogPantsH::createTabPage(QTabWidget *parent, const QFileInfo &info)
+{
+    QWidget* page = new QWidget();
+    parent->addTab(page, info.fileName());
+    QString path = info.filePath();
+    // 遍历 path 中的文件
+}
+
 void DialogPantsH::updateString()
 {
-    QString str=tr("选择款式：")+stringList.at(0);
-    int n=stringList.size(), i=1;
+    QString str = tr("选择款式：")+stringList.at(0);
+    int n = stringList.size(), i=1;
     for(;i<n;i++)
-    {
         str=str+"，"+stringList.at(i);
-    }
     ui->labelString->setText(str);
 }
 
 /**
- * @brief
- *
- * @param id
+ * @brief stackedWidget翻页
+ * @param id 0到10
  */
 void DialogPantsH::changePage(int id)
 {
-    int old_id=ui->stackedWidget->currentIndex();
-    ui->stackedWidget->setCurrentIndex(id);
-    pushButtons.at(old_id)->setStyleSheet("color:rgb(255,255,255);background-color:rgb(232,94,35);");
-    pushButtons.at(old_id)->setStyleSheet("hover{background-color: qlineargradient(spread:pad,x1:0.299,y1:0,x2:1,y2:0.00568182,stop:0.19403 rgba(255,105,46,255),stop:1 rgba(255, 255, 255, 255));}");
-    pushButtons.at(id)->setStyleSheet("color:rgb(0,0,0);background-color:rgb(255,255,255);");
+//    int old_id = ui->stackedWidget->currentIndex();
+//    ui->stackedWidget->setCurrentIndex(id);
+    int old_id = ui->stackedPages->currentIndex();
+    ui->stackedPages->setCurrentIndex(id);
+    if(old_id < pushButtons.size() && old_id >= 0){
+        pushButtons.at(old_id)->setStyleSheet("color:rgb(255,255,255);background-color:rgb(232,94,35);");
+        pushButtons.at(old_id)->setStyleSheet("hover{background-color: qlineargradient(spread:pad,x1:0.299,y1:0,x2:1,y2:0.00568182,stop:0.19403 rgba(255,105,46,255),stop:1 rgba(255, 255, 255, 255));}");
+    }
+    if(id < pushButtons.size() && id >= 0)
+        pushButtons.at(id)->setStyleSheet("color:rgb(0,0,0);background-color:rgb(255,255,255);");
 }
 
 /**
- * @brief
- *
- * @param buttonList
- * @param str
+ * @brief 选择stackedPages中的某个款式
+ * @param buttonList 所有款式按钮
+ * @param str 款式名称
  */
 void DialogPantsH::selectPushButton(QList<QPushButton*> buttonList,QString str)
 {
-    for(int i=0;i<buttonList.size();i++)
-    {
+    for(int i=0;i<buttonList.size();i++)    {
         QPushButton* b = buttonList.at(i);
         if(b->text()==str)
-            b->setStyleSheet("border:3px solid rgb(222,84,27);");
+            b->setStyleSheet("border:3px solid rgb(222,84,27);color:rgba(255, 255, 255, 0);");
         else{
-            b->setStyleSheet("");
+            b->setStyleSheet("QPushButton{color: rgba(255, 255, 255, 0);}\
+                             QPushButton:hover{background-color: rgba(222, 222, 222, 55);}");
         }
     }
 }
@@ -256,28 +362,26 @@ void DialogPantsH::on_pantsLength_clicked()
 {    changePage(0);}
 void DialogPantsH::on_waistPostion_clicked()
 {    changePage(1);}
-void DialogPantsH::on_waistHead_clicked()
+void DialogPantsH::on_waistHead1_clicked()
 {    changePage(2);}
-void DialogPantsH::on_pantsLoop_clicked()
+void DialogPantsH::on_waistHead2_clicked()
 {    changePage(3);}
-void DialogPantsH::on_door_clicked()
+void DialogPantsH::on_pantsLoop_clicked()
 {    changePage(4);}
+void DialogPantsH::on_door_clicked()
+{    changePage(5);}
 void DialogPantsH::on_sang1_clicked()
-{    changePage(5);
+{    changePage(6);
 }void DialogPantsH::on_pocket1_clicked()
-{    changePage(6);}
-void DialogPantsH::on_sang2_clicked()
 {    changePage(7);}
-void DialogPantsH::on_pocket2_clicked()
+void DialogPantsH::on_sang2_clicked()
 {    changePage(8);}
-void DialogPantsH::on_pantsFoot_clicked()
+void DialogPantsH::on_pocket2_clicked()
 {    changePage(9);}
+void DialogPantsH::on_pantsFoot_clicked()
+{    changePage(10);}
 
-/**
- * @brief
- *
- * @param k
- */
+
 void DialogPantsH::keyPressEvent(QKeyEvent* k)
 {
     if(k->key()==Qt::Key_W)
@@ -294,153 +398,19 @@ void DialogPantsH::keyPressEvent(QKeyEvent* k)
      {}
 }
 
-/**
- * @brief
- *
- */
 void DialogPantsH::pageDown()
 {
-    int i=ui->stackedWidget->currentIndex();
-    if(i<9)
+    int i = ui->stackedPages->currentIndex();
+    if(i < pushButtons.size() - 1)
         changePage(++i);
 }
 
-/**
- * @brief
- *
- */
 void DialogPantsH::pageUp()
 {
-    int i=ui->stackedWidget->currentIndex();
-    if(i>0)
+    int i = ui->stackedPages->currentIndex();
+    if(i > 0)
         changePage(--i);
 }
-
-void DialogPantsH::on_pushButton21_clicked()
-{    changePantsL(ui->pushButton21->text());}
-void DialogPantsH::on_pushButton22_clicked()
-{    changePantsL(ui->pushButton22->text());}
-void DialogPantsH::on_pushButton23_clicked()
-{    changePantsL(ui->pushButton23->text());}
-void DialogPantsH::on_pushButton24_clicked()
-{    changePantsL(ui->pushButton24->text());}
-void DialogPantsH::on_pushButton25_clicked()
-{    changePantsL(ui->pushButton25->text());}
-void DialogPantsH::on_pushButton26_clicked()
-{    changePantsL(ui->pushButton26->text());}
-void DialogPantsH::on_pushButton27_clicked()
-{    changePantsL(ui->pushButton27->text());}
-void DialogPantsH::on_pushButton28_clicked()
-{    changePantsL(ui->pushButton28->text());}
-void DialogPantsH::on_pushButton31_clicked()
-{    changeWaistPostion(ui->pushButton31->text());}
-void DialogPantsH::on_pushButton32_clicked()
-{    changeWaistPostion(ui->pushButton32->text());}
-void DialogPantsH::on_pushButton33_clicked()
-{    changeWaistPostion(ui->pushButton33->text());}
-void DialogPantsH::on_pushButton34_clicked()
-{    changeWaistPostion(ui->pushButton34->text());}
-void DialogPantsH::on_pushButton41_clicked()
-{    changeWaistHead(ui->pushButton41->text());}
-void DialogPantsH::on_pushButton42_clicked()
-{    changeWaistHead(ui->pushButton42->text());}
-void DialogPantsH::on_pushButton43_clicked()
-{    changeWaistHead(ui->pushButton43->text());}
-void DialogPantsH::on_pushButton44_clicked()
-{    changeWaistHead(ui->pushButton44->text());}
-void DialogPantsH::on_pushButton45_clicked()
-{    changeWaistHead(ui->pushButton45->text());}
-void DialogPantsH::on_pushButton46_clicked()
-{    changeWaistHead(ui->pushButton46->text());}
-void DialogPantsH::on_pushButton47_clicked()
-{    changeWaistHead(ui->pushButton47->text());}
-void DialogPantsH::on_pushButton48_clicked()
-{    changeWaistHead(ui->pushButton48->text());}
-void DialogPantsH::on_pushButton49_clicked()
-{    changeWaistHead(ui->pushButton49->text());}
-void DialogPantsH::on_pushButton51_clicked()
-{    changePantsLoop(ui->pushButton51->text());}
-void DialogPantsH::on_pushButton52_clicked()
-{    changePantsLoop(ui->pushButton52->text());}
-void DialogPantsH::on_pushButton65_clicked()
-{    changeDoor(ui->pushButton65->text());}
-void DialogPantsH::on_pushButton64_clicked()
-{    changeDoor(ui->pushButton64->text());}
-void DialogPantsH::on_pushButton63_clicked()
-{    changeDoor(ui->pushButton63->text());}
-void DialogPantsH::on_pushButton62_clicked()
-{    changeDoor(ui->pushButton62->text());}
-void DialogPantsH::on_pushButton61_clicked()
-{    changeDoor(ui->pushButton61->text());}
-void DialogPantsH::on_pushButton71_clicked()
-{    changeSang1(ui->pushButton71->text());}
-void DialogPantsH::on_pushButton72_clicked()
-{    changeSang1(ui->pushButton72->text());}
-void DialogPantsH::on_pushButton73_clicked()
-{    changeSang1(ui->pushButton73->text());}
-void DialogPantsH::on_pushButton74_clicked()
-{    changeSang1(ui->pushButton74->text());}
-void DialogPantsH::on_pushButton75_clicked()
-{    changeSang1(ui->pushButton75->text());}
-void DialogPantsH::on_pushButton76_clicked()
-{    changeSang1(ui->pushButton76->text());}
-void DialogPantsH::on_pushButton77_clicked()
-{    changeSang1(ui->pushButton77->text());}
-void DialogPantsH::on_pushButton81_clicked()
-{    changePocket1(ui->pushButton81->text());}
-void DialogPantsH::on_pushButton82_clicked()
-{    changePocket1(ui->pushButton82->text());}
-void DialogPantsH::on_pushButton83_clicked()
-{    changePocket1(ui->pushButton83->text());}
-void DialogPantsH::on_pushButton84_clicked()
-{    changePocket1(ui->pushButton84->text());}
-void DialogPantsH::on_pushButton85_clicked()
-{    changePocket1(ui->pushButton85->text());}
-void DialogPantsH::on_pushButton91_clicked()
-{    changeSang2(ui->pushButton91->text());}
-void DialogPantsH::on_pushButton92_clicked()
-{    changeSang2(ui->pushButton92->text());}
-void DialogPantsH::on_pushButton93_clicked()
-{    changeSang2(ui->pushButton93->text());}
-void DialogPantsH::on_pushButton94_clicked()
-{    changeSang2(ui->pushButton94->text());}
-void DialogPantsH::on_pushButton1001_clicked()
-{    changePocket2(ui->pushButton1001->text());}
-void DialogPantsH::on_pushButton1002_clicked()
-{    changePocket2(ui->pushButton1002->text());}
-void DialogPantsH::on_pushButton1003_clicked()
-{    changePocket2(ui->pushButton1003->text());}
-void DialogPantsH::on_pushButton1004_clicked()
-{    changePocket2(ui->pushButton1004->text());}
-void DialogPantsH::on_pushButton1005_clicked()
-{    changePocket2(ui->pushButton1005->text());}
-void DialogPantsH::on_pushButton1006_clicked()
-{    changePocket2(ui->pushButton1006->text());}
-void DialogPantsH::on_pushButton1007_clicked()
-{    changePocket2(ui->pushButton1007->text());}
-void DialogPantsH::on_pushButton1008_clicked()
-{    changePocket2(ui->pushButton1008->text());}
-void DialogPantsH::on_pushButton1009_clicked()
-{    changePocket2(ui->pushButton1009->text());}
-void DialogPantsH::on_pushButton1010_clicked()
-{    changePocket2(ui->pushButton1010->text());}
-void DialogPantsH::on_pushButton1011_clicked()
-{    changePocket2(ui->pushButton1011->text());}
-void DialogPantsH::on_pushButton1012_clicked()
-{    changePocket2(ui->pushButton1012->text());}
-void DialogPantsH::on_pushButton1013_clicked()
-{    changePocket2(ui->pushButton1013->text());}
-void DialogPantsH::on_pushButton1014_clicked()
-{    changePocket2(ui->pushButton1014->text());}
-void DialogPantsH::on_pushButton1015_clicked()
-{    changePocket2(ui->pushButton1015->text());}
-void DialogPantsH::on_pushButton111_clicked()
-{    changePantsFoot(ui->pushButton111->text());}
-void DialogPantsH::on_pushButton112_clicked()
-{    changePantsFoot(ui->pushButton112->text());}
-void DialogPantsH::on_pushButton113_clicked()
-{    changePantsFoot(ui->pushButton113->text());}
-
 
 /**
  * @brief 进入下一步，运行尺寸输入对话框
@@ -452,4 +422,14 @@ void DialogPantsH::on_buttonNext_clicked()
     dialogSize->exec();
     delete dialogSize;
     this->close();
+}
+
+/**
+ * @brief 选择某一款式（点击按钮）的槽函数
+ */
+void DialogPantsH::selectPushButton()
+{
+    QPushButton* btn= qobject_cast<QPushButton*>(sender());
+    qDebug() << btn->text() << " is clicked!";
+
 }
