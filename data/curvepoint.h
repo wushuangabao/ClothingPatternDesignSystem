@@ -3,10 +3,6 @@
 
 #include <QPointF>
 
-/**
- * @brief
- *
- */
 class CurvePoint
 {
 public:

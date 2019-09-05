@@ -9,15 +9,17 @@ class DialogPantsH;
 }
 
 class QGraphicsScene;
-class QPushButton;
 class QTabWidget;
 class QFileInfo;
 class QString;
+class QLabel;
 
-/**
- * @brief
- *
- */
+struct Component{
+    QString imgPath; /**< 部件图片的路径 */
+    QPushButton* btn; /**< 对应的按钮 */
+    QLabel* label; /**< 对应的文字 */
+};
+
 class DialogPantsH : public QDialog
 {
     Q_OBJECT
@@ -53,15 +55,15 @@ private:
     QGraphicsScene *scene;
     QList<QPushButton*> pushButtons; /**< 11个部位的按钮 */
     QList<QString> stringList; /**< 11个部位款式的文字描述 */
-    QList<QList<QPushButton*>> btnInStackedPages;  /**< 所有 stackedPages 中的按钮 */
+    QList<QList<Component>> btnInStackedPages;  /**< 所有 stackedPages 中的按钮 */
 
-    void setLabels(QWidget* w);
     void setStackedPages();
+    void setPosition(QList<Component> components, int widthMax);
     QString getDir(QString dir);
-    QPushButton* createPushButton(QWidget* parent, const QFileInfo &fileInfo);
-    void createTabPage(QTabWidget* parent, const QFileInfo &fileInfo);
+    void createPushButton(QWidget* parent, const QFileInfo &fileInfo, QList<Component>* list);
+    void createTabPage(QTabWidget* parent, const QFileInfo &fileInfo, QList<Component>* list);
 
-    void selectPushButton(QList<QPushButton*> buttonList,QString str);
+    void selectPushButton(QList<Component> buttonList, QString str);
     void changePage(int id);
 
     void keyPressEvent(QKeyEvent *k);
