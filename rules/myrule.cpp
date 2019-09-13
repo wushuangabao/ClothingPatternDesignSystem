@@ -295,7 +295,7 @@ QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
  */
 MyRule::MyRule(QString f)
 {
-    types << "参数" << "点" << "直线" << "路径";
+    types << "参数" << "点" << "直线" << "路径" << "曲线";
     pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点";
     file = f;
     entityOut = "";
@@ -340,7 +340,17 @@ QPointF MyRule::pFunc(QString func, int idFunc, bool* ok)
     case 3:
         return divide(point(en[1],ok),point(en[2],ok),param(en[3],ok));
     case 4:
-        return cross(line(en[1],ok),line(en[2],ok));
+        if(getTypeOf(en[1]) == types[2]){
+            if(getTypeOf(en[2]) == types[2])
+                return cross(line(en[1],ok),line(en[2],ok));
+            else if(getTypeOf(en[2]) == types[4])
+                return cross(line(en[1],ok),curve(en[2],ok));
+        }else if(getTypeOf(en[1]) == types[4]){
+            if(getTypeOf(en[2]) == types[2])
+                return cross(line(en[2],ok),curve(en[1],ok));
+            else if(getTypeOf(en[2]) == types[4])
+                return cross(curve(en[1],ok),curve(en[2],ok));
+        }
     }
     return p;
 }
@@ -489,6 +499,40 @@ QPointF MyRule::cross(Line l1, Line l2, bool *ok)
 }
 
 /**
+ * @brief 求直线与曲线的交点
+ * @param l
+ * @param c
+ * @param ok 无交点时返回false
+ * @return 无交点时返回(0,0)
+ */
+QPointF MyRule::cross(Line l, Curve c, bool *ok)
+{
+    MyPainter painter = MyPainter();
+    painter.curve(c.points, c.p1, c.p2);
+    qreal t = 0, dt = 0.01;
+    QPointF p1, p2;
+    while(t < 0.999){
+        p1 = painter.myPath->pointAtPercent(t);
+        t += dt;
+        p2 = painter.myPath->pointAtPercent(t);
+        Line l1 = Line{ p1, p2 };
+        bool existCross = true;
+        QPointF crossPoint = cross(l, l1, &existCross);
+        if(existCross)
+            return crossPoint;
+    }
+    if(ok != nullptr)
+        *ok = false;
+    return QPointF(0, 0);
+}
+
+QPointF MyRule::cross(Curve c1, Curve c2, bool *ok)
+{
+    // todo
+    return QPointF(0,0);
+}
+
+/**
  * @brief 连接2点的直线段
  * @param p1
  * @param p2
@@ -500,6 +544,32 @@ Line MyRule::line(QPointF p1, QPointF p2)
         p1,p2
     };
     return l;
+}
+
+/**
+ * @brief 圆顺各点生成曲线
+ * @param points
+ * @param ok
+ * @return
+ */
+Curve MyRule::curve(QList<QPointF> points, bool* ok)
+{
+    if(points.length() < 3){
+        if(ok != nullptr)
+            *ok = false;
+        info("圆顺方法的参数错误！");
+        QPointF p = QPointF(0, 0);
+        QList<QPointF> points;
+        points << p << p << p;
+        Curve c = { p, p, points };
+        return c;
+    }else{
+        Curve c = { points.first(),
+                  points.last(),
+                  points };
+        return c;
+    }
+
 }
 
 /**
@@ -672,6 +742,12 @@ void MyRule::defineEntity(QString type, QString name)
         break;
     case 3:
         paths.insert(name,"空路径");
+        break;
+    case 4:
+        QPointF p = QPointF(0,0);
+        QList<QPointF> pl;
+        pl << p << p << p;
+        curves.insert(name, Curve{p, p, pl});
     }
 }
 
@@ -706,6 +782,12 @@ void MyRule::assignEntity(QString name, QString value)
     it1 = paths.find(name);
     if(it1 != paths.end()){
         *it1 = path(value);
+        return;
+    }
+    QMap<QString,Curve>::iterator it4;
+    it4 = curves.find(name);
+    if(it4 != curves.end()){
+        *it4 = curve(value);
         return;
     }
 }
@@ -861,6 +943,48 @@ QString MyRule::path(QString value, bool *ok)
 }
 
 /**
+ * @brief 曲线值解析
+ * @param value
+ * @param ok bool指针 必要时赋值为false
+ * @return
+ */
+Curve MyRule::curve(QString value, bool *ok)
+{
+    value = value.simplified();
+    QStringList p = value.split("圆顺",QString::SkipEmptyParts);
+    if(p.length() == 1){
+        // case: 赋值为 另一条曲线
+        if(getTypeOf(value) == types[4])
+            return curves[value];
+        // case: 调用自定义规则 赋值
+        else if(value.contains("(") && value.contains(")")){
+            int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
+            QString ruleName = value.left(i1),
+                    enIn = value.mid(i1+1,i2-i1-1).simplified();
+            return curveByRule(ruleName, enIn, ok);
+        }
+        info("曲线值"+value+"解析出错");
+        if(ok != nullptr)
+            *ok = false;
+        QList<QPointF> pl;
+        return curve(pl);
+    }
+    // case: 圆顺各点赋值
+    QList<QPointF> pl;
+    int len = p.length();
+    for(int i = 0; i < len; ++i){
+        pl.append(point(p[i], ok));
+        if(ok != nullptr && *ok == false){
+            QString s = "圆顺方法的第" + QString::number(i) + "个点值解析出错！";
+            info(s);
+            QList<QPointF> pl;
+            return curve(pl);
+        }
+    }
+    return curve(pl, ok);
+}
+
+/**
  * @brief 查QMap，获取实体name对应的类型
  * @param name
  * @return 返回""表示没有找到该实体
@@ -882,6 +1006,10 @@ QString MyRule::getTypeOf(QString name)
     it1 = paths.find(name);
     if(it1 != paths.end())
         return types[3];
+    QMap<QString,Curve>::iterator it4;
+    it4 = curves.find(name);
+    if(it4 != curves.end())
+        return types[4];
     return "";
 }
 
@@ -973,6 +1101,34 @@ Line MyRule::lineByRule(QString f, QString in, bool *ok)
 }
 
 /**
+ * @brief 调用自定义规则获取曲线
+ * @param f 规则的名称
+ * @param in 输入实体的名称，形式为"name1,name2,..."（目前只能填写名称，绝不能出现","、"圆顺"）
+ * @param ok 失败时赋值为false
+ * @return
+ */
+Curve MyRule::curveByRule(QString f, QString in, bool *ok)
+{
+    QList<QPointF> points;
+    QPointF point = QPointF(0,0);
+    points << point << point << point;
+    Curve c = { point, point, points };
+    QString type = "";
+    f = findRulePath(f);
+    MyRule *rule = new MyRule(f);
+    QString name = rule->callRule(f, in, this);
+    if(name != ""){
+        type = rule->getTypeOf(name);
+        if(type == types[4])
+            c = rule->curves[name];
+    }
+    if(name == "" || type != types[4])
+        if(ok != nullptr) *ok = false;
+    delete rule;
+    return c;
+}
+
+/**
  * @brief 根据自身规则文件生成输出实体的绘图路径
  * @return
  */
@@ -1003,6 +1159,8 @@ MyPainter MyRule::drawPath(QString name)
         return drawPath(lines[name]);
     case 3:
         return drawPathByCode(paths[name]);
+    case 4:
+        return drawPath(curves[name]);
     default:
         info("无法绘制"+name);
         return path;
@@ -1034,6 +1192,11 @@ MyPainter MyRule::drawPath(Line line)
     mp.myPath->addPath(p);
     // todo: mp.myData中加入直线
     return mp;
+}
+
+MyPainter MyRule::drawPath(Curve c)
+{
+    // todo
 }
 
 /**

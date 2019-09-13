@@ -15,9 +15,9 @@ class QString;
 class QLabel;
 
 struct Component{
-    QString imgPath; /**< 部件图片的路径 */
+    QString imgPath;  /**< 部件图片的路径 */
     QPushButton* btn; /**< 对应的按钮 */
-    QLabel* label; /**< 对应的文字 */
+    QLabel* label;    /**< 对应的文字 */
 };
 
 class DialogPantsH : public QDialog

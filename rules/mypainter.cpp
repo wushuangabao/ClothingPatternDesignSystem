@@ -31,7 +31,7 @@ void MyPainter::setStartPoint(QPointF point)
 /**
  * @brief 解析路径代码，添加数据到myData
  * @param rule 包含点坐标信息的MyRule数据
- * @param pathCode 形如"e 连接 i 连接 j 圆滑 a ..."
+ * @param pathCode 形如"e 连接 i 连接 j 圆顺 a ..."
  */
 void MyPainter::parseCode(MyRule *rule, QString pathCode)
 {
@@ -62,7 +62,7 @@ void MyPainter::parseCode(MyRule *rule, QString pathCode)
             if(!addPointByRule(&points, rule, &pathCode))
                 return;
             // 用points中的n+1个点画路径
-            if(type == "圆滑"){
+            if(type == "圆顺"){
                 if(points.size()>2) curveThrough(points);
                 else brokenLineThrough(points);
             }
@@ -80,7 +80,7 @@ void MyPainter::parseCode(MyRule *rule, QString pathCode)
             if(ok){
                 addPointData(point,pathCode); // 添加点数据到myData
                 points << point;
-                if(type == "圆滑") {
+                if(type == "圆顺") {
                     if(points.size()>2) curveThrough(points);
                     else brokenLineThrough(points);
                 }
@@ -128,13 +128,13 @@ void MyPainter::curve(QList<QPointF> points, QPointF firstCtrlPoint, QPointF las
 }
 
 /**
- * @brief 下一个连接类型是“连接”还是“圆滑”
+ * @brief 下一个连接类型是“连接”还是“圆顺”
  * @param code
  * @return 返回""表示找不到新的连接了
  */
 QString MyPainter::connectType(QString code)
 {
-    int id = code.indexOf(QRegExp("连接|圆滑"));
+    int id = code.indexOf(QRegExp("连接|圆顺"));
     if(id != -1)
         return code.mid(id,2);
     else
@@ -239,7 +239,7 @@ QPainterPath MyPainter::drawByPathData(MyPathData *data)
  */
 void MyPainter::curveThrough(QList<QPointF> points)
 {
-    if(!points.isEmpty())
+    if(points.length() >= 3)
         curveThrough(points,points.first(),points.last());
     else
         return;

@@ -14,6 +14,12 @@ struct Line{
     QPointF p2;
 };
 
+struct Curve{
+    QPointF p1;
+    QPointF p2;
+    QList<QPointF> points;
+};
+
 /**
  * @brief 制板规则类
  */
@@ -42,14 +48,17 @@ public:
     QPointF foot(QPointF p1, Line l1, bool* ok = nullptr);
     QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
     QPointF cross(Line l1, Line l2, bool* ok = nullptr);
+    QPointF cross(Line l, Curve c, bool* ok = nullptr);
+    QPointF cross(Curve c1, Curve c2, bool* ok = nullptr);
     Line line(QPointF p1, QPointF p2);
-    // 圆滑 用MyPainter实现
+    Curve curve(QList<QPointF> points, bool* ok = nullptr);
 
     // 所有实体的表：
     QMap<QString,QString> params; /**< 参数型实体 */
     QMap<QString,QPointF> points; /**< 点类型实体 */
     QMap<QString,Line> lines;     /**< 直线型实体 */
     QMap<QString,QString> paths;  /**< 路径型实体 */
+    QMap<QString,Curve> curves;   /**< 曲线型实体 */
 
     // 规则代码解析：
     bool parseCode(QString code);
@@ -58,7 +67,6 @@ public:
     QString getEntityType(QString code);
     QString getTypeOf(QString name);
     QString getValue(QString code);
-    void defineEntity(QString code);
     void defineEntity(QString type, QString name);
     void assignEntity(QString code);
     void assignEntity(QString name, QString value);
@@ -66,17 +74,20 @@ public:
     QPointF point(QString value, bool* ok = nullptr);
     Line line(QString value, bool* ok = nullptr);
     QString path(QString value, bool* ok = nullptr);
+    Curve curve(QString value, bool* ok = nullptr);
 
     // 使用自定义规则：
     QString callRule(QString f, QString in = "", MyRule* parent = nullptr);
     QPointF pointByRule(QString f, QString in, bool* ok = nullptr);
     Line lineByRule(QString f, QString in, bool* ok = nullptr);
+    Curve curveByRule(QString f, QString in, bool* ok = nullptr);
 
     // 生成绘图路径：
     MyPainter drawPath();
     MyPainter drawPath(QString name);
     MyPainter drawPath(QPointF p);
     MyPainter drawPath(Line l);
+    MyPainter drawPath(Curve c);
     MyPainter drawPathByCode(QString path);
 
     // 辅助工具函数：

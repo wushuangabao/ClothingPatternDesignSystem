@@ -484,7 +484,7 @@ void MyPathData::writePolyL(QFile *file, const QPainterPath &path, int layer)
  */
 void MyPathData::writeBoundary(QFile *file)
 {
-    // 需要保证：每条轮廓路径的起点不同，前一条的终点点是后一条的起点，
+    // 需要保证：每条轮廓路径的起点不同，前一条的终点是后一条的起点，
     // 最后一条的终点是第一条的起点。也就是所有轮廓线必须首尾相接。
     if(numberPath<=0) return;
     int i=0, idSP=-1;
