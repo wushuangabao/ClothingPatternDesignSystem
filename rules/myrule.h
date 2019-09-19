@@ -35,6 +35,7 @@ private:
 
     bool setInput(QString type, QString name);
     QString findRulePath(QString ruleName);
+    void getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p = nullptr);
 
 public:
     MyRule(QString file);
@@ -50,6 +51,7 @@ public:
     QPointF cross(Line l1, Line l2, bool* ok = nullptr);
     QPointF cross(Line l, Curve c, bool* ok = nullptr);
     QPointF cross(Curve c1, Curve c2, bool* ok = nullptr);
+    QPointF rotate(QPointF o, qreal cos, QPointF p, bool* ok = nullptr);
     Line line(QPointF p1, QPointF p2);
     Curve curve(QList<QPointF> points, bool* ok = nullptr);
 
@@ -78,6 +80,7 @@ public:
 
     // 使用自定义规则：
     QString callRule(QString f, QString in = "", MyRule* parent = nullptr);
+    qreal paramByRule(QString f, QString in, bool* ok = nullptr);
     QPointF pointByRule(QString f, QString in, bool* ok = nullptr);
     Line lineByRule(QString f, QString in, bool* ok = nullptr);
     Curve curveByRule(QString f, QString in, bool* ok = nullptr);

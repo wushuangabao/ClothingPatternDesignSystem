@@ -97,6 +97,33 @@ QString MyRule::findRulePath(QString ruleName)
 }
 
 /**
+ * @brief 从两组直线集中找出相交的直线
+ * @param lineList1 直线集1
+ * @param lineList2 直线集2
+ * @param numOfLine1 直线集1中相交直线的索引
+ * @param numOfLine2 直线集2中相交直线的索引
+ * @param p 交点
+ */
+void MyRule::getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p)
+{
+    int len1 = lineList1.length(),
+        len2 = lineList2.length();
+    for(int i1 = 0; i1 < len1; ++i1){
+        for(int i2 = 0; i2 < len2; ++i2){
+            bool ok = true;
+            QPointF pCross = cross(lineList1[i1], lineList2[i2], &ok);
+            if(ok){
+                numOfLine1 = i1;
+                numOfLine2 = i2;
+                if(p != nullptr)
+                    *p = pCross;
+                return;
+            }
+        }
+    }
+}
+
+/**
  * @brief p1是否在p2的左侧（x轴向右）
  * @param p1
  * @param p2
@@ -296,7 +323,7 @@ QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
 MyRule::MyRule(QString f)
 {
     types << "参数" << "点" << "直线" << "路径" << "曲线";
-    pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点";
+    pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点" << "逆时针转";
     file = f;
     entityOut = "";
     parentRule = nullptr;
@@ -351,6 +378,9 @@ QPointF MyRule::pFunc(QString func, int idFunc, bool* ok)
             else if(getTypeOf(en[2]) == types[4])
                 return cross(curve(en[1],ok),curve(en[2],ok));
         }
+        break;
+    case 5:
+        return rotate(point(en[1],ok),param(en[2],ok),point(en[3],ok));
     }
     return p;
 }
@@ -526,10 +556,122 @@ QPointF MyRule::cross(Line l, Curve c, bool *ok)
     return QPointF(0, 0);
 }
 
+/**
+ * @brief 求两曲线的交点（必须只有一个交点，且曲线不复杂）
+ * @param c1
+ * @param c2
+ * @param ok 无交点时返回false
+ * @return 无交点时返回(0,0)
+ */
 QPointF MyRule::cross(Curve c1, Curve c2, bool *ok)
 {
-    // todo
+    MyPainter painter1 = MyPainter(),
+              painter2 = MyPainter();
+    painter1.curve(c1.points, c1.p1, c2.p2);
+    painter2.curve(c2.points, c2.p1, c2.p2);
+    // 先将曲线四等分，判断八段直线中哪两段相交
+    QList<Line> lineList1, lineList2;
+    for(int i = 0; i < 4; ++i){
+        qreal percent1 = i * 0.25,
+              percent2 = percent1 + 0.25;
+        Line l1 = Line{
+            painter1.myPath->pointAtPercent(percent1),
+            painter1.myPath->pointAtPercent(percent2)
+        }, l2 = Line{
+            painter2.myPath->pointAtPercent(percent1),
+            painter2.myPath->pointAtPercent(percent2)
+        };
+        lineList1.append(l1);
+        lineList2.append(l2);
+    }
+    int numOfLine1 = -1, numOfLine2 = -1;
+    getCrossLines(lineList1, lineList2, numOfLine1, numOfLine2);
+    if(numOfLine1 != -1){
+        // 将直线 lineList1[numOfLine1] 与 lineList2[numOfLine2] 对应的两段曲线五等分，判断10段直线中哪两段相交
+        lineList1.clear();
+        lineList2.clear();
+        qreal percentS1 = numOfLine1 * 0.25,
+              percentS2 = numOfLine2 * 0.25;
+        for(int i = 0; i < 5; ++i){
+            qreal percent1 = i * 0.05,
+                  percent2 = percent1 + 0.05;
+            Line l1 = Line{
+                painter1.myPath->pointAtPercent(percentS1 + percent1),
+                painter1.myPath->pointAtPercent(percentS1 + percent2)
+            }, l2 = Line{
+                painter2.myPath->pointAtPercent(percentS2 + percent1),
+                painter2.myPath->pointAtPercent(percentS2 + percent2)
+            };
+            lineList1.append(l1);
+            lineList2.append(l2);
+        }
+        int numOfLine1_ = -1, numOfLine2_ = -1;
+        getCrossLines(lineList1, lineList2, numOfLine1_, numOfLine2_);
+        if(numOfLine1_ != -1){
+            // 将两条相交的线段分别五等分，再在5*5=25种组合中求交点
+            lineList1.clear();
+            lineList2.clear();
+            percentS1 += numOfLine1_ * 0.05;
+            percentS2 += numOfLine2_ * 0.05;
+            for(int i = 0; i < 5; ++i){
+                qreal percent1 = i * 0.01,
+                      percent2 = percent1 + 0.01;
+                Line l1 = Line{
+                    painter1.myPath->pointAtPercent(percentS1 + percent1),
+                    painter1.myPath->pointAtPercent(percentS1 + percent2)
+                }, l2 = Line{
+                    painter2.myPath->pointAtPercent(percentS2 + percent1),
+                    painter2.myPath->pointAtPercent(percentS2 + percent2)
+                };
+                lineList1.append(l1);
+                lineList2.append(l2);
+            }
+            int numOfLine1__ = -1, numOfLine2__ = -1;
+            QPointF pointCross;
+            getCrossLines(lineList1, lineList2, numOfLine1__, numOfLine2__, &pointCross);
+            return pointCross;
+        }
+    }
+    if(ok != nullptr)
+        *ok = false;
     return QPointF(0,0);
+}
+
+/**
+ * @brief 求以o点为中心，逆时针旋转一个角度后的点
+ * @param o 旋转中心点
+ * @param cos 旋转角的余弦值，角大小范围是[0,90)
+ * @param p 目标点
+ * @param ok
+ * @return
+ */
+QPointF MyRule::rotate(QPointF o, qreal cos, QPointF p, bool *ok)
+{
+    qreal x1 = p.x() - o.x(), y1 = p.y() - o.y();
+    if(!zero(x1) && !zero(y1)){
+        qreal x1sq = x1 * x1,
+              y1sq = y1 * y1,
+              x1sqRec = 1 / x1sq;
+        qreal c = x1sqRec*cos*cos*(x1sq*x1sq+2*x1sq*y1sq+y1sq*y1sq)-x1sq-y1sq,
+              b = -2*cos*y1*(y1sq*x1sqRec+1), a = y1sq * x1sqRec + 1;
+        qreal delta = b*b - 4*a*c;
+        if(delta >= -0.00000001){
+            qreal y = (-b - sqrt(delta)) / a * 0.5,
+                  x = (cos * (x1sq + y1sq) - y1*y) / x1;
+            return QPointF(o.x() + x, o.y() + y);
+        }
+    }else if(zero(x1)){
+        qreal y = cos * y1,
+              x = -sqrt(y1*y1*(1-cos*cos));
+        return QPointF(o.x() + x, o.y() + y);
+    }else if(zero(y1)){
+        qreal x = cos * x1,
+              y = -sqrt(x1*x1 - cos*cos*x1*x1);
+        return QPointF(o.x() + x, o.y() + y);
+    }
+    if(ok != nullptr)
+        *ok = false;
+    return p;
 }
 
 /**
@@ -581,7 +723,7 @@ bool MyRule::parseCode(QString code)
     code = pretreat(code);
     if(code == "")
         return true;
-    else if(code.left(3) == "规则 "){
+    else if(code.left(2) == "规则"){
         // todo
         return true;
     }
@@ -811,10 +953,16 @@ qreal MyRule::param(QString value, bool *ok)
         QStringList paramNames = s.split(QRegExp("[+\\-\\*/\\(\\)]"),QString::SkipEmptyParts);
         paramNames = paramNames.filter(QRegExp("^[a-z]|[A-Z]"));
         foreach(const QString &n, paramNames){
+            if(n == "dx"){
+                int a = 0;
+            }
             it = params.find(n);
             if(it != params.end()){
-                QString otherParamValue = *it; // it.value() == *it ?
+                QString otherParamValue = *it;
                 otherParamValue = QString::number(param(otherParamValue));
+                // 将负数套上括号
+                if(otherParamValue[0] == '-')
+                    otherParamValue = "(" + otherParamValue + ")";
                 s = s.replace(n, otherParamValue);
             }else{
                 info("公式"+value+"中包含未知符号！");
@@ -823,7 +971,7 @@ qreal MyRule::param(QString value, bool *ok)
             }
         }
         // 再对公式求值
-        return calculate(s, ok);
+        return calculate(pretreat(s), ok);
     }
     // case: 点的横纵坐标
     else if(s.contains(".横坐标") || s.contains(".纵坐标")){
@@ -833,6 +981,14 @@ qreal MyRule::param(QString value, bool *ok)
         QPointF p = point(s, ok);
         if(b) return p.x();
         else return p.y();
+    }
+    // case: 调用自定义规则，或者 sqrt(一个参数)
+    else if(value.contains("(") && value.contains(")")){
+        QStringList eList = value.split(QRegExp("\\(|\\)"),QString::SkipEmptyParts);
+        QString ruleName = eList[0], enIn = eList[1];
+        if(ruleName == "sqrt")
+            return sqrt(param(enIn));
+        return paramByRule(ruleName, enIn, ok);
     }
     // case: 值为单个数值
     else{
@@ -1048,6 +1204,31 @@ QString MyRule::callRule(QString f, QString in, MyRule* parent)
         return entityOut;
     else
         return "";
+}
+
+/**
+ * @brief 调用自定义规则获取参数
+ * @param f 规则的名称
+ * @param in 输入实体的名称，形式为"name1,name2,..."（目前只能填写名称，绝不能出现","）
+ * @param ok 失败时赋值为false
+ * @return
+ */
+qreal MyRule::paramByRule(QString f, QString in, bool *ok)
+{
+    qreal r = 0.0;
+    QString type = "";
+    f = findRulePath(f);
+    MyRule *rule = new MyRule(f);
+    QString name = rule->callRule(f, in, this);
+    if(name != ""){
+        type = rule->getTypeOf(name);
+        if(type == types[0])
+            r = rule->param(rule->params[name]);
+    }
+    if(name == "" || type != types[0])
+        if(ok != nullptr) *ok = false;
+    delete rule;
+    return r;
 }
 
 /**
