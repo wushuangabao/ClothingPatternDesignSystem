@@ -26,6 +26,7 @@ bool MyRule::setInput(QString type, QString name)
     bool ok = true;
     QPointF point;
     Line line;
+    Path path;
     QString v = "";
     if(parentRule == nullptr)
         v = QInputDialog::getText(nullptr,"初始化-输入实体",type+name+" =",
@@ -54,6 +55,9 @@ bool MyRule::setInput(QString type, QString name)
                 lines.insert(name,line);
             break;
         case 3:
+            path = parentRule->path(v, &ok);
+            paths.insert(name, path);
+            break;
         case -1:
             ok = false;
         }
@@ -121,6 +125,18 @@ void MyRule::getCrossLines(const QList<Line> &lineList1, const QList<Line> &line
             }
         }
     }
+}
+
+/**
+ * @brief 根据 dx,dy 平移点 p
+ * @param p
+ * @param dx
+ * @param dy
+ */
+void MyRule::movePointF(QPointF &p, qreal dx, qreal dy)
+{
+    p.setX(p.x() + dx);
+    p.setY(p.y() + dy);
 }
 
 /**
@@ -329,7 +345,14 @@ MyRule::MyRule(QString f)
     parentRule = nullptr;
 }
 
-MyRule::~MyRule(){}
+MyRule::~MyRule(){
+    // 释放 Path 中的内存
+    QMap<QString, Path>::iterator it;
+    for(it = paths.begin(); it != paths.end(); ++it){
+        if(it->rule != nullptr && it->rule != this)
+            delete it->rule;
+    }
+}
 
 /**
  * @brief 基本约束方法的前5种（求点）
@@ -675,6 +698,54 @@ QPointF MyRule::rotate(QPointF o, qreal cos, QPointF p, bool *ok)
 }
 
 /**
+ * @brief 平移路径
+ * @param path
+ * @param value 括号里写的参数列表字符串，形式为"方向向量,距离"
+ * @param ok
+ * @return pathEn的拷贝
+ */
+Path MyRule::movePath(Path &pathEn, QString value, QList<QString> &nameList, bool *ok)
+{
+    QStringList inParams = pretreat(value.remove(' ')).split(',');
+    QStringList sPaths = pathEn.str.remove(' ').split("以及");
+    MyRule* rule = pathEn.rule;
+    foreach(const QString &sPath, sPaths){
+        QString sType = getTypeOf(sPath);
+        QPointF v = point(inParams[0]);
+        qreal scale = param(inParams[1]) / sqrt(v.x() * v.x() + v.y() * v.y());
+        qreal dx = scale * v.x(), dy = scale * v.y();
+        if(sType == types[2]){
+            // 注意这里只改变了直线结构体内点的坐标，没有改变实体表中的点的坐标
+            movePointF(rule->lines[sPath].p1, dx, dy);
+            movePointF(rule->lines[sPath].p2, dx, dy);
+        }else if(sType == types[4]){
+            // 注意这里只改变了曲线结构体内点的坐标，没有改变实体表中的点的坐标
+            movePointF(rule->curves[sPath].p1, dx, dy);
+            movePointF(rule->curves[sPath].p2, dx, dy);
+            int len = rule->curves[sPath].points.size();
+            for(int i = 0; i < len; ++i)
+                movePointF(rule->curves[sPath].points[i], dx, dy);
+        }else{
+            // 取出每个点，改变他们的坐标
+            QStringList sPoints = sPath.split(QRegExp("连接|圆顺"));
+            int len = sPoints.size();
+            for(int i = 0; i < len; ++i){
+                QString name = sPoints[i];
+                // nameList 中没有，说明该点还没移动过
+                if(nameList.indexOf(name) == -1){
+                    movePointF(rule->points[name], dx, dy);
+                    nameList.append(name);
+                }
+            }
+        }
+    }
+    return Path{
+        pathEn.rule,
+        pathEn.str
+    };
+}
+
+/**
  * @brief 连接2点的直线段
  * @param p1
  * @param p2
@@ -883,7 +954,7 @@ void MyRule::defineEntity(QString type, QString name)
         lines.insert(name,Line{QPointF(0,0),QPointF(0,0)});
         break;
     case 3:
-        paths.insert(name,"空路径");
+        paths.insert(name,Path{this, ""});
         break;
     case 4:
         QPointF p = QPointF(0,0);
@@ -921,15 +992,16 @@ void MyRule::assignEntity(QString name, QString value)
         *it3 = line(value);
         return;
     }
-    it1 = paths.find(name);
-    if(it1 != paths.end()){
-        *it1 = path(value);
+    QMap<QString,Path>::iterator it4;
+    it4 = paths.find(name);
+    if(it4 != paths.end()){
+        *it4 = path(value);
         return;
     }
-    QMap<QString,Curve>::iterator it4;
-    it4 = curves.find(name);
-    if(it4 != curves.end()){
-        *it4 = curve(value);
+    QMap<QString,Curve>::iterator it5;
+    it5 = curves.find(name);
+    if(it5 != curves.end()){
+        *it5 = curve(value);
         return;
     }
 }
@@ -1081,21 +1153,51 @@ Line MyRule::line(QString value, bool *ok)
 }
 
 /**
- * @brief 路径值字符串解析
+ * @brief 路径值解析
  * @param value
  * @param ok bool指针 必要时赋值为false
- * @return
+ * @return 路径
  */
-QString MyRule::path(QString value, bool *ok)
+Path MyRule::path(QString value, bool* ok)
 {
-    QMap<QString,QString>::iterator it = paths.find(value);
-    // case: 值为参数名
+    QMap<QString,Path>::iterator it = paths.find(value);
+    // case: 值为路径实体名
     if(it != paths.end())
-        return path(*it, ok);
-    // case: 值为字面量（字符串）
-    else {
-        return value;
+        return it.value();
+    // case: 调用内置方法或自定义的规则
+    if(value.contains("(") && value.contains(")")){
+        int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
+        QString ruleName = value.left(i1),
+                enIn = value.mid(i1+1,i2-i1-1).simplified();
+        // case: 标记（内部线，用于输出ASTM文件）
+        if(ruleName == "标记"){
+            // todo------------------
+        }
+        // case: 平移(path, 方向向量, 距离)
+        else if(ruleName.contains(".平移")){
+            int posDot = ruleName.indexOf('.');
+            QString pathName = ruleName.left(posDot);
+            Path p = path(pathName, ok);
+            QList<QString> nameList;
+            return movePath(p, enIn, nameList, ok);
+        }
+        // case: 调用自定义规则
+        else{
+            QString f = findRulePath(ruleName);
+            MyRule* r = new MyRule(f);
+            QString name = r->callRule(f, enIn, this);
+            if(name != ""){
+                QString type = r->getTypeOf(name);
+                if(type == types[3])
+                    return r->path(r->entityOut);
+            }
+        }
     }
+    // case: 值为字面量（字符串）
+    return Path{
+        this,
+        value
+    };
 }
 
 /**
@@ -1159,12 +1261,13 @@ QString MyRule::getTypeOf(QString name)
     it3 = lines.find(name);
     if(it3 != lines.end())
         return types[2];
-    it1 = paths.find(name);
-    if(it1 != paths.end())
+    QMap<QString,Path>::iterator it4;
+    it4 = paths.find(name);
+    if(it4 != paths.end())
         return types[3];
-    QMap<QString,Curve>::iterator it4;
-    it4 = curves.find(name);
-    if(it4 != curves.end())
+    QMap<QString,Curve>::iterator it5;
+    it5 = curves.find(name);
+    if(it5 != curves.end())
         return types[4];
     return "";
 }
@@ -1174,7 +1277,7 @@ QString MyRule::getTypeOf(QString name)
  * @param f 规则文件的路径
  * @param in 输入实体的代码
  * @param parent 发起call的MyRule对象指针
- * @return 输出实体的名称。""表示失败
+ * @return 输出实体的名称。 ""表示失败
  */
 QString MyRule::callRule(QString f, QString in, MyRule* parent)
 {
@@ -1385,10 +1488,10 @@ MyPainter MyRule::drawPath(Curve c)
  * @param path
  * @return
  */
-MyPainter MyRule::drawPathByCode(QString path)
+MyPainter MyRule::drawPathByCode(Path path)
 {
     MyPainter painter;
-    painter.parseCode(this, path);
+    painter.parsePathCode(path);
     return painter;
 }
 

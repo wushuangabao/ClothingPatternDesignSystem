@@ -8,10 +8,16 @@
 #include <QStringList>
 
 class MyPainter;
+class MyRule;
 
 struct Line{
     QPointF p1;
     QPointF p2;
+};
+
+struct Path{
+    MyRule *rule;
+    QString str;
 };
 
 struct Curve{
@@ -36,6 +42,7 @@ private:
     bool setInput(QString type, QString name);
     QString findRulePath(QString ruleName);
     void getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p = nullptr);
+    void movePointF(QPointF &p, qreal dx, qreal dy);
 
 public:
     MyRule(QString file);
@@ -52,6 +59,7 @@ public:
     QPointF cross(Line l, Curve c, bool* ok = nullptr);
     QPointF cross(Curve c1, Curve c2, bool* ok = nullptr);
     QPointF rotate(QPointF o, qreal cos, QPointF p, bool* ok = nullptr);
+    Path movePath(Path &path, QString value, QList<QString> &nameList, bool* ok = nullptr);
     Line line(QPointF p1, QPointF p2);
     Curve curve(QList<QPointF> points, bool* ok = nullptr);
 
@@ -59,7 +67,7 @@ public:
     QMap<QString,QString> params; /**< 参数型实体 */
     QMap<QString,QPointF> points; /**< 点类型实体 */
     QMap<QString,Line> lines;     /**< 直线型实体 */
-    QMap<QString,QString> paths;  /**< 路径型实体 */
+    QMap<QString,Path> paths;  /**< 路径型实体 */
     QMap<QString,Curve> curves;   /**< 曲线型实体 */
 
     // 规则代码解析：
@@ -75,7 +83,7 @@ public:
     qreal param(QString value, bool* ok = nullptr);
     QPointF point(QString value, bool* ok = nullptr);
     Line line(QString value, bool* ok = nullptr);
-    QString path(QString value, bool* ok = nullptr);
+    Path path(QString value, bool* ok = nullptr);
     Curve curve(QString value, bool* ok = nullptr);
 
     // 使用自定义规则：
@@ -91,7 +99,7 @@ public:
     MyPainter drawPath(QPointF p);
     MyPainter drawPath(Line l);
     MyPainter drawPath(Curve c);
-    MyPainter drawPathByCode(QString path);
+    MyPainter drawPathByCode(Path path);
 
     // 辅助工具函数：
     static bool zero(qreal r);

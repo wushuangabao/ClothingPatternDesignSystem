@@ -30,18 +30,21 @@ void MyPainter::setStartPoint(QPointF point)
 
 /**
  * @brief 解析路径代码，添加数据到myData
- * @param rule 包含点坐标信息的MyRule数据
- * @param pathCode 形如"e 连接 i 连接 j 圆顺 a ..."
+ * @param path path.str形如"e 连接 i 连接 j 圆顺 a ..."
  */
-void MyPainter::parseCode(MyRule *rule, QString pathCode)
+void MyPainter::parsePathCode(Path path)
 {
     // 去除pathCode中的所有空格
-    pathCode = pathCode.remove(' ');
-    if(pathCode.contains("移至")){
-        // 将pathCode根据"移至"操作符，拆分成几段
-        QStringList sl = pathCode.split("移至");
+    QString pathCode = path.str.remove(' ');
+    if(pathCode.contains("以及")){
+        // 将pathCode根据"以及"操作符，拆分成几段
+        QStringList sl = pathCode.split("以及");
         foreach(const QString &code, sl){
-            parseCode(rule, code);
+            Path sonPath{
+                path.rule,
+                code
+            };
+            parsePathCode(sonPath);
         }
         return;
     }
@@ -49,17 +52,40 @@ void MyPainter::parseCode(MyRule *rule, QString pathCode)
     QList<QPointF> points;
     QString type = connectType(pathCode);
     if(type == ""){
-        rule->info(pathCode+"无法解析！");
-        return;
+        // case: pathCode 本身表示一条直线
+        if(path.rule->getTypeOf(pathCode) == "直线"){
+            Line l = path.rule->line(pathCode);
+            points << l.p1 << l.p2;
+            brokenLineThrough(points);
+            return;
+        }
+        // case: pathCode 本身表示一条曲线
+        else if(path.rule->getTypeOf(pathCode) == "曲线"){
+            Curve c = path.rule->curve(pathCode);
+            points = c.points;
+            curveThrough(points);
+            return;
+        }
+        // case: pathCode 本身表示一个路径
+        else if(path.rule->getTypeOf(pathCode) == "路径"){
+            Path p = path.rule->path(pathCode);
+            parsePathCode(p);
+            return;
+        }
+        // case: 无法识别的语法
+        else{
+            path.rule->info(pathCode+"无法解析！");
+            return;
+        }
     }
     // 删除第一个点和type，将点加入points队列
-    if(!addPointByRule(&points, rule, &pathCode))
+    if(!addPointByRule(&points, path.rule, &pathCode))
         return;
     while(pathCode.length()>0){
         QString nextType = connectType(pathCode);
         // case: 进行绘图操作
         if(nextType != type && nextType != ""){
-            if(!addPointByRule(&points, rule, &pathCode))
+            if(!addPointByRule(&points, path.rule, &pathCode))
                 return;
             // 用points中的n+1个点画路径
             if(type == "圆顺"){
@@ -76,7 +102,7 @@ void MyPainter::parseCode(MyRule *rule, QString pathCode)
         // case: 到达末尾，剩最后一个点
         else if(nextType == ""){
             bool ok = true;
-            QPointF point = convertPoint(rule->point(pathCode,&ok));
+            QPointF point = convertPoint(path.rule->point(pathCode,&ok));
             if(ok){
                 addPointData(point,pathCode); // 添加点数据到myData
                 points << point;
@@ -88,13 +114,13 @@ void MyPainter::parseCode(MyRule *rule, QString pathCode)
                 return;
             }
             else{
-                rule->info(pathCode+"无法解析！");
+                path.rule->info(pathCode+"无法解析！");
                 return;
             }
         }
         // case: 提取下一个点
         else{
-            if(addPointByRule(&points, rule, &pathCode))
+            if(addPointByRule(&points, path.rule, &pathCode))
                 n++;
             else return;
         }

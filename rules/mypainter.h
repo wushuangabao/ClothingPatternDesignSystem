@@ -8,6 +8,7 @@
 class PainterArea;
 class MyRule;
 class MyPathData;
+struct Path;
 
 class MyPainter
 {
@@ -23,7 +24,7 @@ public:
     QPainterPath drawByPathData(MyPathData* pathData);  // 根据数据画图
     void curve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 
-    void parseCode(MyRule* rule, QString pathCode);
+    void parsePathCode(Path path);
 
 private:
     const qreal minUnit = 0.01; /**< 比较实数时的精度 */
