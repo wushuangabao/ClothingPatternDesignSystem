@@ -710,7 +710,7 @@ Path MyRule::movePath(Path &pathEn, QString value, QList<QString> &nameList, boo
     QStringList sPaths = pathEn.str.remove(' ').split("以及");
     MyRule* rule = pathEn.rule;
     foreach(const QString &sPath, sPaths){
-        QString sType = getTypeOf(sPath);
+        QString sType = rule->getTypeOf(sPath);
         QPointF v = point(inParams[0]);
         qreal scale = param(inParams[1]) / sqrt(v.x() * v.x() + v.y() * v.y());
         qreal dx = scale * v.x(), dy = scale * v.y();
@@ -725,6 +725,10 @@ Path MyRule::movePath(Path &pathEn, QString value, QList<QString> &nameList, boo
             int len = rule->curves[sPath].points.size();
             for(int i = 0; i < len; ++i)
                 movePointF(rule->curves[sPath].points[i], dx, dy);
+        }else if(sType == types[3]){
+            // 递归调用“平移路径”
+            Path p = rule->path(sPath);
+            movePath(p, value, nameList, ok);
         }else{
             // 取出每个点，改变他们的坐标
             QStringList sPoints = sPath.split(QRegExp("连接|圆顺"));
