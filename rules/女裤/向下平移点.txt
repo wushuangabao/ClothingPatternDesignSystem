@@ -1,0 +1,10 @@
+﻿规则 向上平移点
+输入 点 a
+输入 参数 distance
+
+参数 tmp1 = a.横坐标
+参数 tmp2 = a.纵坐标
+temp2 = temp2 + distance
+点 b = (temp1, temp2)
+
+输出 b

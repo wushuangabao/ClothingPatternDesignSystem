@@ -1,0 +1,52 @@
+﻿规则 前腰头(腰头宽,顶部从左到右4个点,底部从左到右4个点,省尖点)
+
+输入 参数 wb
+输入 点 up1
+输入 点 up2
+输入 点 up3
+输入 点 up4
+输入 点 do1
+输入 点 do2
+输入 点 do3
+输入 点 do4
+输入 点 sj
+
+直线 l = do2 连接 do3
+参数 len = 求直线长度(l)
+参数 cosSang = 求夹角余弦值(sj, up2, sj, up3)
+do4 = 逆时针转(do3, cosSang, do4)
+up4 = 逆时针转(do3, cosSang, up4)
+up3 = 逆时针转(do3, cosSang, up3)
+点 v = 方向向量(do3, do2)
+do3 = do2
+do4 = 求偏移(do4, len, v)
+up4 = 求偏移(up4, len, v)
+up3 = 求偏移(up3, len, v)
+
+规则 将拼接点向上平移0.15cm(??)，使得曲线更顺
+up2 = 向上平移点(up2, 0.15)
+do2 = 向上平移点(do2, 0.15)
+路径 yao_tou_left = up1 圆顺 up2 圆顺 up4 连接 do4 圆顺 do2 圆顺 do1 连接 up1 以及 up3 连接 do3
+
+
+规则 将左前腰上各点做水平镜像处理，得到右前腰上各点
+参数 x0 = up1.横坐标
+x0 = x0 - 5
+点 u1 = 求水平镜像点(up1, x0)
+点 u2 = 求水平镜像点(up2, x0)
+点 u3 = 求水平镜像点(up3, x0)
+点 u4 = 求水平镜像点(up4, x0)
+点 d1 = 求水平镜像点(do1, x0)
+点 d2 = 求水平镜像点(do2, x0)
+点 d3 = 求水平镜像点(do3, x0)
+点 d4 = 求水平镜像点(do4, x0)
+路径 yao_tou_right = u1 圆顺 u2 圆顺 u4 连接 d4 圆顺 d2 圆顺 d1 连接 u1 以及 u3 连接 d3
+
+
+规则 延伸宝剑头 左前腰头延伸7cm 右前腰头延伸4cm加宝剑头1.4cm 缝份1cm
+
+
+
+
+路径 yao_tou = yao_tou_left 以及 yao_tou_right
+输出 yao_tou
