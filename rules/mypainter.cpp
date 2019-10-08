@@ -55,14 +55,15 @@ void MyPainter::parsePathCode(Path path)
         // case: pathCode 本身表示一条直线
         if(path.rule->getTypeOf(pathCode) == "直线"){
             Line l = path.rule->line(pathCode);
-            points << l.p1 << l.p2;
+            points << convertPoint(l.p1) << convertPoint(l.p2);
             brokenLineThrough(points);
             return;
         }
         // case: pathCode 本身表示一条曲线
         else if(path.rule->getTypeOf(pathCode) == "曲线"){
             Curve c = path.rule->curve(pathCode);
-            points = c.points;
+            for(int i = 0; i < c.points.size(); ++i)
+                points.append(convertPoint(c.points[i]));
             curveThrough(points);
             return;
         }
@@ -144,12 +145,13 @@ void MyPainter::curve(QList<QPointF> points, QPointF firstCtrlPoint, QPointF las
             myPath->moveTo(points.at(0));
         while(i<=num){
             addCtrlPoints(points.at(0),points.at(1),points.at(2),ctrlPoints);
-            myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1)); //绘制到第2个端点的三次贝塞尔曲线
+            myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(0),points.at(1)); //绘制到第2个端点的三次贝塞尔曲线
             points.takeAt(0); //删除第1个端点
             i++;
         }
-        myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1));
+        myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(0),points.at(1));
     }
+    ctrlPoints->clear();
     delete ctrlPoints;
 }
 

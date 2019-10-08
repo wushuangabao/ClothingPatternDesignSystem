@@ -420,7 +420,7 @@ void PainterArea::updateLabelPoints()
     for(i=0;i<num;i++)
     {
         LabelPoint* lp=labelPoints.at(i);
-        QPointF p=myPaths[0]->pointData[lp->point->id];
+        QPointF p=myPaths[currentId]->pointData[lp->point->id];
         int lpx=xPhysical(p.x()),lpy=yPhysical(p.y());
         lp->move(lpx,lpy);
     }

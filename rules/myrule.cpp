@@ -1294,7 +1294,7 @@ QString MyRule::callRule(QString f, QString in, MyRule* parent)
     // 打开规则文件
     QFile rule(f);
     if(!rule.open(QIODevice::ReadOnly|QIODevice::Text)){
-        info("打开文件失败");
+        info("打开文件失败\n" + f);
         return "";
     }
     // 逐句解析规则代码
