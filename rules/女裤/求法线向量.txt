@@ -1,0 +1,9 @@
+﻿规则 求法线向量(vertex, line)
+
+输入 点 vertex
+输入 直线 line
+
+点 foot = 求垂足(vertex, line)
+点 vector = 方向向量(vertex, foot)
+
+输出 vector
