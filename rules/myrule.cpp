@@ -96,8 +96,25 @@ bool MyRule::setInput(QString type, QString name)
  */
 QString MyRule::findRulePath(QString ruleName)
 {
-    QString s = file.left(file.lastIndexOf('/')+1);
-    return s + ruleName + ".txt";
+    QString s = file.left(file.lastIndexOf('/'));
+    QString sf = s + "/" + ruleName + ".txt";
+    QFile f(sf);
+    if(!f.open(QIODevice::ReadOnly|QIODevice::Text)){
+        // 向上一级文件夹查找
+        QString s2 = s.left(s.lastIndexOf('/')+1);
+        sf = s2 + ruleName + ".txt";
+        QFile f2(sf);
+        if(!f2.open(QIODevice::ReadOnly|QIODevice::Text)){
+            info("打开"+ ruleName +"失败！\n");
+            return "";
+        }else{
+            f2.close();
+            return sf;
+        }
+    }else{
+        f.close();
+        return sf;
+    }
 }
 
 /**
@@ -745,7 +762,8 @@ Path MyRule::movePath(Path &pathEn, QString value, QList<QString> &nameList, boo
     }
     return Path{
         pathEn.rule,
-        pathEn.str
+        pathEn.str,
+        pathEn.astmTag
     };
 }
 
@@ -958,7 +976,7 @@ void MyRule::defineEntity(QString type, QString name)
         lines.insert(name,Line{QPointF(0,0),QPointF(0,0)});
         break;
     case 3:
-        paths.insert(name,Path{this, ""});
+        paths.insert(name,Path{this, "", 0});
         break;
     case 4:
         QPointF p = QPointF(0,0);
@@ -1029,9 +1047,6 @@ qreal MyRule::param(QString value, bool *ok)
         QStringList paramNames = s.split(QRegExp("[+\\-\\*/\\(\\)]"),QString::SkipEmptyParts);
         paramNames = paramNames.filter(QRegExp("^[a-z]|[A-Z]"));
         foreach(const QString &n, paramNames){
-            if(n == "dx"){
-                int a = 0;
-            }
             it = params.find(n);
             if(it != params.end()){
                 QString otherParamValue = *it;
@@ -1200,7 +1215,8 @@ Path MyRule::path(QString value, bool* ok)
     // case: 值为字面量（字符串）
     return Path{
         this,
-        value
+        value,
+        0
     };
 }
 

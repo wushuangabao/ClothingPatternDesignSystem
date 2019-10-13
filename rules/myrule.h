@@ -18,6 +18,7 @@ struct Line{
 struct Path{
     MyRule *rule;
     QString str;
+    int astmTag; // 0-2: 轮廓、内部、经线
 };
 
 struct Curve{
