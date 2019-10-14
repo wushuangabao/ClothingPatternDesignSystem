@@ -1,0 +1,13 @@
+规则 求辅助矩形
+输入 点 leftUpPoint
+输入 参数 H
+输入 参数 CR
+
+参数 widthRec = H/4 - 1
+点 right = (1, 0)
+点 down = (0, 1)
+点 b = 求偏移(leftUpPoint,widthRec,right)
+点 c = 求偏移(leftUpPoint,CR,down)
+点 d = 求偏移(leftUpPoint,CR,down)
+
+输出 b & c & d
