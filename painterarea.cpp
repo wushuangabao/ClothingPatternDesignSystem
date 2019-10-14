@@ -135,14 +135,28 @@ void PainterArea::paintEvent(QPaintEvent *event)
     if(!myPaths.isEmpty())
         for(int i=0; i<myPaths.size(); ++i){
             if(i == currentId){
-                pen.setColor(Qt::cyan);
+                pen.setStyle(Qt::SolidLine);
                 painter.setPen(pen);
             }
             else if(pen.color() != Qt::white){
-                pen.setColor(Qt::white);
+                pen.setStyle(Qt::DotLine);
                 painter.setPen(pen);
             }
-            painter.drawPath(myPainter.drawByPathData(myPaths[i]));
+            // 轮廓线：棕色
+            pen.setColor(QColor(205,102,0));
+            painter.setPen(pen);
+            painter.drawPath(myPainter.drawByPathData(myPaths[i], 0));
+            // 内部线：白色
+            pen.setColor(Qt::white);
+            painter.setPen(pen);
+            painter.drawPath(myPainter.drawByPathData(myPaths[i], 1));
+            // 经向线：红色
+            pen.setColor(Qt::red);
+            painter.setPen(pen);
+            painter.drawPath(myPainter.drawByPathData(myPaths[i], 2));
+            // 点：绿色
+            pen.setColor(Qt::green);
+            painter.setPen(pen);
         }
 
     pen.setColor(Qt::yellow);

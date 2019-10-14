@@ -240,19 +240,24 @@ void MyPainter::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPoint
 /**
  * @brief 根据MyPathData画QPainterPath
  * @param pathData
+ * @param astmTag
  * @return
  */
-QPainterPath MyPainter::drawByPathData(MyPathData *data)
+QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag)
 {
     MyPainter painter;
     QPainterPath* path = painter.myPath;
     int numPaths = data->numberPath, i;
-    for(i=0;i<numPaths;++i)
-    {
+    for(i=0;i<numPaths;++i){
         PathData pathData = data->pathData[i];
+        if(pathData.astmTag != astm(astmTag))
+            continue;
         QPointF startPoint = data->pointData[pathData.startPoint->id];
-        if(!currentPositionequal(*path,startPoint))
+        if(!currentPositionequal(*path, startPoint)){
+            // 此处为断点（需要另起一点）
             path->moveTo(startPoint);
+        }
+        // 如果pathData表示直线
         if(pathData.isLine){
             QPointF endPoint = data->pointData[pathData.endPoint->id];
             path->lineTo(endPoint);
