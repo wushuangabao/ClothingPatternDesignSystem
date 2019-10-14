@@ -115,7 +115,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
     QPainter painter(this);
     QBrush brushGreen(Qt::green);
-    QBrush brushWhite(Qt::white);
+    QBrush brushEmpty;
 
     QSize painterAreaSize=this->size();
     painter.setWindow(qRound(intLeft/scalingMulti),
@@ -159,7 +159,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
             painter.setBrush(brushGreen);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawPointsByData(myPaths[i]));
-            painter.setBrush(brushWhite);
+            painter.setBrush(brushEmpty);
         }
 
     pen.setColor(Qt::yellow);
