@@ -267,14 +267,30 @@ QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag)
             QList<QPointF> points;
             CurvePoint *p = pathData.startPoint->pre;
             QPointF firstCtrlPoint = data->pointData[p->id];
-            while(p->next->isCtrlPoint!=true)
-            {
+            while(p->next->isCtrlPoint!=true){
                 p=p->next; points<<data->pointData[p->id];
             }
             p=p->next;
             QPointF lastCtrlPoint = data->pointData[p->id];
             painter.curve(points,firstCtrlPoint,lastCtrlPoint);
         }
+    }
+    return *path;
+}
+
+/**
+ * @brief 根据MyPathData画点
+ * @param pathData
+ * @return
+ */
+QPainterPath MyPainter::drawPointsByData(MyPathData *data)
+{
+    MyPainter painter;
+    QPainterPath* path = painter.myPath;
+    int numPaths = data->numberPoint;
+    for(int i = 0; i < numPaths; ++i){
+        QPointF center = data->pointData[i];
+        path->addEllipse(center.x()-0.5, center.y()-0.5, 1, 1);
     }
     return *path;
 }

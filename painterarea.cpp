@@ -114,8 +114,8 @@ void PainterArea::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-    //    QBrush brush(Qt::white);
-    //    painter.setBrush(brush);
+    QBrush brushGreen(Qt::green);
+    QBrush brushWhite(Qt::white);
 
     QSize painterAreaSize=this->size();
     painter.setWindow(qRound(intLeft/scalingMulti),
@@ -156,7 +156,10 @@ void PainterArea::paintEvent(QPaintEvent *event)
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 0));
             // 点：绿色
             pen.setColor(Qt::green);
+            painter.setBrush(brushGreen);
             painter.setPen(pen);
+            painter.drawPath(myPainter.drawPointsByData(myPaths[i]));
+            painter.setBrush(brushWhite);
         }
 
     pen.setColor(Qt::yellow);
