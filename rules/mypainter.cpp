@@ -145,11 +145,19 @@ void MyPainter::curve(QList<QPointF> points, QPointF firstCtrlPoint, QPointF las
             myPath->moveTo(points.at(0));
         while(i<=num){
             addCtrlPoints(points.at(0),points.at(1),points.at(2),ctrlPoints);
+#ifdef Q_OS_DARWIN
+            myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(0),points.at(1));
+#else
             myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1)); //绘制到第2个端点的三次贝塞尔曲线
+#endif
             points.takeAt(0); //删除第1个端点
             i++;
         }
+#ifdef Q_OS_DARWIN
+        myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(0),points.at(1));
+#else
         myPath->cubicTo(ctrlPoints->takeAt(0),ctrlPoints->takeAt(1),points.at(1));
+#endif
     }
     ctrlPoints->clear();
     delete ctrlPoints;
