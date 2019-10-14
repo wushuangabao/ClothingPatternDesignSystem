@@ -142,10 +142,6 @@ void PainterArea::paintEvent(QPaintEvent *event)
                 pen.setStyle(Qt::DotLine);
                 painter.setPen(pen);
             }
-            // 轮廓线：棕色
-            pen.setColor(QColor(205,102,0));
-            painter.setPen(pen);
-            painter.drawPath(myPainter.drawByPathData(myPaths[i], 0));
             // 内部线：白色
             pen.setColor(Qt::white);
             painter.setPen(pen);
@@ -154,6 +150,10 @@ void PainterArea::paintEvent(QPaintEvent *event)
             pen.setColor(Qt::red);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 2));
+            // 轮廓线：棕色（dark orange）
+            pen.setColor(QColor(205,102,0));
+            painter.setPen(pen);
+            painter.drawPath(myPainter.drawByPathData(myPaths[i], 0));
             // 点：绿色
             pen.setColor(Qt::green);
             painter.setPen(pen);
