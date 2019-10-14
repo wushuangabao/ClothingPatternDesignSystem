@@ -18,7 +18,7 @@ struct Line{
 struct Path{
     MyRule *rule;
     QString str;
-    int astmTag; // 0-2: 轮廓、内部、经线
+    int astmTag; // 0-3: 轮廓线、内部线、经线、辅助线（棕、白、绿、红）
 };
 
 struct Curve{
@@ -36,10 +36,11 @@ private:
     QStringList types;      /**< 实体类型表 */
     QStringList pFuncs;     /**< 点的方法名称表 */
     QString file;           /**< 规则文件路径 */
-    QString entityOut;      /**< 输出实体名 */
+    QStringList entitiesOut;      /**< 输出实体名 */
     QStringList entitiesIn; /**< 输入实体值的队列 */
     MyRule *parentRule;     /**< 本规则的调用者 */
 
+    int astmId(QString strTag);
     bool setInput(QString type, QString name);
     QString findRulePath(QString ruleName);
     void getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p = nullptr);
@@ -78,9 +79,10 @@ public:
     QString getEntityType(QString code);
     QString getTypeOf(QString name);
     QString getValue(QString code);
-    void defineEntity(QString type, QString name);
-    void assignEntity(QString code);
-    void assignEntity(QString name, QString value);
+    void defineEntity(int typeId, QString name);
+    void defineEntity(QString type, QStringList names);
+    void assignEntity(QString name, QString value, MyRule* r = nullptr);
+    void assignEntity(QStringList names, QString values, MyRule* r = nullptr);
     qreal param(QString value, bool* ok = nullptr);
     QPointF point(QString value, bool* ok = nullptr);
     Line line(QString value, bool* ok = nullptr);
@@ -93,6 +95,7 @@ public:
     QPointF pointByRule(QString f, QString in, bool* ok = nullptr);
     Line lineByRule(QString f, QString in, bool* ok = nullptr);
     Curve curveByRule(QString f, QString in, bool* ok = nullptr);
+    // Path pathByRule() // todo
 
     // 生成绘图路径：
     MyPainter drawPath();

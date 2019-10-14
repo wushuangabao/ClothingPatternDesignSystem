@@ -13,7 +13,7 @@ class QFile;
 class QPainterPath;
 class PainterArea;
 
-enum astm {Boundary, InLines, WarpLine}; // 轮廓线：棕色，内部线：白色，经线：绿色
+enum astm {Boundary, InLines, WarpLine, Auxiliary}; // 轮廓线：棕色，内部线：白色，经线：绿色，辅助线：红色
 
 struct PathData{
     int id; /**< 路径在数组中的序号 */
@@ -37,6 +37,7 @@ public:
     QList<PathData> pathData; /**< 路径数组 */
     QList<QPointF> pointData; /**< 点的数组 */
     QMap<QString,int> pointMap; /**< 记录点的名称 */
+    int astmTag = 0; // 记录当前添加路径的 astm 标志
 
     bool addLineTo(QPointF endPoint,int idStartPoint=-1);
     void addLine(QPointF startPoint,QPointF endPoint);

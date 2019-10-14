@@ -16,6 +16,23 @@ void MyRule::info(QString info)
 }
 
 /**
+ * @brief 将 astmTag 字符串转换为整型
+ * @param strTag
+ * @return
+ */
+int MyRule::astmId(QString strTag)
+{
+    if(strTag.contains("轮廓"))
+        return 0;
+    if(strTag.contains("内部"))
+        return 1;
+    if(strTag.contains("经向") || strTag.contains("经线"))
+        return 2;
+    if(strTag.contains("辅助"))
+        return 3;
+}
+
+/**
  * @brief 弹出实体输入框
  * @param type 实体类型
  * @param name 实体名
@@ -358,7 +375,6 @@ MyRule::MyRule(QString f)
     types << "参数" << "点" << "直线" << "路径" << "曲线";
     pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点" << "逆时针转";
     file = f;
-    entityOut = "";
     parentRule = nullptr;
 }
 
@@ -827,11 +843,9 @@ bool MyRule::parseCode(QString code)
         if(type == ""){
             // case: 指示输出实体
             if(code.left(3) == "输出 "){
-                if(names.length() == 1){
-                    if(entityOut != "") info("输出实体被重复定义，\n以最后一次定义为准");
-                    entityOut = names[0];
-                    return true;
-                }else info(code + "语法错误：\n输出实体名数目>1");
+                for(int i = 0; i < names.length(); ++i)
+                    entitiesOut.append(names[i]);
+                return true;
             }
             // case: 其他语句
             else info(code + "无法解析");
@@ -857,27 +871,25 @@ bool MyRule::parseCode(QString code)
         }
         // case: 单纯的定义语句
         else{
-            defineEntity(type,names[0]);
+            defineEntity(type,names);
             return true;
         }
     }else{
         QStringList items = code.split("=",QString::SkipEmptyParts);
         if(items.length() == 2){
-            QStringList nameLeft = getEntityNames(items[0]);
-            if(nameLeft.length() != 1) info(code + "语法错误：\n等号左边的实体名数目!=1");
-            else if(nameLeft[0] != names[0]) info(code + "实体名出错");
+            QStringList namesLeft = getEntityNames(items[0]);
+            if(namesLeft.size() <= 0 || namesLeft[0] != names[0]) info(code + "实体名出错");
             else{
-                QString name = names[0];
                 QString type = getEntityType(items[0]);
                 // case: 单纯的赋值语句
                 if(type == ""){
-                    assignEntity(name,value);
+                    assignEntity(namesLeft,value);
                     return true;
                 }
                 // case: 初始化赋值语句
                 else{
-                    defineEntity(type,name);
-                    assignEntity(name,value);
+                    defineEntity(type,namesLeft);
+                    assignEntity(namesLeft,value);
                     return true;
                 }
             }
@@ -952,17 +964,13 @@ QString MyRule::getValue(QString code)
 }
 
 /**
- * @brief 定义实体，将name作为键写入QMap，值为默认值
- * @param type
+ * @brief 定义单个实体，将name作为键写入QMap，值为默认值
+ * @param typeId
  * @param name
  */
-void MyRule::defineEntity(QString type, QString name)
+void MyRule::defineEntity(int typeId, QString name)
 {
-//    // 重名检查
-//    if(getTypeOf(name) != ""){
-//        info("语法错误：" + name + "被多次定义。\n以最后一次为准。");
-//    }
-    switch(types.indexOf(type)){
+    switch(typeId){
     case -1:
         info("无法定义实体：类型错误");
         break;
@@ -987,17 +995,32 @@ void MyRule::defineEntity(QString type, QString name)
 }
 
 /**
- * @brief 实体赋值
+ * @brief 定义实体，将names作为键写入QMap，值为默认值
+ * @param type
+ * @param names
+ */
+void MyRule::defineEntity(QString type, QStringList names)
+{
+    int size = names.size();
+    int typeId = types.indexOf(type);
+    for(int i = 0; i < size; ++i)
+        defineEntity(typeId, names[i]);
+}
+
+/**
+ * @brief 单个实体赋值
  * @param name
  * @param value
+ * @param r
  */
-void MyRule::assignEntity(QString name, QString value)
+void MyRule::assignEntity(QString name, QString value, MyRule* r)
 {
+    if(r == nullptr) r = this;
     QMap<QString,QString>::iterator it1;
     it1 = params.find(name);
     if(it1 != params.end()){
         bool ok = true;
-        qreal v = param(value, &ok);
+        qreal v = r->param(value, &ok);
         if(ok) *it1 = QString::number(v,'f',3); // 精确到0.001
         else *it1 = value;
         return;
@@ -1005,26 +1028,61 @@ void MyRule::assignEntity(QString name, QString value)
     QMap<QString,QPointF>::iterator it2;
     it2 = points.find(name);
     if(it2 != points.end()){
-        *it2 = point(value);
+        *it2 = r->point(value);
         return;
     }
     QMap<QString,Line>::iterator it3;
     it3 = lines.find(name);
     if(it3 != lines.end()){
-        *it3 = line(value);
+        *it3 = r->line(value);
         return;
     }
     QMap<QString,Path>::iterator it4;
     it4 = paths.find(name);
     if(it4 != paths.end()){
-        *it4 = path(value);
+        *it4 = r->path(value);
         return;
     }
     QMap<QString,Curve>::iterator it5;
     it5 = curves.find(name);
     if(it5 != curves.end()){
-        *it5 = curve(value);
+        *it5 = r->curve(value);
         return;
+    }
+}
+
+/**
+ * @brief 多个实体赋值
+ * @param names
+ * @param values
+ * @param rule
+ */
+void MyRule::assignEntity(QStringList names, QString values, MyRule* rule)
+{
+    if(rule == nullptr) rule = this;
+    int sizeNames = names.size();
+    // case: 用‘&’分割赋值字符串
+    QStringList strValues = values.simplified().remove(' ').split('&');
+    int sizeValues = strValues.size();
+    if(sizeNames == sizeValues){
+        for(int i = 0; i < sizeNames; ++i){
+           assignEntity(names[i], strValues[i], rule);
+        }
+    }else{
+        // case: 调用自定义规则
+        if(values.contains("(") && values.contains(")")){
+            int i1 = values.indexOf('('), i2 = values.lastIndexOf(')');
+            QString ruleName = values.left(i1),
+                    enIn = values.mid(i1+1,i2-i1-1).simplified(),
+                    f = findRulePath(ruleName);
+            MyRule* r = new MyRule(f);
+            QString results = r->callRule(f, enIn, this);
+            if(results != "")
+                // 调用规则之后再次赋值
+                // todo: delete r; 目前暂时规定必须输出Path实体，这样可以保证释放内存。
+                assignEntity(names, results, r);
+            else info("赋值语句的规则错误");
+        }else info("赋值语句的数目出错");
     }
 }
 
@@ -1188,9 +1246,19 @@ Path MyRule::path(QString value, bool* ok)
         int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
         QString ruleName = value.left(i1),
                 enIn = value.mid(i1+1,i2-i1-1).simplified();
-        // case: 标记（内部线，用于输出ASTM文件）
-        if(ruleName == "标记"){
-            // todo------------------
+        // case: 标记（0-3: 轮廓线、内部线、经向线、辅助线）
+        if(ruleName.contains(".标记")){
+            int posDot = ruleName.indexOf('.');
+            QString pathName = ruleName.left(posDot);
+            it = paths.find(pathName);
+            if(it != paths.end()){
+                Path pathEn = *it;
+                return Path{
+                    pathEn.rule,
+                    pathEn.str,
+                    astmId(enIn)
+                };
+            }
         }
         // case: 平移(path, 方向向量, 距离)
         else if(ruleName.contains(".平移")){
@@ -1208,11 +1276,13 @@ Path MyRule::path(QString value, bool* ok)
             if(name != ""){
                 QString type = r->getTypeOf(name);
                 if(type == types[3])
-                    return r->path(r->entityOut);
+                    return r->path(r->entitiesOut[0]);
             }
         }
     }
     // case: 值为字面量（字符串）
+    if(value == "")
+        info("路径为空值");
     return Path{
         this,
         value,
@@ -1322,11 +1392,16 @@ QString MyRule::callRule(QString f, QString in, MyRule* parent)
         }
     }
     rule.close();
-    // 返回输出实体名
-    if(getTypeOf(entityOut) != "")
-        return entityOut;
-    else
-        return "";
+    // 返回输出实体名，如果有多个实体，用‘&’隔开
+    QString results = "";
+    int sizeEnOut = entitiesOut.size();
+    for(int i = 0; i < sizeEnOut; ++i){
+        if(getTypeOf(entitiesOut[i]) != "")
+            results = results + "&" + entitiesOut[i];
+        else
+            return "";
+    }
+    return results.remove(0, 1);
 }
 
 /**

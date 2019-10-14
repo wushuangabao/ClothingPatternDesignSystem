@@ -34,6 +34,8 @@ void MyPainter::setStartPoint(QPointF point)
  */
 void MyPainter::parsePathCode(Path path)
 {
+    // 设置 astm 标志
+    myData->astmTag = path.astmTag;
     // 去除pathCode中的所有空格
     QString pathCode = path.str.remove(' ');
     if(pathCode.contains("以及")){
@@ -42,7 +44,8 @@ void MyPainter::parsePathCode(Path path)
         foreach(const QString &code, sl){
             Path sonPath{
                 path.rule,
-                code
+                code,
+                path.astmTag
             };
             parsePathCode(sonPath);
         }
@@ -70,12 +73,14 @@ void MyPainter::parsePathCode(Path path)
         // case: pathCode 本身表示一个路径
         else if(path.rule->getTypeOf(pathCode) == "路径"){
             Path p = path.rule->path(pathCode);
+            int oldAstmTag = path.astmTag;
             parsePathCode(p);
+            myData->astmTag = oldAstmTag;
             return;
         }
         // case: 无法识别的语法
         else{
-            path.rule->info(pathCode+"无法解析！");
+            path.rule->info(pathCode+"无法识别！");
             return;
         }
     }

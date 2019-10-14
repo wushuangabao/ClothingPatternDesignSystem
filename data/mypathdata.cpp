@@ -328,7 +328,7 @@ bool MyPathData::addLineTo(QPointF endPoint,int idSP)
     PathData pathDataStruct={
         numberPath,
         true,
-        Boundary,
+        astm(astmTag),
         startCPoint,
         endCPoint,
         //path
@@ -379,7 +379,7 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
     PathData pathDataStruct={
         numberPath,
         false,
-        Boundary,
+        astm(astmTag),
         pFirstCPoint,
         pCPoint,
         //pathPointer
