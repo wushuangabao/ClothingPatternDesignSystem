@@ -174,6 +174,35 @@ void MyRule::movePointF(QPointF &p, qreal dx, qreal dy)
 }
 
 /**
+ * @brief 求曲线长度
+ * @param c
+ * @return
+ */
+qreal MyRule::lengthOfCurve(Curve c)
+{
+    MyPainter painter = MyPainter();
+    painter.curve(c.points, c.p1, c.p2);
+    qreal length = painter.myPath->length();
+    return length;
+}
+
+/**
+ * @brief 求直线长度
+ * @param l
+ * @return
+ */
+qreal MyRule::lengthOfLine(Line l)
+{
+    QPointF p1 = l.p1,
+            p2 = l.p2;
+    qreal x1=p1.x(), y1=p1.y(), x2=p2.x(),y2=p2.y();
+    if(equal(x1,x2) && equal(y1,y2))
+        return 0.0;
+    qreal dx=x1-x2, dy=y1-y2;
+    return sqrt(dx*dx + dy*dy);
+}
+
+/**
  * @brief p1是否在p2的左侧（x轴向右）
  * @param p1
  * @param p2
@@ -388,7 +417,7 @@ MyRule::~MyRule(){
 }
 
 /**
- * @brief 基本约束方法的前5种（求点）
+ * @brief 基本约束方法（求点）
  * @param func 形如“方法名(实体参数表)”的字符串
  * @param idFunc 方法的索引，默认为-1
  * @param ok 必要时赋值为false
@@ -421,7 +450,10 @@ QPointF MyRule::pFunc(QString func, int idFunc, bool* ok)
     case 2:
         return foot(point(en[1],ok),line(en[2],ok));
     case 3:
-        return divide(point(en[1],ok),point(en[2],ok),param(en[3],ok));
+        if(getTypeOf(en[2]) == types[1])
+            return divide(point(en[1],ok),point(en[2],ok),param(en[3],ok));
+        else if(getTypeOf(en[2]) == types[4])
+            return divide(point(en[1],ok),curve(en[2],ok),param(en[3],ok));
     case 4:
         if(getTypeOf(en[1]) == types[2]){
             if(getTypeOf(en[2]) == types[2])
@@ -513,7 +545,7 @@ QPointF MyRule::foot(QPointF p1, Line l1, bool *ok)
  * @brief 求等分点
  * @param p1 直线上的参照点
  * @param p2 直线上的另一点
- * @param proprtion 所求点到参照点的距离是p1、p2距离的比例
+ * @param proprtion 所求点到参照点的距离与p1、p2距离的比例
  * @return
  */
 QPointF MyRule::divide(QPointF p1, QPointF p2, qreal proprtion)
@@ -521,6 +553,38 @@ QPointF MyRule::divide(QPointF p1, QPointF p2, qreal proprtion)
     qreal dx = p2.x()-p1.x(), dy = p2.y()-p1.y(),
           x = p1.x()+dx*proprtion, y = p1.y()+dy*proprtion;
     return QPointF(x,y);
+}
+
+/**
+ * @brief 求等分点
+ * @param p 曲线上的一个端点
+ * @param c 曲线
+ * @param proprtion 所求点到参照点的长度与曲线长度的比例
+ * @param ok
+ * @return
+ */
+QPointF MyRule::divide(QPointF p, Curve c, qreal proprtion, bool *ok)
+{
+    if(proprtion >= 1 || proprtion <= 0){
+        info("出错，比例超出范围！");
+        if(ok != nullptr) *ok = false;
+        return QPointF(0, 0);
+    }
+    MyPainter painter = MyPainter();
+    painter.curve(c.points, c.p1, c.p2);
+    qreal l1 = painter.myPath->length(),
+          l2 = l1 * proprtion;
+    if(p == c.p1){
+        qreal percent = painter.myPath->percentAtLength(l2);
+        return painter.myPath->pointAtPercent(percent);
+    }else if(p == c.p2){
+        qreal percent = painter.myPath->percentAtLength(l1 - l2);
+        return painter.myPath->pointAtPercent(percent);
+    }else{
+        info("出错，必须传入曲线的端点！");
+        if(ok != nullptr) *ok = false;
+        return QPointF(0, 0);
+    }
 }
 
 /**
@@ -1012,8 +1076,9 @@ void MyRule::defineEntity(QString type, QStringList names)
  * @param name
  * @param value
  * @param r
+ * @return 实体的类型
  */
-void MyRule::assignEntity(QString name, QString value, MyRule* r)
+int MyRule::assignEntity(QString name, QString value, MyRule* r)
 {
     if(r == nullptr) r = this;
     QMap<QString,QString>::iterator it1;
@@ -1023,31 +1088,31 @@ void MyRule::assignEntity(QString name, QString value, MyRule* r)
         qreal v = r->param(value, &ok);
         if(ok) *it1 = QString::number(v,'f',3); // 精确到0.001
         else *it1 = value;
-        return;
+        return 0;
     }
     QMap<QString,QPointF>::iterator it2;
     it2 = points.find(name);
     if(it2 != points.end()){
         *it2 = r->point(value);
-        return;
+        return 1;
     }
     QMap<QString,Line>::iterator it3;
     it3 = lines.find(name);
     if(it3 != lines.end()){
         *it3 = r->line(value);
-        return;
+        return 2;
     }
     QMap<QString,Path>::iterator it4;
     it4 = paths.find(name);
     if(it4 != paths.end()){
         *it4 = r->path(value);
-        return;
+        return 3;
     }
     QMap<QString,Curve>::iterator it5;
     it5 = curves.find(name);
     if(it5 != curves.end()){
         *it5 = r->curve(value);
-        return;
+        return 4;
     }
 }
 
@@ -1064,10 +1129,15 @@ void MyRule::assignEntity(QStringList names, QString values, MyRule* rule)
     // case: 用‘&’分割赋值字符串
     QStringList strValues = values.simplified().remove(' ').split('&');
     int sizeValues = strValues.size();
+    if(sizeValues == 3)
+        int a = 0;
     if(sizeNames == sizeValues){
-        for(int i = 0; i < sizeNames; ++i){
-           assignEntity(names[i], strValues[i], rule);
-        }
+        bool hasPath = false;
+        for(int i = 0; i < sizeNames; ++i)
+           if(assignEntity(names[i], strValues[i], rule) == 3)
+               hasPath = true;
+        if(!hasPath && rule != this)
+            delete rule; // 若没有 Path 类型的实体，释放 rule 的内存
     }else{
         // case: 调用自定义规则
         if(values.contains("(") && values.contains(")")){
@@ -1130,6 +1200,14 @@ qreal MyRule::param(QString value, bool *ok)
         QPointF p = point(s, ok);
         if(b) return p.x();
         else return p.y();
+    }
+    // case: 直线或曲线的长度
+    else if(s.contains(".长度")){
+        int i = s.lastIndexOf('.');
+        s = s.left(i);
+        if(getTypeOf(s) == types[2]) return lengthOfLine(line(s, ok));
+        else if(getTypeOf(s) == types[4]) return lengthOfCurve(curve(s, ok));
+        else info("只能求直线或曲线的长度！");
     }
     // case: 调用自定义规则，或者 sqrt(一个参数)
     else if(value.contains("(") && value.contains(")")){

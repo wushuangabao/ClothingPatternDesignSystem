@@ -45,6 +45,8 @@ private:
     QString findRulePath(QString ruleName);
     void getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p = nullptr);
     void movePointF(QPointF &p, qreal dx, qreal dy);
+    qreal lengthOfCurve(Curve c);
+    qreal lengthOfLine(Line l);
 
 public:
     MyRule(QString file);
@@ -57,6 +59,7 @@ public:
     QPointF direction(QPointF p1, QPointF p2, bool* ok = nullptr);
     QPointF foot(QPointF p1, Line l1, bool* ok = nullptr);
     QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
+    QPointF divide(QPointF p, Curve c, qreal proprtion, bool* ok = nullptr);
     QPointF cross(Line l1, Line l2, bool* ok = nullptr);
     QPointF cross(Line l, Curve c, bool* ok = nullptr);
     QPointF cross(Curve c1, Curve c2, bool* ok = nullptr);
@@ -81,7 +84,7 @@ public:
     QString getValue(QString code);
     void defineEntity(int typeId, QString name);
     void defineEntity(QString type, QStringList names);
-    void assignEntity(QString name, QString value, MyRule* r = nullptr);
+    int assignEntity(QString name, QString value, MyRule* r = nullptr);
     void assignEntity(QStringList names, QString values, MyRule* r = nullptr);
     qreal param(QString value, bool* ok = nullptr);
     QPointF point(QString value, bool* ok = nullptr);

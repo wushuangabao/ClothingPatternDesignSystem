@@ -290,7 +290,7 @@ QPainterPath MyPainter::drawPointsByData(MyPathData *data)
     int numPaths = data->numberPoint;
     for(int i = 0; i < numPaths; ++i){
         QPointF center = data->pointData[i];
-        path->addEllipse(center.x()-0.5, center.y()-0.5, 1, 1);
+        path->addEllipse(center.x()-1, center.y()-1, 2, 2);
     }
     return *path;
 }

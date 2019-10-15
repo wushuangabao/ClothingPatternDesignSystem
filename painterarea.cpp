@@ -125,10 +125,9 @@ void PainterArea::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     QPen pen;
-    pen.setWidthF(0);
-    pen.setColor(Qt::red);
-    painter.setPen(pen);
-    painter.drawPath(auxiliaryLines);
+//    pen.setWidthF(0);
+//    painter.setPen(pen);
+//    painter.drawPath(auxiliaryLines);
 
     // 遍历 myPaths 进行 drawByPathData
     MyPainter myPainter;
@@ -144,14 +143,17 @@ void PainterArea::paintEvent(QPaintEvent *event)
             }
             // 内部线：白色
             pen.setColor(Qt::white);
+            pen.setWidthF(0.33);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 1));
             // 经向线：红色
             pen.setColor(Qt::red);
+            pen.setWidthF(0);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 2));
             // 轮廓线：棕色（dark orange）
             pen.setColor(QColor(205,102,0));
+            pen.setWidthF(1);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 0));
             // 点：绿色

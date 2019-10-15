@@ -1,4 +1,4 @@
-规则 女裤前片净样板
+﻿规则 女裤前片净样板
 输入 参数 H
 输入 参数 W
 输入 参数 L
@@ -12,10 +12,8 @@
 规则 ------ 辅助矩形 ------
 
 参数 widthRec = H/4 - 1
-点 b = 求偏移(a,widthRec,right)
+点 b, c, d = 求辅助矩形(a, H, CR)
 直线 ab = a 连接 b
-点 c = 求偏移(b,CR,down)
-点 d = 求偏移(a,CR,down)
 
 规则 ------  ------
 
@@ -24,9 +22,7 @@
 点 e = ef.左端点
 点 f = ef.右端点
 
-规则 求小裆点g
 点 g = 求偏移(d,H/20-0.5,left)
-
 点 l, k = 求小裆辅助点(d,e,g)
 
 直线 gc = g 连接 c
@@ -76,7 +72,18 @@
 路径 auxi = a 连接 b 连接 c 连接 d 连接 a 以及 n 连接 o 以及 g 连接 e 连接 f 以及 t 连接 u 以及 g 连接 d 连接 k
 auxi = auxi.标记（内部）
 
-路径 pants_f = outline 以及 auxi
+直线 cd = c 连接 d
+点 wl_p1 = 求交点(cd, no)
+wl_p1 = 求偏移(wl_p1, 1, left)
+wl_p1 = 求偏移(wl_p1, 5, down)
+直线 tu = t 连接 u
+点 wl_p2 = 求交点(no, tu)
+wl_p2 = 求偏移(wl_p2, 1, left)
+wl_p2 = 求偏移(wl_p2, -5, down)
+路径 wline = wl_p1 连接 wl_p2
+wline = wline.标记（经向）
+
+路径 pants_f = outline 以及 auxi 以及 wline
 
 
 规则 ------ 输出所有样片 ------
