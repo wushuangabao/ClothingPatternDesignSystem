@@ -12,90 +12,41 @@
 直线 ab = a 连接 b
 
 规则 --- 求臀围线ef ---
-
 直线 ef = 向上平移直线(ab, -2/3*CR)
-点 e = ef.左端点
 点 f_ = ef.右端点
 
-
 规则 --- 求大裆点g --- H/10-0.5是否正确？
-
 点 g_ = 求偏移(c,H/10-0.5,right)
 点 g = 求偏移(g_, 1, down)
+
 点 l, k, k2 = 求大裆辅助点(c,f_,g)
-
-
-规则 --- 求挺缝线no ---
 
 点 g_f = 求偏移(c,H/20-0.5,right)
 直线 g_f2d = g_f 连接 d_
+
 直线 no = 求挺缝线(g_f2d,ab,L)
 点 n = no.上端点
 点 o = no.下端点
 
-规则 ------ 脚口 ------
-
-参数 w_f = (H/5+2)/2
-点 p = 求偏移(o,-w_f,right)
-点 q = 求偏移(o,w_f,right)
-
-规则 ------ 膝线 ------
-
-点 r = 求交点(ef,no)
-点 s = 过等分点向下偏移(r,o,1/2,-4)
-参数 w_m = H/10+2
-点 t = 求偏移(s,-w_m,right)
-点 u = 求偏移(s,w_m,right)
-
-
-规则 --- 求腰线右端点j ---
+点 p, q = 求脚口(o, (H/5+2)/2)
+点 t, u = 求膝线(ef, no, H/10+2)
 
 直线 rightCro = 求后片腰裆辅助线(ab, n, g_f2d)
+
+点 e, f = 求后片臀围线(rightCro, ef, b)
+
+规则 --- 求腰线 ---
 点 j = rightCro.左端点
-
-规则 --- 求臀围线上后片的左右端点e\f ---
-
-点 f = 求交点(rightCro, ef)
-参数 tempParam1 = f.横坐标
-参数 tempParam2 = b.横坐标
-tempParam1 = tempParam1 - tempParam2
-e = 求偏移(e, tempParam1, right)
-
-规则 --- 求腰线左端点i ---
-
 点 d = 求偏移(d_, -1, right)
-直线 ed = e 连接 d
-点 tempPoint1 = 求交点(ed, ab)
-直线 tempLine1 = tempPoint1 连接 j
-tempParam1 = 求直线长度(tempLine1)
-参数 sangLiang = (tempParam1 - W/4 +1)/3
-点 vector = 方向向量(tempPoint1, j)
-点 i = 求偏移(tempPoint1, sangLiang, vector)
-规则 vector = 方向向量(d, e)
-规则 i = 求偏移(i, 0.7, vector)
+参数 sangLiang
+点 i
+sangLiang, i = 求后片双省省量(e, d, ab, j, W)
 直线 ij = i 连接 j
 
 规则 求腰线 ij 中间的低陷点 a_ij
 规则 点 a_ij = 等分点(tempPoint1, j, 0.5)
 
-
-规则 ------ 双省 ------
-
-参数 sangLen = CR / 3 + 2
-
-规则 求省位、省尖
-点 sang1 = 等分点(i,j,1/3)
-点 sang2 = 等分点(i,j,2/3)
-点 sangV1 = 由省位求省尖(sang1, sangLen, ij)
-点 sangV2 = 由省位求省尖(sang2, sangLen+1, ij)
-
-规则 求省位两旁的端点
-点 v_ij = 方向向量(i,j)
-sangLiang = sangLiang / 2
-点 y1 = 求偏移(sang1,-sangLiang,v_ij)
-点 z1 = 求偏移(sang1,sangLiang,v_ij)
-点 y2 = 求偏移(sang2,-sangLiang,v_ij)
-点 z2 = 求偏移(sang2,sangLiang,v_ij)
+点 sangV1 & sangV2 & sang1 & sang2 & y1 & y2 & z1 & z2 = 后片双省(ij, CR / 3 + 2, sangLiang)
 
 
 规则 ------ 曲线上辅助点 ------
@@ -106,7 +57,7 @@ sangLiang = sangLiang / 2
 a_gu = 求偏移(a_gu, -0.8, down)
 
 
-规则 ------ 后片 ------
+规则 ------ 生成路径 ------
 
 路径 outline = i 连接 y1 连接 sangV1 连接 z1 连接 y2 连接 sangV2 连接 z2 连接 j 连接 f 圆顺 l 圆顺 g 以及 g 圆顺 a_gu 圆顺 u 连接 q 连接 p 连接 t 圆顺 a_td 圆顺 d 连接 e 圆顺 a_ei 圆顺 i
 

@@ -18,7 +18,7 @@ void MyRule::info(QString info)
 /**
  * @brief 将 astmTag 字符串转换为整型
  * @param strTag
- * @return
+ * @return -1表示找不到该类型
  */
 int MyRule::astmId(QString strTag)
 {
@@ -30,6 +30,7 @@ int MyRule::astmId(QString strTag)
         return 2;
     if(strTag.contains("辅助"))
         return 3;
+    return -1;
 }
 
 /**
@@ -44,6 +45,7 @@ bool MyRule::setInput(QString type, QString name)
     QPointF point;
     Line line;
     Path path;
+    Curve curve;
     QString v = "";
     if(parentRule == nullptr)
         v = QInputDialog::getText(nullptr,"初始化-输入实体",type+name+" =",
@@ -75,6 +77,10 @@ bool MyRule::setInput(QString type, QString name)
             path = parentRule->path(v, &ok);
             paths.insert(name, path);
             break;
+        case 4:
+            curve = parentRule->curve(v, &ok);
+            curves.insert(name, curve);
+            break;
         case -1:
             ok = false;
         }
@@ -99,6 +105,15 @@ bool MyRule::setInput(QString type, QString name)
                 lines.insert(name,line);
             break;
         case 3:
+            path = this->path(v, &ok);
+            if(ok)
+                paths.insert(name, path);
+            break;
+        case 4:
+            curve = this->curve(v, &ok);
+            if(ok)
+                curves.insert(name, curve);
+            break;
         case -1:
             ok = false;
         }
@@ -454,6 +469,7 @@ QPointF MyRule::pFunc(QString func, int idFunc, bool* ok)
             return divide(point(en[1],ok),point(en[2],ok),param(en[3],ok));
         else if(getTypeOf(en[2]) == types[4])
             return divide(point(en[1],ok),curve(en[2],ok),param(en[3],ok));
+        break;
     case 4:
         if(getTypeOf(en[1]) == types[2]){
             if(getTypeOf(en[2]) == types[2])
@@ -1076,7 +1092,7 @@ void MyRule::defineEntity(QString type, QStringList names)
  * @param name
  * @param value
  * @param r
- * @return 实体的类型
+ * @return 实体的类型。-1表示出错。
  */
 int MyRule::assignEntity(QString name, QString value, MyRule* r)
 {
@@ -1114,6 +1130,7 @@ int MyRule::assignEntity(QString name, QString value, MyRule* r)
         *it5 = r->curve(value);
         return 4;
     }
+    return -1;
 }
 
 /**
@@ -1129,8 +1146,6 @@ void MyRule::assignEntity(QStringList names, QString values, MyRule* rule)
     // case: 用‘&’分割赋值字符串
     QStringList strValues = values.simplified().remove(' ').split('&');
     int sizeValues = strValues.size();
-    if(sizeValues == 3)
-        int a = 0;
     if(sizeNames == sizeValues){
         bool hasPath = false;
         for(int i = 0; i < sizeNames; ++i)

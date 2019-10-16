@@ -5,6 +5,6 @@
 参数 tmp1 = a.横坐标
 参数 tmp2 = a.纵坐标
 tmp2 = tmp2 - distance
-点 b = (tmp1, tmp2)
+点 b =(tmp1, tmp2)
 
 输出 b

@@ -42,7 +42,8 @@ void MyPainter::parsePathCode(Path path)
         // 将pathCode根据"以及"操作符，拆分成几段
         QStringList sl = pathCode.split("以及");
         foreach(const QString &code, sl){
-            Path sonPath{
+            // todo: 这段 sonPath 赋值的代码应该有问题
+            Path sonPath = {
                 path.rule,
                 code,
                 path.astmTag

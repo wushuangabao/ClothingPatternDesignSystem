@@ -1,0 +1,27 @@
+﻿规则 斜插袋
+
+输入 点 a
+输入 点 b
+输入 曲线 curve1
+输入 参数 width
+输入 参数 length
+输入 点 a_jf
+
+点 down = (0, 1)
+参数 lC = curve1.长度
+参数 p = length / lC
+点 v = 方向向量(b, a)
+点 dai1 = 求偏移(b, width，v)
+点 dai2 = 等分点(b, curve1, p)
+
+p = (length + 4)/lC
+点 dai3 = 等分点(b, curve1, p)
+
+点 dai5 = 求偏移(dai3, length - 3, v)
+点 dai6 = 求偏移(b, length - 2, v)
+
+点 dai4 = 等分点(dai6, b, 0.7)
+dai4 = 求偏移(dai4, length + 6, down)
+
+路径 koudai = dai1 连接 dai2 以及 b 圆顺 a_jf 圆顺 dai2 圆顺 dai3 以及 dai3 圆顺 dai4 圆顺 dai5 圆顺 dai6 连接 b
+输出 koudai & dai1 & dai2

@@ -1,0 +1,14 @@
+﻿规则 求后片臀围线
+输入 直线 rightCro
+输入 直线 ef
+输入 点 b
+
+点 right = (1,0)
+点 e = ef.左端点
+点 f = 求交点(rightCro, ef)
+参数 tempParam1 = f.横坐标
+参数 tempParam2 = b.横坐标
+tempParam1 = tempParam1 - tempParam2
+e = 求偏移(e, tempParam1, right)
+
+输出 e & f

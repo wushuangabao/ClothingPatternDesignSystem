@@ -69,7 +69,9 @@ do2 = 向上平移点(do2, 0.15)
 点 up21 = 求偏移(up2, 1, vec5)
 点 do21 = 求偏移(do2, -1, vec5)
 
-路径 yao_tou_left = up1 圆顺 up2 圆顺 up4 连接 do4 圆顺 do2 圆顺 do1 连接 up1 以及 up03 圆顺 up21 圆顺 up51 连接 do51 圆顺 do21 圆顺 do03 连接 up03 以及 up51 连接 do51 以及 up0 连接 up01 连接 do01 连接 do0 以及 up00 连接 do00 以及 up2 连接 do2 
+路径 yao_tou_left_outline = up03 圆顺 up21 圆顺 up51 连接 do51 圆顺 do21 圆顺 do03 连接 up03
+路径 yao_tou_left_inline = up1 圆顺 up2 圆顺 up4 连接 do4 圆顺 do2 圆顺 do1 连接 up1 以及 up51 连接 do51 以及 up0 连接 up01 连接 do01 连接 do0 以及 up00 连接 do00 以及 up2 连接 do2 
+yao_tou_left_inline = yao_tou_left_inline.标记(内部)
 
 规则 将左前腰上各点做水平镜像处理，得到右前腰上各点
 参数 x0 = up1.横坐标
@@ -112,9 +114,11 @@ x0 = x0 - 8
 点 u01 = 求交点(v2u_, tmp4)
 点 d01 = 求交点(v2d_, tmp5)
 
-路径 yao_tou_right = u11 圆顺 u2 圆顺 u4 连接 d4 圆顺 d2 圆顺 d11 连接 vertex1 连接 u11 以及 u3 连接 d3 以及 u1 连接 d1 以及 u01 圆顺 u21 圆顺 u51 连接 d51 圆顺 d21 圆顺 d01 连接 vertex2 连接 u01
+路径 yao_tou_right_outline = u01 圆顺 u21 圆顺 u51 连接 d51 圆顺 d21 圆顺 d01 连接 vertex2 连接 u01
+路径 yao_tou_right_inline = u11 圆顺 u2 圆顺 u4 连接 d4 圆顺 d2 圆顺 d11 连接 vertex1 连接 u11 以及 u3 连接 d3 以及 u1 连接 d1
+yao_tou_right_inline = yao_tou_right_inline.标记(内部)
 
 
 规则 -----------------------输出-----------------------------
-路径 yao_tou = yao_tou_left 以及 yao_tou_right
+路径 yao_tou = yao_tou_left_outline 以及 yao_tou_left_inline 以及 yao_tou_right_outline 以及 yao_tou_right_inline
 输出 yao_tou
