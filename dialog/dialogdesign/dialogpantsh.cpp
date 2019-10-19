@@ -306,7 +306,7 @@ void DialogPantsH::pageUp()
  */
 void DialogPantsH::on_buttonNext_clicked()
 {
-    DialogSize *dialogSize=new DialogSize(static_cast<QWidget*>(parent()));
+    DialogSize *dialogSize=new DialogSize(this);
     dialogSize->exec();
     delete dialogSize;
     this->close();

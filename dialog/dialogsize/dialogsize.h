@@ -20,6 +20,8 @@ private slots:
 
 private:
     Ui::DialogSize *ui;
+
+    void drawByRule(QString path, QString in = "");
 };
 
 #endif // DIALOGSIZE_H

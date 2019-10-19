@@ -1,10 +1,12 @@
 #include <QtWidgets>
 #include <QMessageBox>
+#include <QDir>
 #include <QtDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "painterarea.h"
 #include "rules/mypainter.h"
+#include "rules/myrule.h"
 #include "dialog/dialogmodify/dialogms.h"
 #include "dialog/dialogmodify/dialogmm.h"
 #include "dialog/dialogdesign/dialogdesign.h"
@@ -159,11 +161,11 @@ void MainWindow::on_action_M_M_triggered()
 {
     if(dialogMM->exec()==QDialog::Accepted)
     {
-        painterArea->pantsCrotchH=dialogMM->Cro;
-        painterArea->pantsH=dialogMM->H;
+        //painterArea->pantsCrotchH=dialogMM->Cro;
+        //painterArea->pantsH=dialogMM->H;
         //painterArea->pantsHeight=dialogMM->Height;
-        painterArea->pantsL=dialogMM->L;
-        painterArea->pantsW=dialogMM->W;
+        //painterArea->pantsL=dialogMM->L;
+        //painterArea->pantsW=dialogMM->W;
         painterArea->update();
     }
 }
@@ -419,4 +421,33 @@ void MainWindow::on_action_MovePath_triggered()
     painterArea->greenPath = QPainterPath();
     painterArea->yellowPath = QPainterPath();
     this->resetModel(painterArea->currentId);
+}
+
+/**
+ * @brief 对painterArea中当前选中的净板进行分片
+ */
+void MainWindow::on_action_FenPian_triggered()
+{
+    MyPathData* path = painterArea->currentPath();
+    if(path == nullptr) return;
+    drawByRule("女裤/女裤前片分片.txt", path->params);
+    drawByRule("女裤/女裤后片分片.txt", path->params);
+}
+
+/**
+ * @brief 根据规则文件画样板
+ * @param path 规则文件的路径
+ * @param in 输入的参数（字符串）
+ */
+void MainWindow::drawByRule(QString path, QString in)
+{
+    QString dir = QDir::currentPath() + "/rules/" + path;
+    int i1 = dir.lastIndexOf("/"),
+        i2 = dir.lastIndexOf(".");
+    MyRule rule(dir);
+    MyPainter mp = rule.drawPathWith(in);
+    MyPathData* data = new MyPathData(*mp.myData);
+    data->setName(dir.mid(i1+1).left(i2-i1-1));
+    data->params = in;
+    painterArea->addPath(data);
 }

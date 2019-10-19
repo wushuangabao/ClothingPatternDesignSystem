@@ -52,6 +52,8 @@ private slots:
     void on_action_MovePath_triggered();
     void setColor(QString color, QString object);
 
+    void on_action_FenPian_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -62,6 +64,8 @@ private:
     DialogMS *dialogMS; /**< 修改褶省 */
     DialogMM *dialogMM; /**< 修改尺寸 */
     DialogDesign *dialogDesign; /**< 选择廓形 */
+
+    void drawByRule(QString path, QString in ="");
 
 signals:
 };

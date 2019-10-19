@@ -45,13 +45,6 @@ public:
     void addPath(MyPathData* path);
     MyPathData* currentPath();
 
-    int pantsL; /**< 裤长 */
-    int pantsW; /**< 腰围 */
-    int pantsH; /**< 臀围 */
-    int pantsCrotchH; /**< 裆深 */
-    int typeSang1; /**< 省褶类型 前片 */
-    int typeSang2; /**< 省褶类型 后片 */
-
     QString stringTempStatus; /**< 显示在状态栏的临时字符串 */
     qreal scalingMulti=1.0; /**< 缩放倍数，数值越大图形越大 */
     int intUp=0; /**< 原点向上偏移值 */

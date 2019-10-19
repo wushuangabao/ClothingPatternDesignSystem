@@ -24,6 +24,7 @@ MyPathData::MyPathData(QString name)
 MyPathData::MyPathData(const MyPathData &copyObj)
 {
     name = copyObj.name;
+    params = copyObj.params;
     numberPath = copyObj.numberPath;
     numberPoint = copyObj.numberPoint;
     pointData = copyObj.pointData;

@@ -36,7 +36,7 @@ private:
     QStringList types;      /**< 实体类型表 */
     QStringList pFuncs;     /**< 点的方法名称表 */
     QString file;           /**< 规则文件路径 */
-    QStringList entitiesOut;      /**< 输出实体名 */
+    QStringList entitiesOut;/**< 输出实体名 */
     QStringList entitiesIn; /**< 输入实体值的队列 */
     MyRule *parentRule;     /**< 本规则的调用者 */
 
@@ -58,6 +58,7 @@ public:
     QPointF offset(QPointF p1, qreal distance, QPointF direction);
     QPointF direction(QPointF p1, QPointF p2, bool* ok = nullptr);
     QPointF foot(QPointF p1, Line l1, bool* ok = nullptr);
+    QPointF foot(QPointF p1, Curve c, bool* ok = nullptr);
     QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
     QPointF divide(QPointF p, Curve c, qreal proprtion, bool* ok = nullptr);
     QPointF cross(Line l1, Line l2, bool* ok = nullptr);
@@ -102,6 +103,7 @@ public:
 
     // 生成绘图路径：
     MyPainter drawPath();
+    MyPainter drawPathWith(QString entitiesIn);
     MyPainter drawPath(QString name);
     MyPainter drawPath(QPointF p);
     MyPainter drawPath(Line l);

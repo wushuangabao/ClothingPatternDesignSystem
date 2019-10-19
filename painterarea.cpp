@@ -22,13 +22,6 @@
  */
 PainterArea::PainterArea(QWidget *parent) : QWidget(parent)
 {
-    //pantsHeight=1650;
-    pantsL=1020;
-    pantsW=720;
-    pantsH=940;
-    pantsCrotchH=245;
-    typeSang1=0;
-    typeSang2=1;
     currentId=-1;
 
     // 设置背景颜色
@@ -453,10 +446,10 @@ void PainterArea::updateLabelPoints()
  */
 void PainterArea::setTypeSang(int frontOrBack,int intCase)
 {
-    if(frontOrBack==1)
-        typeSang1 = intCase;
-    else if(frontOrBack==2)
-        typeSang2 = intCase;
+    //if(frontOrBack==1)
+        //typeSang1 = intCase;
+    //else if(frontOrBack==2)
+        //typeSang2 = intCase;
     emit resetModel(currentId);
     update();
 }

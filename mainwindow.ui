@@ -136,6 +136,7 @@
    </attribute>
    <addaction name="action_Rule"/>
    <addaction name="action_MovePath"/>
+   <addaction name="action_FenPian"/>
    <addaction name="actiontest_curve"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -430,6 +431,11 @@
   <action name="action_F_D">
    <property name="text">
     <string>保存为dxf(&amp;D)</string>
+   </property>
+  </action>
+  <action name="action_FenPian">
+   <property name="text">
+    <string>分片</string>
    </property>
   </action>
  </widget>

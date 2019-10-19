@@ -558,6 +558,20 @@ QPointF MyRule::foot(QPointF p1, Line l1, bool *ok)
 }
 
 /**
+ * @brief 求垂足
+ * @param p1 垂足
+ * @param c 曲线
+ * @param ok
+ * @return
+ */
+QPointF MyRule::foot(QPointF p1, Curve c, bool *ok)
+{
+    MyPainter mp = MyPainter();
+    mp.curve(c.points, c.p1, c.p2);
+
+}
+
+/**
  * @brief 求等分点
  * @param p1 直线上的参照点
  * @param p2 直线上的另一点
@@ -1607,6 +1621,16 @@ Curve MyRule::curveByRule(QString f, QString in, bool *ok)
 MyPainter MyRule::drawPath()
 {
     return drawPath(callRule(file));
+}
+
+/**
+ * @brief 根据自身规则文件生成输出实体的绘图路径
+ * @param entitiesIn 输入的实体（字符串）
+ * @return
+ */
+MyPainter MyRule::drawPathWith(QString entitiesIn)
+{
+    return drawPath(callRule(file, entitiesIn, this));
 }
 
 /**
