@@ -1,7 +1,8 @@
 ﻿规则 后片双省
 
 输入 直线 ij
-输入 参数 sangLen
+输入 参数 sangLen1
+输入 参数 sangLen2
 输入 参数 sangLiang
 
 点 i = ij.左端点
@@ -10,8 +11,8 @@
 规则 求省位、省尖
 点 sang1 = 等分点(i,j,1/3)
 点 sang2 = 等分点(i,j,2/3)
-点 sangV1 = 由省位求省尖(sang1, sangLen, ij)
-点 sangV2 = 由省位求省尖(sang2, sangLen+1, ij)
+点 sangV1 = 由省位求省尖(sang1, sangLen1, ij)
+点 sangV2 = 由省位求省尖(sang2, sangLen2, ij)
 
 规则 求省位两旁的端点
 点 v_ij = 方向向量(i,j)

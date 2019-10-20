@@ -18,10 +18,60 @@ p = (length + 4)/lC
 点 dai3 = 等分点(b, curve1, p)
 
 点 dai5 = 求偏移(dai3, length - 3, v)
+dai5 = 求偏移(dai5, -1, down)
 点 dai6 = 求偏移(b, length - 2, v)
 
 点 dai4 = 等分点(dai6, b, 0.7)
 dai4 = 求偏移(dai4, length + 6, down)
 
-路径 koudai = dai1 连接 dai2 以及 b 圆顺 a_jf 圆顺 dai2 圆顺 dai3 以及 dai3 圆顺 dai4 圆顺 dai5 圆顺 dai6 连接 b
+
+规则 水平翻转袋垫布
+
+参数 x0 = b.横坐标
+x0 = x0 + 3
+点 dai1_ = 求水平镜像点(dai1, x0)
+点 dai2_ = 求水平镜像点(dai2, x0)
+b = 求水平镜像点(b, x0)
+a_jf = 求水平镜像点(a_jf, x0)
+dai3 = 求水平镜像点(dai3, x0)
+dai4 = 求水平镜像点(dai4, x0)
+dai5 = 求水平镜像点(dai5, x0)
+dai6 = 求水平镜像点(dai6, x0)
+
+路径 dianbu = dai1_ 连接 dai2_ 以及 b 连接 dai6 圆顺 dai5 圆顺 dai4 圆顺 dai3 以及 dai3 圆顺 dai2_ 圆顺 a_jf 圆顺 b
+dianbu = dianbu.标记(内部)
+点 dianbu_wl1 = 等分点(b, dai6, 0.5)
+dianbu_wl1 = 求偏移(dianbu_wl1, 3, down)
+点 dianbu_wl2 = 求偏移(dianbu_wl1, 12, down)
+路径 dianbu_wl = dianbu_wl1 连接 dianbu_wl2
+dianbu_wl = dianbu_wl.标记(经向)
+
+
+规则 袋布
+
+直线 line1 = dai2_ 连接 dai3
+参数 distance = line1.长度
+v = 方向向量(dai2_, dai3)
+line1 = dai1_ 连接 dai2_
+直线 line2 = 平移直线(line1, v, distance)
+line1 = b 连接 dai6
+点 p1 = 求交点(line1, line2)
+
+点 right = (1,0)
+参数 d = length
+p1 = 求偏移(p1, d, right)
+点 dai6_ = 求偏移(dai6, d, right)
+点 dai5_ = 求偏移(dai5, d, right)
+点 dai4_ = 求偏移(dai4, d, right)
+点 dai3_ = 求偏移(dai3, d, right)
+点 daibu_wl1 = 求偏移(dianbu_wl1, d, right)
+点 daibu_wl2 = 求偏移(dianbu_wl2, d, right)
+
+路径 daibu = p1 连接 dai6_ 圆顺 dai5_ 圆顺 dai4_ 圆顺 dai3_ 以及 dai3_ 连接 p1
+daibu = daibu.标记(内部)
+路径 daibu_wl = daibu_wl1 连接 daibu_wl2
+daibu_wl = daibu_wl.标记(经向)
+
+
+路径 koudai = dianbu 以及 dianbu_wl 以及 daibu 以及 daibu_wl
 输出 koudai & dai1 & dai2

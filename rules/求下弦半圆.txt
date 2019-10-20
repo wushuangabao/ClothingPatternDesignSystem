@@ -1,0 +1,20 @@
+﻿规则 求下弦半圆
+
+输入 点 o
+输入 参数 d
+
+参数 x = o.横坐标
+参数 y = o.纵坐标
+参数 r = d * 0.5
+点 a = (x - r, y)
+点 dd = (x + r, y)
+参数 bx = x - r * 0.5
+参数 cx = x + r * 0.5
+参数 t = sqrt(3)
+y = y - t / 4 * d
+点 bbb = (bx, y)
+点 ccc = (cx, y)
+
+路径 banyuan = a 圆顺 bbb 圆顺 ccc 圆顺 dd
+
+输出 banyuan

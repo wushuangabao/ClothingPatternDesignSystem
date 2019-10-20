@@ -1,0 +1,22 @@
+﻿规则 拼接腰头
+输入 点 sangV
+输入 点 do2
+输入 点 up2
+输入 点 do3
+输入 点 up3
+输入 点 do4
+输入 点 up4
+
+直线 l = do2 连接 do3
+参数 len = l.长度
+参数 cosSang = 求夹角余弦值(sangV, up2, sangV, up3)
+do4 = 逆时针转(do3, cosSang, do4)
+up4 = 逆时针转(do3, cosSang, up4)
+up3 = 逆时针转(do3, cosSang, up3)
+点 v = 方向向量(do3, do2)
+do3 = do2
+do4 = 求偏移(do4, len, v)
+up4 = 求偏移(up4, len, v)
+up3 = 求偏移(up3, len, v)
+
+输出 do3 & up3 & do4 & up4
