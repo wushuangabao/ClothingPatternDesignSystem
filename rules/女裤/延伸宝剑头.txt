@@ -65,9 +65,7 @@ yao_tou_left_inline = yao_tou_left_inline.标记(内部)
 
 点 ytl1 = 等分点(up1, do1, 0.5)
 ytl1 = 求偏移(ytl1, 1, right)
-点 ytl2 = 求偏移(ytl1, -3, vec1)
-路径 ytl_wl = ytl1 连接 ytl2
-ytl_wl = ytl_wl.标记(经向)
+路径 ytl_wl = 水平经线(ytl1, 3)
 
 
 规则 将左前腰上各点做水平镜像处理，得到右前腰上各点
@@ -111,15 +109,12 @@ x0 = x0 - 8
 点 u01 = 求交点(v2u_, tmp4)
 点 d01 = 求交点(v2d_, tmp5)
 
+点 ytr1 = 求水平镜像点(ytl1, x0-1.5)
+路径 ytr_wl = 水平经线(ytr1, 3)
+
 路径 yao_tou_right_outline = u01 圆顺 u21 圆顺 u51 连接 d51 圆顺 d21 圆顺 d01 连接 vertex2 连接 u01
 路径 yao_tou_right_inline = u11 圆顺 u2 圆顺 u4 连接 d4 圆顺 d2 圆顺 d11 连接 vertex1 连接 u11 以及 u3 连接 d3 以及 u1 连接 d1
 yao_tou_right_inline = yao_tou_right_inline.标记(内部)
-
-点 ytr1 = 等分点(u1, d1, 0.5)
-ytr1 = 求偏移(ytr1, 1, left)
-点 ytr2 = 求偏移(ytr1, 3, vec1)
-路径 ytr_wl = ytr1 连接 ytr2
-ytr_wl = ytr_wl.标记(经向)
 
 
 规则 -----------------------输出-----------------------------

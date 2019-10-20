@@ -1,0 +1,16 @@
+﻿规则 垂直经线
+输入 点 upPoint
+输入 参数 length
+
+点 right = (1,0)
+点 down = (0,1)
+点 doPoint = 求偏移(upPoint, length, down)
+点 upV = 求偏移(upPoint, 0.5, right)
+upV = 求偏移(upV, 0.5, down)
+点 doV = 求偏移(doPoint, -0.5, right)
+doV = 求偏移(doV, -0.5, down)
+
+路径 wline = upV 连接 upPoint 连接 doPoint 连接 doV
+wline = wline.标记(经向)
+
+输出 wline

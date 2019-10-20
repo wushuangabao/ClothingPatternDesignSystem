@@ -1,0 +1,32 @@
+﻿规则 求矩形四顶点
+规则 缝份：上1，左右0.5，下2
+
+输入 参数 x
+输入 参数 y
+
+参数 y0 = y
+点 a = (x, y)
+点 b = (x+2, y)
+y = y + 5
+点 c = (x, y)
+点 d = (x+2, y)
+
+路径 inline = a 连接 b 连接 d 连接 c 连接 a
+inline = inline.标记(内部)
+
+x = x + 1
+点 wlup = (x, y0+1.5)
+
+路径 wline = 垂直经线(wlup, 2)
+
+x = x - 0.5
+点 up1 = (x, y0)
+点 do1 = (x, y)
+x = x + 1
+点 up2 = (x, y0)
+点 do2 = (x, y)
+路径 auxi = up1 连接 do1 以及 up2 连接 do2
+auxi = auxi.标记(辅助)
+
+路径 path = inline 以及 wline 以及 auxi
+输出 path

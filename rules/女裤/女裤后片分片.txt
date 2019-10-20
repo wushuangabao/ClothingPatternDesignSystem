@@ -1,15 +1,11 @@
 ﻿规则 女裤后片
-规则 输入 参数 H
-规则 输入 参数 W
-规则 输入 参数 L
-规则 输入 参数 CR
+输入 参数 H
+输入 参数 W
+输入 参数 L
+输入 参数 CR
 规则 输入 点 a
 
-参数 H = 94
-参数 W = 72
-参数 L = 105
-参数 CR = 24.5
-点 a = (70,0)
+点 a = (110,10)
 点 left = (-1,0)
 点 right = (1,0)
 点 down = (0,1)
@@ -96,7 +92,7 @@ waistLine = 向上平移直线(waistLine, -widthBand)
 点 waistLeftDown = 求交点(curve1, waistLine)
 
 路径 yaotou_b = 鱼嘴后腰(widthBand, waistLeftUp,y11,z11,y21,z21,waistRightUp,waistLeftDown,y12,z12,y22,z22,waistRightDown, sangV1, sangV2)
-yaotou_b = yaotou_b.平移(down, -4)
+yaotou_b = yaotou_b.平移(down, -6)
 
 规则 ------ 后袋 双省双挖袋 ------
 
@@ -117,14 +113,13 @@ koudai, dai1, dai2, dai3, dai4 = 双省双挖袋(sangV1, sangV2, curve1, jf, 13,
 
 直线 cd = c 连接 d
 点 wl_p1 = 求交点(cd, no)
-wl_p1 = 求偏移(wl_p1, 1, right) 
-wl_p1 = 求偏移(wl_p1, 5, down)
 直线 tu = t 连接 u
 点 wl_p2 = 求交点(no, tu)
-wl_p2 = 求偏移(wl_p2, 1, right)
-wl_p2 = 求偏移(wl_p2, -5, down)
-路径 wline = wl_p1 连接 wl_p2
-wline = wline.标记（经向）
+直线 wline_ = wl_p1 连接 wl_p2
+参数 len_wl = wline_.长度
+wl_p1 = 求偏移(wl_p1, 1, right)
+wl_p1 = 求偏移(wl_p1, 5, down)
+路径 wline = 垂直经线(wl_p1, len_wl - 10)
 
 点 v_waist = 方向向量(waistLeftUp, waistRightUp)
 f_ = 求偏移(e, 20, v_waist)

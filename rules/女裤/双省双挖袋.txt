@@ -33,10 +33,8 @@ yuan2 = yuan2.标记(内部)
 规则 bug: xuxian 无法显示
 qianxian_inline = qianxian_inline.标记(内部)
 路径 qianxian_outline = qx1 连接 qx2 连接 qx4 连接 qx3 连接 qx1
-点 qx_wl1 = 求偏移(qx5, 3, right)
-点 qx_wl2 = 求偏移(qx5, -3, right)
-路径 qianxian_wl = qx_wl1 连接 qx_wl2
-qianxian_wl = qianxian_wl.标记(经向)
+点 qx_wl1 = 求偏移(qx5, -3, right)
+路径 qianxian_wl = 水平经线(qx_wl1, 6)
 
 
 点 db1 = 求偏移(qx3i, 4, down)
@@ -55,9 +53,7 @@ db6 = 求偏移(db6, 3, down)
 dianbu = dianbu.标记(内部)
 点 db_wl1 = 求偏移(db1, 5, right)
 db_wl1 = 求偏移(db_wl1, 3, down)
-点 db_wl2 = 求偏移(db_wl1, 4, down)
-路径 dianbu_wl = db_wl1 连接 db_wl2
-dianbu_wl = dianbu_wl.标记(经向)
+路径 dianbu_wl = 垂直经线(db_wl1, 4)
 
 
 width = width * 0.5

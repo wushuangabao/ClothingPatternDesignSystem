@@ -42,9 +42,7 @@ dai6 = 求水平镜像点(dai6, x0)
 dianbu = dianbu.标记(内部)
 点 dianbu_wl1 = 等分点(b, dai6, 0.5)
 dianbu_wl1 = 求偏移(dianbu_wl1, 3, down)
-点 dianbu_wl2 = 求偏移(dianbu_wl1, 12, down)
-路径 dianbu_wl = dianbu_wl1 连接 dianbu_wl2
-dianbu_wl = dianbu_wl.标记(经向)
+路径 dianbu_wl = 垂直经线(dianbu_wl1, 12)
 
 
 规则 袋布
@@ -65,12 +63,10 @@ p1 = 求偏移(p1, d, right)
 点 dai4_ = 求偏移(dai4, d, right)
 点 dai3_ = 求偏移(dai3, d, right)
 点 daibu_wl1 = 求偏移(dianbu_wl1, d, right)
-点 daibu_wl2 = 求偏移(dianbu_wl2, d, right)
 
 路径 daibu = p1 连接 dai6_ 圆顺 dai5_ 圆顺 dai4_ 圆顺 dai3_ 以及 dai3_ 连接 p1
 daibu = daibu.标记(内部)
-路径 daibu_wl = daibu_wl1 连接 daibu_wl2
-daibu_wl = daibu_wl.标记(经向)
+路径 daibu_wl = 垂直经线(daibu_wl1, 12)
 
 
 路径 koudai = dianbu 以及 dianbu_wl 以及 daibu 以及 daibu_wl

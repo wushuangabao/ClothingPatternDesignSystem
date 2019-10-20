@@ -1,0 +1,16 @@
+﻿规则 水平经线
+输入 点 leftPoint
+输入 参数 length
+
+点 right = (1,0)
+点 down = (0,1)
+点 rightPoint = 求偏移(leftPoint, length, right)
+点 leftV = 求偏移(leftPoint, 0.5, right)
+leftV = 求偏移(leftV,-0.5, down)
+点 rightV = 求偏移(rightPoint, -0.5, right)
+rightV = 求偏移(rightV, 0.5, down)
+
+路径 wline = leftV 连接 leftPoint 连接 rightPoint 连接 rightV
+wline = wline.标记(经向)
+
+输出 wline

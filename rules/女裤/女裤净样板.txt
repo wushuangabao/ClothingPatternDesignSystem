@@ -9,10 +9,10 @@
 规则 参数 L = 105
 规则 参数 CR = 24.5
 
-点 a = (40,0)
+点 a = (60,10)
 路径 pants_f = 女裤前片净样板(H,W,L,CR,a)
 
-a = (0,0)
+a = (20,10)
 路径 pants_b = 女裤后片净样板(H,W,L,CR,a)
 
 路径 pants = pants_f 以及 pants_b
