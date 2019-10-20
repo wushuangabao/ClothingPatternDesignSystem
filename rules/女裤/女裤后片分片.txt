@@ -9,7 +9,7 @@
 参数 W = 72
 参数 L = 105
 参数 CR = 24.5
-点 a = (190,0)
+点 a = (70,0)
 点 left = (-1,0)
 点 right = (1,0)
 点 down = (0,1)
@@ -135,11 +135,13 @@ d_ = 求偏移(d, 1, down)
 直线 gd_ = g 连接 d_
 规则 曲线 curve3 = t 圆顺 a_td 圆顺 d
 规则 d_ = 求交点(gd_, curve3)   这个求交点有 bug
-路径 pants_b_inline = waistLeftUp 连接 y11 连接 sangV1 连接 z11 连接 y21 连接 sangV2 连接 z21 连接 waistRightUp 连接 f 圆顺 l 圆顺 g 以及 g 圆顺 a_gu 圆顺 u 连接 q 连接 p 连接 t 圆顺 a_td 圆顺 d 连接 e 圆顺 a_ei 圆顺 waistLeftUp 以及 n_ 连接 o 以及 e 连接 f_ 以及 g 连接 d_ 以及 u 连接 t 以及 dai1 连接 dai2 连接 dai4 连接 dai3 连接 dai1
+路径 pants_b_inline = waistLeftUp 连接 y11 连接 sangV1 连接 z11 连接 y21 连接 sangV2 连接 z21 连接 waistRightUp 连接 f 圆顺 l 圆顺 g 以及 g 圆顺 a_gu 圆顺 u 连接 q 连接 p 连接 t 圆顺 a_td 圆顺 d 连接 e 圆顺 a_ei 圆顺 waistLeftUp 以及 dai1 连接 dai2 连接 dai4 连接 dai3 连接 dai1
 pants_b_inline = pants_b_inline.标记（内部）
 
+路径 pants_b_auxi = t 连接 u 以及 n_ 连接 o 以及 e 连接 f_ 以及 g 连接 d_ 
+pants_b_auxi = pants_b_auxi.标记(辅助)
 
 规则 ------ 输出所有样片 ------
 
-路径 pants_b = pants_b_inline 以及 wline 以及 yaotou_b 以及 koudai
+路径 pants_b = pants_b_inline 以及 pants_b_auxi以及 wline 以及 yaotou_b 以及 koudai
 输出 pants_b

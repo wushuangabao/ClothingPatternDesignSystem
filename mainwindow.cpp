@@ -430,8 +430,11 @@ void MainWindow::on_action_FenPian_triggered()
 {
     MyPathData* path = painterArea->currentPath();
     if(path == nullptr) return;
+    painterArea->myPaths.removeAt(painterArea->currentId);
+    painterArea->btnPaths.removeAt(painterArea->currentId);
     drawByRule("女裤/女裤前片分片.txt", path->params);
     drawByRule("女裤/女裤后片分片.txt", path->params);
+    delete path; // 删除净样板
 }
 
 /**

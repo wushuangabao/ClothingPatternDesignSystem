@@ -124,19 +124,25 @@ void PainterArea::paintEvent(QPaintEvent *event)
 
     // 遍历 myPaths 进行 drawByPathData
     MyPainter myPainter;
+    qreal k;
     if(!myPaths.isEmpty())
         for(int i=0; i<myPaths.size(); ++i){
             if(i == currentId){
-                pen.setStyle(Qt::SolidLine);
-                painter.setPen(pen);
+                //pen.setStyle(Qt::SolidLine);
+                k = 1.2;
             }
-            else if(pen.color() != Qt::white){
-                pen.setStyle(Qt::DotLine);
-                painter.setPen(pen);
+            else{
+                //pen.setStyle(Qt::DotLine);
+                k = 0.6;
             }
+            // 辅助线：蓝色
+            pen.setColor(Qt::cyan);
+            pen.setWidthF(0.5 / scalingMulti * k);
+            painter.setPen(pen);
+            painter.drawPath(myPainter.drawByPathData(myPaths[i], 3));
             // 内部线：白色
             pen.setColor(Qt::white);
-            pen.setWidthF(0.33);
+            pen.setWidthF(0.6 / scalingMulti * k);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 1));
             // 经向线：红色
@@ -146,11 +152,12 @@ void PainterArea::paintEvent(QPaintEvent *event)
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 2));
             // 轮廓线：棕色（dark orange）
             pen.setColor(QColor(205,102,0));
-            pen.setWidthF(1);
+            pen.setWidthF(1.8 / scalingMulti * k);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawByPathData(myPaths[i], 0));
             // 点：绿色
             pen.setColor(Qt::green);
+            pen.setWidthF(0.2 / scalingMulti * k);
             painter.setBrush(brushGreen);
             painter.setPen(pen);
             painter.drawPath(myPainter.drawPointsByData(myPaths[i]));

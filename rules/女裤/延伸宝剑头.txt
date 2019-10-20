@@ -60,7 +60,7 @@ do2 = 向上平移点(do2, 0.15)
 点 do21 = 求偏移(do2, -1, vec5)
 
 路径 yao_tou_left_outline = up03 圆顺 up21 圆顺 up51 连接 do51 圆顺 do21 圆顺 do03 连接 up03
-路径 yao_tou_left_inline = up1 圆顺 up2 圆顺 up4 连接 do4 圆顺 do2 圆顺 do1 连接 up1 以及 up51 连接 do51 以及 up0 连接 up01 连接 do01 连接 do0 以及 up00 连接 do00 以及 up2 连接 do2 
+路径 yao_tou_left_inline = up1 圆顺 up2 圆顺 up4 连接 do4 圆顺 do2 圆顺 do1 连接 up1 以及 up0 连接 up01 连接 do01 连接 do0 以及 up00 连接 do00 以及 up2 连接 do2 
 yao_tou_left_inline = yao_tou_left_inline.标记(内部)
 
 点 ytl1 = 等分点(up1, do1, 0.5)
@@ -123,5 +123,6 @@ ytr_wl = ytr_wl.标记(经向)
 
 
 规则 -----------------------输出-----------------------------
-路径 yao_tou = yao_tou_left_outline 以及 yao_tou_left_inline 以及 ytl_wl 以及 yao_tou_right_outline 以及yao_tou_right_inline 以及 ytr_wl
+规则 路径 yao_tou = yao_tou_left_outline 以及 yao_tou_left_inline 以及 ytl_wl 以及 yao_tou_right_outline 以及yao_tou_right_inline 以及 ytr_wl
+路径 yao_tou = yao_tou_left_inline 以及 ytl_wl 以及 yao_tou_right_inline 以及 ytr_wl
 输出 yao_tou

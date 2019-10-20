@@ -77,6 +77,6 @@ dai2 = 由省位求省尖(dai2, -height，daiLine)
 
 
 路径 koudai = qianxian_inline 以及 qianxian_outline 以及 qianxian_wl 以及 dianbu 以及 dianbu_wl
-
+路径 koudai = qianxian_inline 以及 qianxian_wl 以及 dianbu 以及 dianbu_wl
 
 输出 koudai & dai1 & dai2 & dai3 & dai4

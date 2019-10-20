@@ -66,13 +66,18 @@ x0 = x0 + 2
 
 
 
-
 路径 yao_tou_inline = up6_l 圆顺 up4_l 圆顺 up2_l 圆顺 yuzui1 连接 up1 连接 yuzui2 圆顺 up2 圆顺 up4 圆顺 up6 连接 do6 圆顺 do4 圆顺 do2 圆顺 do1 圆顺 do2_l 圆顺 do4_l 圆顺 do6_l 连接 up6_l
 yao_tou_inline = yao_tou_inline.标记(内部)
 
+点 right = (1, 0)
 
+点 wlp1 = 等分点(up1, do1, 0.33)
+wlp1 = 求偏移(wlp1, -2, right)
+点 wlp2 = 求偏移(wlp1, 4, right)
 
+路径 yaotou_wl = wlp1 连接 wlp2
+yaotou_wl = yaotou_wl.标记(经向)
 
 规则 -------------- 输出 ----------------
-路径 yao_tou = yao_tou_inline
+路径 yao_tou = yao_tou_inline 以及 yaotou_wl
 输出 yao_tou

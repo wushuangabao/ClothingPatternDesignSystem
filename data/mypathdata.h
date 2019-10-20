@@ -13,7 +13,7 @@ class QFile;
 class QPainterPath;
 class PainterArea;
 
-enum astm {Boundary, InLines, WarpLine, Auxiliary}; // 轮廓线：棕色，内部线：白色，经线：绿色，辅助线：红色
+enum astm {Boundary, InLines, WarpLine, Auxiliary}; // 轮廓线：棕色，内部线：白色，经线：红色，辅助线：青色
 
 struct PathData{
     int id; /**< 路径在数组中的序号 */

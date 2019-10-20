@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>1155</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menudraw">
@@ -137,6 +137,7 @@
    <addaction name="action_Rule"/>
    <addaction name="action_MovePath"/>
    <addaction name="action_FenPian"/>
+   <addaction name="action_FengFeng"/>
    <addaction name="actiontest_curve"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -435,7 +436,12 @@
   </action>
   <action name="action_FenPian">
    <property name="text">
-    <string>分片</string>
+    <string>净板分片</string>
+   </property>
+  </action>
+  <action name="action_FengFeng">
+   <property name="text">
+    <string>添加缝份</string>
    </property>
   </action>
  </widget>
