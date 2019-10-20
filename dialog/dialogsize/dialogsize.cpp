@@ -31,7 +31,7 @@ DialogSize::~DialogSize()
 }
 
 /**
- * @brief 将输入的尺寸赋值给painterArea
+ * @brief 将输入的尺寸赋值给样板，并画样板
  */
 void DialogSize::on_pushButton_clicked()
 {
