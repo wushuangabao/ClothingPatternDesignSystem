@@ -407,8 +407,9 @@ void PainterArea::drawPathNames(QList<QPointF> posList, QList<QString> names)
         return;
     for(int i = 0; i < size; ++i){
         QLabel *label = new QLabel(names[i], this);
-        label->move(posList[i].x(), posList[i].y());
-        label->setStyleSheet("QLabel{color:red;}");
+        int x = xPhysical(posList[i].x()), y = yPhysical(posList[i].y());
+        label->move(x, y);
+        label->setStyleSheet("QLabel{background-color:red;}");
         pathNames.append(label);
         label->show();
     }
