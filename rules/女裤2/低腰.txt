@@ -1,0 +1,17 @@
+﻿规则 低腰
+
+输入 直线 ij
+输入 点 e
+输入 曲线 curve1
+输入 参数 heightWaist
+
+点 i = ij.左端点
+heightWaist = 0-heightWaist
+直线 ei = e 连接 i
+直线 waistLine = 向上平移直线(ij, heightWaist)
+点 waistRightUp = 求交点(waistLine, curve1)
+点 waistLeftUp = 求交点(waistLine, ei)
+点 sangLeftUp = 求交点(waistLine, sangLeftLine)
+点 sangRightUp = 求交点(waistLine, sangRightLine)
+
+输出 waistLine & waistRightUp & waistLeftUp & sangLeftUp & sangRightUp

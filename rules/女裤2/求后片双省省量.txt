@@ -1,0 +1,20 @@
+﻿规则 求后片双省的省量
+
+输入 点 e
+输入 点 d
+输入 直线 ab
+输入 点 j
+输入 参数 W
+
+直线 ed = e 连接 d
+点 tempPoint = 求交点(ed, ab)
+直线 tempLine = tempPoint 连接 j
+参数 tempParam = tempLine.长度
+参数 sangLiang = (tempParam - W/4 +1)/3
+点 vector = 方向向量(tempPoint, j)
+点 i = 求偏移(tempPoint, sangLiang, vector)
+
+规则 vector = 方向向量(d, e)
+规则 i = 求偏移(i, 0.7, vector)
+
+输出 sangLiang & i

@@ -1,0 +1,80 @@
+规则 直插袋 width：dai1到腰线的距离  length:袋口的长度
+
+输入 点 a
+输入 点 b
+输入 曲线 curve1
+输入 参数 width
+输入 参数 length
+输入 点 a_jf
+
+点 down = (0, 1)
+点 v = 方向向量(b, a)
+参数 lC = curve1.长度
+参数 p = (width - 1.5) / lC
+点 dai0 = 等分点(b, curve1, p)
+p = p + 1.5 / lC
+点 dai1 = 等分点(b, curve1, p)
+p = p + 0.5 * length / lC
+点 dai12 = 等分点(b, curve1, p)
+p = p + 0.5 * length / lC
+点 dai2 = 等分点(b, curve1, p)
+p = p + 3 / lC
+点 dai3 = 等分点(b, curve1, p)
+
+点 dai5 = 求偏移(dai3, length - 3, v)
+dai5 = 求偏移(dai5, -1, down)
+点 dai6 = 求偏移(b, length - 2, v)
+
+点 dai4 = 等分点(dai6, b, 0.7)
+dai4 = 求偏移(dai4, length + 6, down)
+
+
+规则 前片上的袋牙定位线
+
+点 dai11 = 求偏移(dai1, 1, v)
+点 dai21 = 求偏移(dai2, 1, v)
+点 dai12 = 求偏移(dai12, 1, v)
+dai12 = 求偏移(dai12, -0.1, down)
+dai21 = 求偏移(dai21, -0.2, down)
+
+
+规则 水平翻转袋垫布
+
+参数 x0 = b.横坐标
+x0 = x0 + 3
+点 dai0_ = 求水平镜像点(dai0, x0)
+点 dai1_ = 求水平镜像点(dai1, x0)
+点 dai2_ = 求水平镜像点(dai2, x0)
+规则 b = 求水平镜像点(b, x0)
+a_jf = 求水平镜像点(a_jf, x0)
+dai3 = 求水平镜像点(dai3, x0)
+dai4 = 求水平镜像点(dai4, x0)
+dai5 = 求水平镜像点(dai5, x0)
+dai6 = 求水平镜像点(dai6, x0)
+
+路径 dianbu = dai0_ 连接 dai6 圆顺 dai5 圆顺 dai4 圆顺 dai3 以及 dai3 圆顺 dai2_ 圆顺 a_jf 圆顺 dai0_
+dianbu = dianbu.标记(内部)
+点 dianbu_wl1 = 等分点(dai0_, dai6, 0.5)
+dianbu_wl1 = 求偏移(dianbu_wl1, 3, down)
+路径 dianbu_wl = 垂直经线(dianbu_wl1, 12)
+
+
+
+规则 袋牙
+规则 缝份 上5下2两侧1 待画
+
+参数 x_daiya = dai6.横坐标
+x_daiya = x_daiya + 3.5
+参数 y_daiya = dai6.纵坐标
+点 daiya1, daiya2, daiya3, daiya4 = 求矩形四顶点(x_daiya, y_daiya, 2, length)
+点 daiya5 = 等分点(daiya1, daiya2, 0.5)
+点 daiya5 = 等分点(daiya3, daiya4, 0.5)
+路径 daiya_in = daiya1 连接 daiya2 连接 daiya4 连接 daiya3 连接 daiya1 以及 daiya5 连接 daiya6
+daiya_in = daiya_in.标记(内部)
+
+
+路径 daiLine = dai1 连接 dai11 圆顺 dai12 圆顺 dai21 连接 dai2
+daiLine = daiLine.标记(内部)
+
+路径 koudai = dianbu 以及 dianbu_wl 以及 daiLine
+输出 koudai & dai1 & dai2
