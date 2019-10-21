@@ -30,7 +30,7 @@ MainWindow::MainWindow() :
     dialogMM = new DialogMM(this);
     dialogDesign = new DialogDesign(this);
 
-    setWindowTitle(tr("Lancy PDS 2018"));
+    setWindowTitle(tr("Lancy PDS 2019"));
 
     painterArea = new PainterArea(this);
     setCentralWidget(painterArea);
