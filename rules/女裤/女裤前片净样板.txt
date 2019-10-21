@@ -1,4 +1,4 @@
-﻿规则 女裤前片净样板
+规则 女裤前片净样板
 输入 参数 H
 输入 参数 W
 输入 参数 L
@@ -93,14 +93,15 @@ auxi = auxi.标记（内部）
 
 直线 cd = c 连接 d
 点 wl_p1 = 求交点(cd, no)
-wl_p1 = 求偏移(wl_p1, 1, left)
-wl_p1 = 求偏移(wl_p1, 5, down)
 直线 tu = t 连接 u
 点 wl_p2 = 求交点(no, tu)
-wl_p2 = 求偏移(wl_p2, 1, left)
-wl_p2 = 求偏移(wl_p2, -5, down)
-路径 wline = wl_p1 连接 wl_p2
-wline = wline.标记（经向）
+直线 wline_ = wl_p1 连接 wl_p2
+参数 len_wl= wline_.长度
+len_wl = len_wl - 10
+wl_p1 = 求偏移(wl_p1, 1, left)
+wl_p1 = 求偏移(wl_p1, 5, down)
+路径 wline = 垂直经线(wl_p1, len_wl)
+wline = wline.命名（前片）
 
 路径 pants_f = outline 以及 auxi 以及 wline
 

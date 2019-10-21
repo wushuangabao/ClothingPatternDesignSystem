@@ -1,4 +1,4 @@
-﻿规则 暗门襟
+规则 暗门襟
 
 输入 点 i
 输入 点 j
@@ -34,6 +34,7 @@ menjin = menjin.标记(内部)
 点 down = (0, 1)
 menjin1 = 求偏移(menjin1, 2, down)
 路径 menjin_wl = 垂直经线(menjin1, l_ie-5)
+menjin_wl = menjin_wl.命名(门襟)
 
 
 规则 ---- 里襟 ----
@@ -60,6 +61,7 @@ lijin = lijin.标记(内部)
 点 lijin1 = 等分点(i3, me1, 0.5)
 lijin1 = 求偏移(lijin1, 2, down)
 路径 lijin_wl = 垂直经线(lijin1, l_ie-5)
+lijin_wl = lijin_wl.命名(底襟)
 
 
 路径 path = menjin 以及 lijin 以及 menjin_wl 以及 lijin_wl
