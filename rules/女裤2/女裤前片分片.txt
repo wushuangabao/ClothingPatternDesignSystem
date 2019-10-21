@@ -73,8 +73,9 @@ yao_tou_f = yao_tou_f.平移(down, -4)
 规则 -------- 前袋 直插袋 ---------
 
 曲线 curve2 = waistRightDown 圆顺 a_jf 圆顺 f 圆顺 a_vu
-路径 koudai = 斜插袋(waistLeftDown,waistRightDown, curve2, 3, 14.5, a_jf)
-
+点 dai1, dai2
+路径 koudai
+koudai, dai1, dai2= 直插袋(waistLeftDown,waistRightDown, curve2, 3, 14.5, a_jf)
 
 
 规则 -------- 门襟 暗门襟 ---------
@@ -122,7 +123,7 @@ x0 = x0 - 4
 点 sld_r = 求水平镜像点(sangLeftDown, x0)
 点 o_r = 求水平镜像点(o, x0)
 
-路径 pants_f_r = e_r 圆顺 l_r 圆顺 g_r 以及 g_r 圆顺 agt_r 圆顺 t_r 连接 p_r 连接 q_r 连接 u_r 圆顺 avu_r 圆顺 v_r 圆顺 f 圆顺 ajf_r 圆顺 wrf_r 连接 srd_r 连接 w_r 连接 sld_r 连接 wld_r 连接 e_r
+路径 pants_f_r = e_r 圆顺 l_r 圆顺 g_r 以及 g_r 圆顺 agt_r 圆顺 t_r 连接 p_r 连接 q_r 连接 u_r 圆顺 avu_r 圆顺 v_r 圆顺 f 圆顺 ajf_r 圆顺 wrd_r 连接 srd_r 连接 w_r 连接 sld_r 连接 wld_r 连接 e_r
 pants_f_r = pants_f_r.标记(内部)
 
 路径 pants_f_r_auxi = w_r 连接 o_r 以及 e_r 连接 f_r 以及 t_r 连接 u_r 以及 g_r 连接 v_r
