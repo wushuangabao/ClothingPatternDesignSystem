@@ -1,11 +1,10 @@
-规则 女裤前片
+﻿规则 女裤前片缩褶、拼接橡筋
 输入 参数 H
 输入 参数 W
 输入 参数 L
 输入 参数 CR
-规则 输入 点 a
+输入 点 a
 
-点 a = (40,10)
 点 left = (-1,0)
 点 right = (1,0)
 点 down = (0,1)
@@ -36,6 +35,7 @@
 
 点 w, x, y, z = 前片单省(ef, no, ij, (H-W)/16-0.5)
 
+
 规则 ------ 曲线上辅助点 ------
 
 点 v = 求偏移(c,-0.5,right)
@@ -65,17 +65,42 @@ waistLine = 向上平移直线(waistLine, -widthBand)
 点 waistLeftDown = 求交点(waistLine, ei)
 点 sangLeftDown = 求交点(waistLine, sangLeftLine)
 点 sangRightDown = 求交点(waistLine, sangRightLine)
+点 sangMid = 等分点(sangLeftDown, sangRightDown, 0.5)
 
-路径 yao_tou_f = 延伸宝剑头(widthBand, waistLeftUp, sangLeftUp, sangRightUp, waistRightUp, waistLeftDown, sangLeftDown, sangRightDown, waistRightDown, w)
-yao_tou_f = yao_tou_f.平移(down, -4)
-规则 这个腰头的自定义规则，非常受前褶省的影响。
+路径 yao_tou = 拼接橡筋(widthBand, W, sangLeftUp)
+yao_tou = yao_tou.平移(down, -4)
+
+
+规则 降低 n 点的高度
+参数 yn = sangMid.纵坐标
+参数 xn = n.横坐标
+n = (xn, yn)
+
+
+规则 ------ 缩褶 ------
+
+直线 yz = sangLeftDown 连接 sangRightDown
+参数 halfSang = yz.长度
+halfSang = halfSang / 2
+waistLeftDown = 求偏移(waistLeftDown,halfSang,right)
+waistLeftDown = 求偏移(waistLeftDown, -0.25, down)
+waistRightDown = 求偏移(waistRightDown, halfSang, left)
+waistRightDown = 求偏移(waistRightDown, -0.35, down)
+
+yn = yn + 0.5
+点 suozhe1 = (xn, yn)
+点 suozhe2 = (xn + 7, yn - 0.5)
+
 
 规则 -------- 前袋 直插袋 ---------
 
 曲线 curve2 = waistRightDown 圆顺 a_jf 圆顺 f 圆顺 a_vu
-点 dai1, dai2
+点 dai1, dai2, dai11, dai12, dai21
 路径 koudai
-koudai, dai1, dai2= 直插袋(waistLeftDown,waistRightDown, curve2, 3, 14.5, a_jf)
+koudai, dai1, dai2, dai11, dai12, dai21 = 直插袋(waistLeftDown,waistRightDown, curve2, 3, 14.5, a_jf)
+
+路径 daiLine1 = dai1 连接 dai11 圆顺 dai12 圆顺 dai21 连接 dai2
+daiLine1 = daiLine1.标记(内部)
 
 
 规则 -------- 门襟 暗门襟 ---------
@@ -117,26 +142,43 @@ x0 = x0 - 4
 点 f_r = 求水平镜像点(f, x0)
 点 ajf_r = 求水平镜像点(a_jf, x0)
 点 wrd_r = 求水平镜像点(waistRightDown, x0)
-点 srd_r = 求水平镜像点(sangRightDown, x0)
-点 w_r = 求水平镜像点(w, x0)
 点 wld_r = 求水平镜像点(waistLeftDown, x0)
-点 sld_r = 求水平镜像点(sangLeftDown, x0)
+点 sangMid_r = 求水平镜像点(sangMid, x0)
 点 o_r = 求水平镜像点(o, x0)
+点 n_r = 求水平镜像点(n, x0)
+点 dai1_r= 求水平镜像点(dai1, x0)
+点 dai2_r= 求水平镜像点(dai2, x0)
+点 dai11_r = 求水平镜像点(dai11, x0)
+点 dai12_r = 求水平镜像点(dai12, x0)
+点 dai21_r = 求水平镜像点(dai21, x0)
+点 suozhe3 = 求水平镜像点(suozhe1, x0)
+点 suozhe4 = 求水平镜像点(suozhe2, x0)
 
-路径 pants_f_r = e_r 圆顺 l_r 圆顺 g_r 以及 g_r 圆顺 agt_r 圆顺 t_r 连接 p_r 连接 q_r 连接 u_r 圆顺 avu_r 圆顺 v_r 圆顺 f 圆顺 ajf_r 圆顺 wrd_r 连接 srd_r 连接 w_r 连接 sld_r 连接 wld_r 连接 e_r
+路径 pants_f_r = e_r 圆顺 l_r 圆顺 g_r 以及 g_r 圆顺 agt_r 圆顺 t_r 连接 p_r 连接 q_r 连接 u_r 圆顺 avu_r 圆顺 v_r 圆顺 f_r 圆顺 ajf_r 圆顺 wrd_r 连接 sangMid_r 连接 wld_r 连接 e_r
 pants_f_r = pants_f_r.标记(内部)
 
-路径 pants_f_r_auxi = w_r 连接 o_r 以及 e_r 连接 f_r 以及 t_r 连接 u_r 以及 g_r 连接 v_r
+路径 pants_f_r_auxi = n_r 连接 o_r 以及 e_r 连接 f_r 以及 t_r 连接 u_r 以及 g_r 连接 v_r
 pants_f_r_auxi = pants_f_r_auxi.标记(辅助)
+
+路径 daiLine2 = dai1_r 连接 dai11_r 圆顺 dai12_r 圆顺 dai21_r 连接 dai2_r
+daiLine2 = daiLine2.标记(内部)
 
 
 规则 ------ 前片 ------
 
-路径 pants_f_l = e 连接 men4 连接 men5 连接 sangLeftDown 连接 w 连接 sangRightDown 连接 waistRightDown 圆顺 a_jf 圆顺 f 圆顺 v 圆顺 a_vu 圆顺 u 连接 q 连接 p 连接 t 圆顺 a_gt 圆顺 g 以及 g 圆顺 l 圆顺 e 以及 men1 连接 men2 圆顺 men3 圆顺 e 连接 waistLeftDown
+路径 pants_f_l = e 连接 men4 连接 men5 连接 sangMid 连接 waistRightDown 圆顺 a_jf 圆顺 f 圆顺 v 圆顺 a_vu 圆顺 u 连接 q 连接 p 连接 t 圆顺 a_gt 圆顺 g 以及 g 圆顺 l 圆顺 e 以及 men1 连接 men2 圆顺 men3 圆顺 e 连接 waistLeftDown
 pants_f_l = pants_f_l.标记(内部)
 
-路径 pants_f_l_auxi = w 连接 o 以及 e 连接 f 以及 t 连接 u 以及 g 连接 v
+路径 pants_f_l_auxi = n 连接 o 以及 e 连接 f 以及 t 连接 u 以及 g 连接 v
 pants_f_l_auxi = pants_f_l_auxi.标记(辅助)
+
+
+规则 ------- 缩褶记号 ---------
+
+路径 suozheTag1 = 缩褶记号(suozhe1)
+路径 suozheTag2 = 缩褶记号(suozhe2)
+路径 suozheTag3 = 缩褶记号(suozhe3)
+路径 suozheTag4 = 缩褶记号(suozhe4)
 
 
 规则 ------ 输出所有样片 ------
@@ -156,5 +198,5 @@ wl_p2 = 求水平镜像点(wl_p1, x0)
 路径 wl2 = 垂直经线(wl_p2, len_wl)
 路径 wline = wl1 以及 wl2
 
-路径 pants = wline 以及 pants_f_l 以及 pants_f_r 以及 yao_tou_f 以及 koudai 以及 menjin 以及 pants_f_l_auxi 以及 pants_f_r_auxi 以及 kupan
+路径 pants = wline 以及 pants_f_l 以及 pants_f_r 以及 yao_tou 以及 koudai 以及 menjin 以及 pants_f_l_auxi 以及 pants_f_r_auxi 以及 kupan 以及 daiLine1 以及 daiLine2 以及 suozheTag1 以及 suozheTag2 以及 suozheTag3 以及 suozheTag4
 输出 pants

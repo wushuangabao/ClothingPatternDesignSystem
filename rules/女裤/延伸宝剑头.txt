@@ -110,6 +110,7 @@ x0 = x0 - 8
 点 d01 = 求交点(v2d_, tmp5)
 
 点 ytr1 = 求水平镜像点(ytl1, x0-1.5)
+ytr1 = 求偏移(ytr1, 4, up)
 路径 ytr_wl = 水平经线(ytr1, 3)
 
 路径 yao_tou_right_outline = u01 圆顺 u21 圆顺 u51 连接 d51 圆顺 d21 圆顺 d01 连接 vertex2 连接 u01

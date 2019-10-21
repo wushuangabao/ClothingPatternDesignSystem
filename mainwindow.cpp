@@ -13,6 +13,7 @@
 #include "dialog/dialogrule/dialogrule.h"
 #include "dialog/dialogtest/dialogtestcurve.h"
 #include "dialog/dialogstyle/dialogstyle.h"
+#include "dialog/dialogdesign/dialogpantsh.h"
 #include "data/mypathdata.h"
 #include "rules/mypattern.h"
 
@@ -430,11 +431,11 @@ void MainWindow::on_action_FenPian_triggered()
 {
     MyPathData* path = painterArea->currentPath();
     if(path == nullptr) return;
+    params = path->params; // 演示用
     QPushButton* btn = painterArea->btnPaths[painterArea->currentId];
     painterArea->myPaths.removeAt(painterArea->currentId);
     painterArea->btnPaths.removeAt(painterArea->currentId);
-    drawByRule("女裤/女裤前片分片.txt", path->params);
-    drawByRule("女裤/女裤后片分片.txt", path->params);
+    drawByRule("女裤/女裤分片1.txt", params);
     // 删除净样板的 path 和 btn
     delete path;
     delete btn;
@@ -456,4 +457,42 @@ void MainWindow::drawByRule(QString path, QString in)
     data->setName(dir.mid(i1+1).left(i2-i1-1));
     data->params = in;
     painterArea->addPath(data);
+}
+
+/**
+ * @brief 修改-款式
+ */
+void MainWindow::on_action_M_Style_triggered()
+{
+    DialogPantsH* pantsH = new DialogPantsH(this, testNum);
+    pantsH->exec();
+    delete pantsH;
+    if(testNum == 1){
+        // 暴力清空 painterArea
+        painterArea->clearLabelPoints();
+        int size = painterArea->myPaths.size();
+        if(size>0)
+            for(int i=0;i<size;++i){
+                delete painterArea->myPaths[i];
+                delete painterArea->btnPaths[i];
+            }
+        painterArea->myPaths.clear();
+        painterArea->btnPaths.clear();
+
+        drawByRule("女裤/女裤分片2.txt", params);
+        testNum = 2;
+    }else if(testNum == 2){
+        // 暴力清空 painterArea
+        painterArea->clearLabelPoints();
+        int size = painterArea->myPaths.size();
+        if(size>0)
+            for(int i=0;i<size;++i){
+                delete painterArea->myPaths[i];
+                delete painterArea->btnPaths[i];
+            }
+        painterArea->myPaths.clear();
+        painterArea->btnPaths.clear();
+
+        drawByRule("女裤/女裤分片3.txt", params);
+    }
 }

@@ -1,4 +1,4 @@
-规则 直插袋 width：dai1到腰线的距离  length:袋口的长度
+﻿规则 直插袋 width：dai1到腰线的距离  length:袋口的长度
 
 输入 点 a
 输入 点 b
@@ -22,20 +22,20 @@ p = p + 3 / lC
 点 dai3 = 等分点(b, curve1, p)
 
 点 dai5 = 求偏移(dai3, length - 3, v)
-dai5 = 求偏移(dai5, -1, down)
-点 dai6 = 求偏移(b, length - 2, v)
+dai5 = 求偏移(dai5, -1.7, down)
+点 dai6 = 求偏移(dai0, length - 2, v)
 
-点 dai4 = 等分点(dai6, b, 0.7)
+点 dai4 = 等分点(dai6, dai0, 0.7)
 dai4 = 求偏移(dai4, length + 6, down)
 
 
 规则 前片上的袋牙定位线
 
 点 dai11 = 求偏移(dai1, 1, v)
-点 dai21 = 求偏移(dai2, 1, v)
-点 dai12 = 求偏移(dai12, 1, v)
+点 dai21 = 求偏移(dai2, 0.9, v)
+dai12 = 求偏移(dai12, 1, v)
 dai12 = 求偏移(dai12, -0.1, down)
-dai21 = 求偏移(dai21, -0.2, down)
+dai21 = 求偏移(dai21, -0.12, down)
 
 
 规则 水平翻转袋垫布
@@ -52,7 +52,13 @@ dai4 = 求水平镜像点(dai4, x0)
 dai5 = 求水平镜像点(dai5, x0)
 dai6 = 求水平镜像点(dai6, x0)
 
-路径 dianbu = dai0_ 连接 dai6 圆顺 dai5 圆顺 dai4 圆顺 dai3 以及 dai3 圆顺 dai2_ 圆顺 a_jf 圆顺 dai0_
+
+v = (1, 0.1)
+点 dai1_r = 求偏移(dai1_, 1, v)
+v = (1, -0.1)
+点 dai2_r = 求偏移(dai2_, 1, v)
+
+路径 dianbu = dai1_ 连接 dai1_r 以及 dai2_ 连接 dai2_r 以及 dai0_ 连接 dai6 圆顺 dai5 圆顺 dai4 圆顺 dai3 以及 dai3 圆顺 dai2_ 圆顺 a_jf 圆顺 dai0_
 dianbu = dianbu.标记(内部)
 点 dianbu_wl1 = 等分点(dai0_, dai6, 0.5)
 dianbu_wl1 = 求偏移(dianbu_wl1, 3, down)
@@ -73,8 +79,5 @@ x_daiya = x_daiya + 3.5
 daiya_in = daiya_in.标记(内部)
 
 
-路径 daiLine = dai1 连接 dai11 圆顺 dai12 圆顺 dai21 连接 dai2
-daiLine = daiLine.标记(内部)
-
-路径 koudai = dianbu 以及 dianbu_wl 以及 daiLine
-输出 koudai & dai1 & dai2
+路径 koudai = dianbu 以及 dianbu_wl
+输出 koudai & dai1 & dai2 & dai11 & dai12 & dai21

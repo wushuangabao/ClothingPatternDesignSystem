@@ -54,6 +54,8 @@ private slots:
 
     void on_action_FenPian_triggered();
 
+    void on_action_M_Style_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -66,6 +68,9 @@ private:
     DialogDesign *dialogDesign; /**< 选择廓形 */
 
     void drawByRule(QString path, QString in ="");
+
+    int testNum = 1; // 演示用
+    QString params; // 演示用
 
 signals:
 };

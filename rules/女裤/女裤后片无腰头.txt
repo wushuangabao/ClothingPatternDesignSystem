@@ -3,9 +3,8 @@
 输入 参数 W
 输入 参数 L
 输入 参数 CR
-规则 输入 点 a
+输入 点 a
 
-点 a = (110,10)
 点 left = (-1,0)
 点 right = (1,0)
 点 down = (0,1)
@@ -91,8 +90,8 @@ waistLine = 向上平移直线(waistLine, -widthBand)
 点 waistRightDown = 求交点(jf, waistLine)
 点 waistLeftDown = 求交点(curve1, waistLine)
 
-路径 yaotou_b = 鱼嘴后腰(widthBand, waistLeftUp,y11,z11,y21,z21,waistRightUp,waistLeftDown,y12,z12,y22,z22,waistRightDown, sangV1, sangV2)
-yaotou_b = yaotou_b.平移(down, -6)
+规则 路径 yaotou_b = 鱼嘴后腰(widthBand, waistLeftUp,y11,z11,y21,z21,waistRightUp,waistLeftDown,y12,z12,y22,z22,waistRightDown, sangV1, sangV2)
+规则 yaotou_b = yaotou_b.平移(down, -6)
 
 规则 ------ 后袋 双省双挖袋 ------
 
@@ -120,6 +119,7 @@ koudai, dai1, dai2, dai3, dai4 = 双省双挖袋(sangV1, sangV2, curve1, jf, 13,
 wl_p1 = 求偏移(wl_p1, 1, right)
 wl_p1 = 求偏移(wl_p1, 5, down)
 路径 wline = 垂直经线(wl_p1, len_wl - 10)
+wline = wline.命名(后片)
 
 点 v_waist = 方向向量(waistLeftUp, waistRightUp)
 f_ = 求偏移(e, 20, v_waist)
@@ -138,5 +138,5 @@ pants_b_auxi = pants_b_auxi.标记(辅助)
 
 规则 ------ 输出所有样片 ------
 
-路径 pants_b = pants_b_inline 以及 pants_b_auxi以及 wline 以及 yaotou_b 以及 koudai
+路径 pants_b = pants_b_inline 以及 pants_b_auxi以及 wline 以及 koudai
 输出 pants_b

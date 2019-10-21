@@ -142,7 +142,7 @@ font: 10pt &quot;微软雅黑&quot;;
 color: rgb(100, 100, 100);</string>
    </property>
    <property name="text">
-    <string>105</string>
+    <string>102</string>
    </property>
    <property name="maxLength">
     <number>5</number>
@@ -385,7 +385,7 @@ padding:10px;</string>
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="../images/images.qrc">:/pants2.png</pixmap>
+    <pixmap resource="../../images/images.qrc">:/pants2.png</pixmap>
    </property>
   </widget>
   <zorder>label_11</zorder>
@@ -408,7 +408,7 @@ padding:10px;</string>
   <zorder>label_12</zorder>
  </widget>
  <resources>
-  <include location="../images/images.qrc"/>
+  <include location="../../images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

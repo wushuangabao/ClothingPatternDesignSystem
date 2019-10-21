@@ -25,7 +25,7 @@ class DialogPantsH : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogPantsH(QWidget *parent = nullptr);
+    explicit DialogPantsH(QWidget *parent = nullptr, int i = 0);
     ~DialogPantsH();
 
 private slots:

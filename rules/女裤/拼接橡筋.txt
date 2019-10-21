@@ -1,0 +1,19 @@
+﻿规则 前腰头(腰头宽，腰围)
+
+输入 参数 wb
+输入 参数 W
+输入 点 p
+
+参数 x = p.横坐标
+参数 y = p.纵坐标
+y = y - 4
+点 a, b, c, d = 求矩形四顶点(x, y, W, wb)
+
+路径 yaotou_inline = a 连接 b 连接 d 连接 c 连接 a
+yaotou_inline = yaotou_inline.标记(内部)
+
+点 e = (x + W/2 - 2, y + wb/2)
+路径 yt_wl = 水平经线(e, 4)
+
+路径 yaotou = yaotou_inline 以及 yt_wl
+输出 yaotou

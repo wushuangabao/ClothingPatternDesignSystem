@@ -6,15 +6,13 @@
 #include "../dialogsize/dialogsize.h"
 #include "../../mainwindow.h"
 
-DialogPantsH::DialogPantsH(QWidget *parent) :
+DialogPantsH::DialogPantsH(QWidget *parent, int i) :
     QDialog(parent),
     ui(new Ui::DialogPantsH)
 {
     ui->setupUi(this);
 
     stringList<<"裤长"<<"腰位"<<"前腰头"<<"后腰头"<<"裤袢"<<"门襟"<<"前褶省"<<"前袋"<<"后褶省"<<"后袋"<<"裤脚";
-    // stringList<<tr("长裤")<<tr("低腰")<<tr("延伸宝剑头")<<tr("有裤袢")<<tr("暗门襟")<<tr("单省")<<tr("斜插袋")<<tr("双省")<<tr("双挖袋")<<tr("无翻边");
-    updateString();
 
     setStackedPages();
 
@@ -36,6 +34,21 @@ DialogPantsH::DialogPantsH(QWidget *parent) :
     scene=new QGraphicsScene(ui->graphicsView);
     scene->addPixmap(pm);
     ui->graphicsView->setScene(scene);
+
+    // 根据 stringList 给各个部件加选中框 todo
+    if(i > 0)
+    {
+        stringList.clear();
+        if(i == 1)
+            stringList<<tr("长裤")<<tr("低腰")<<tr("延伸宝剑头")<<tr("鱼嘴")<<tr("有裤袢")<<tr("暗门襟")<<tr("单省")<<tr("斜插袋")<<tr("双省")<<tr("双挖袋")<<tr("无翻边");
+        else if(i == 2)
+            stringList<<tr("长裤")<<tr("低腰")<<tr("延伸宝剑头")<<tr("鱼嘴")<<tr("有裤袢")<<tr("暗门襟")<<tr("单省")<<tr("直插袋")<<tr("双省")<<tr("双挖袋")<<tr("无翻边");
+    }
+    for(int i = 0; i < stringList.size(); ++i){
+        selectPushButton(btnInStackedPages[i], stringList.at(i));
+    }
+
+    updateString();
 }
 
 DialogPantsH::~DialogPantsH()
@@ -255,27 +268,51 @@ void DialogPantsH::selectPushButton(QList<Component> buttonList, QString str)
 }
 
 void DialogPantsH::on_pantsLength_clicked()
-{    changePage(0);}
+{    changePage(0);
+     selectPushButton(btnInStackedPages[0], stringList[0]);
+}
 void DialogPantsH::on_waistPostion_clicked()
-{    changePage(1);}
+{    changePage(1);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[1], stringList[1]);
+}
 void DialogPantsH::on_waistHead1_clicked()
-{    changePage(2);}
+{    changePage(2);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[2], stringList[2]);}
 void DialogPantsH::on_waistHead2_clicked()
-{    changePage(3);}
+{    changePage(3);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[3], stringList[3]);}
 void DialogPantsH::on_pantsLoop_clicked()
-{    changePage(4);}
+{    changePage(4);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[4], stringList[4]);}
 void DialogPantsH::on_door_clicked()
-{    changePage(5);}
+{    changePage(5);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[5], stringList[5]);}
 void DialogPantsH::on_sang1_clicked()
 {    changePage(6);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[6], stringList[6]);
 }void DialogPantsH::on_pocket1_clicked()
-{    changePage(7);}
+{    changePage(7);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[7], stringList[7]);}
 void DialogPantsH::on_sang2_clicked()
-{    changePage(8);}
+{    changePage(8);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[8], stringList[8]);}
 void DialogPantsH::on_pocket2_clicked()
-{    changePage(9);}
+{    changePage(9);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[9], stringList[9]);}
 void DialogPantsH::on_pantsFoot_clicked()
-{    changePage(10);}
+{    changePage(10);
+     // 根据 stringList 给各个部件加选中框 todo
+     selectPushButton(btnInStackedPages[10], stringList[10]);
+}
 
 void DialogPantsH::keyPressEvent(QKeyEvent* k)
 {
@@ -324,15 +361,15 @@ void DialogPantsH::selectPushButton()
     QString str = btn->text();
     selectPushButton(list, str);
     switch (id) {
-    case 1:
-        str.remove("裤");
-        break;
-    case 6:
-        str = "前片" + str;
-        break;
-    case 7:
-        str = "后片" + str;
-        break;
+//    case 1:
+//        str.remove("裤");
+//        break;
+//    case 6:
+//        str = "前片" + str;
+//        break;
+//    case 7:
+//        str = "后片" + str;
+//        break;
     }
     stringList.replace(id, str);
     updateString();

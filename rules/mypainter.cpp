@@ -78,6 +78,8 @@ void MyPainter::parsePathCode(Path path)
             Path p = path.rule->path(pathCode);
             int oldAstmTag = path.astmTag;
             QString oldName = path.name;
+            if(oldName != "")
+                p.name = oldName;  // 这句代码永远不会被执行，说明name的赋值一定有bug
             parsePathCode(p);
             myData->astmTag = oldAstmTag;
             myData->pathName = oldName;

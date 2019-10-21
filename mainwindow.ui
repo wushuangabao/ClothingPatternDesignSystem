@@ -88,7 +88,7 @@
     <property name="title">
      <string>修改(&amp;M)</string>
     </property>
-    <addaction name="action_11"/>
+    <addaction name="action_M_Style"/>
     <addaction name="action_12"/>
     <addaction name="separator"/>
     <addaction name="action_M_M"/>
@@ -366,7 +366,7 @@
     <string>工艺单</string>
    </property>
   </action>
-  <action name="action_11">
+  <action name="action_M_Style">
    <property name="text">
     <string>款式</string>
    </property>
