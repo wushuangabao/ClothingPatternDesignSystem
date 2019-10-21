@@ -34,8 +34,9 @@ void MyPainter::setStartPoint(QPointF point)
  */
 void MyPainter::parsePathCode(Path path)
 {
-    // 设置 astm 标志
+    // 记录 astm 标志和 name 属性
     myData->astmTag = path.astmTag;
+    myData->pathName = path.name;
     // 去除pathCode中的所有空格
     QString pathCode = path.str.remove(' ');
     if(pathCode.contains("以及")){
@@ -46,7 +47,8 @@ void MyPainter::parsePathCode(Path path)
             Path sonPath = {
                 path.rule,
                 code,
-                path.astmTag
+                path.astmTag,
+                ""
             };
             parsePathCode(sonPath);
         }
@@ -75,8 +77,10 @@ void MyPainter::parsePathCode(Path path)
         else if(path.rule->getTypeOf(pathCode) == "路径"){
             Path p = path.rule->path(pathCode);
             int oldAstmTag = path.astmTag;
+            QString oldName = path.name;
             parsePathCode(p);
             myData->astmTag = oldAstmTag;
+            myData->pathName = oldName;
             return;
         }
         // case: 无法识别的语法
@@ -242,9 +246,10 @@ void MyPainter::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPoint
  * @brief 根据MyPathData画QPainterPath
  * @param pathData
  * @param astmTag
+ * @param pos 用于输出显示样片名称的位置
  * @return
  */
-QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag)
+QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag, QList<QPointF>* posList, QList<QString>* nameList)
 {
     MyPainter painter;
     QPainterPath* path = painter.myPath;
@@ -262,6 +267,13 @@ QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag)
         if(pathData.isLine){
             QPointF endPoint = data->pointData[pathData.endPoint->id];
             path->lineTo(endPoint);
+            // 如果传入了指针，且当前直线为经向线，并且有名字
+            if(astmTag == 2 && posList != nullptr && nameList != nullptr){
+                if(pathData.name != ""){
+                    posList->append(getPointOnLine(startPoint, endPoint, 0.5));
+                    nameList->append(pathData.name);
+                }
+            }
         }
         // 如果pathData表示曲线
         else{

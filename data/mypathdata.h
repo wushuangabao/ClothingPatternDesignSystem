@@ -19,6 +19,7 @@ struct PathData{
     int id; /**< 路径在数组中的序号 */
     bool isLine; /**< 是否为直线 */
     astm astmTag;
+    QString name; /**< 样片的名称 */
     CurvePoint* startPoint; /**< 起点指针 */
     CurvePoint* endPoint; /**< 终点指针 */
 };
@@ -39,6 +40,7 @@ public:
     QList<QPointF> pointData; /**< 点的数组 */
     QMap<QString,int> pointMap; /**< 记录点的名称 */
     int astmTag = 0; // 记录当前添加路径的 astm 标志
+    QString pathName = ""; // 记录当前添加路径的 name 属性
 
     bool addLineTo(QPointF endPoint,int idStartPoint=-1);
     void addLine(QPointF startPoint,QPointF endPoint);

@@ -21,7 +21,7 @@ public:
 
     void setStartPoint(qreal x,qreal y);
     void setStartPoint(QPointF point);
-    QPainterPath drawByPathData(MyPathData* pathData, int astmTag = 0);
+    QPainterPath drawByPathData(MyPathData* pathData, int astmTag = 0, QList<QPointF>* posList = nullptr, QList<QString>* nameList = nullptr);
     QPainterPath drawPointsByData(MyPathData* pathData);
     void curve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint);
 

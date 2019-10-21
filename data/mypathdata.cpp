@@ -55,6 +55,7 @@ MyPathData::MyPathData(const MyPathData &copyObj)
             i,
             copyObj.pathData[i].isLine,
             copyObj.pathData[i].astmTag,
+            "",
             startPoint,
             endPoint
         };
@@ -330,6 +331,7 @@ bool MyPathData::addLineTo(QPointF endPoint,int idSP)
         numberPath,
         true,
         astm(astmTag),
+        pathName,
         startCPoint,
         endCPoint,
         //path
@@ -381,6 +383,7 @@ void MyPathData::addCurve(QList<QPointF> points,QPointF firstCtrlPoint,QPointF l
         numberPath,
         false,
         astm(astmTag),
+        pathName,
         pFirstCPoint,
         pCPoint,
         //pathPointer

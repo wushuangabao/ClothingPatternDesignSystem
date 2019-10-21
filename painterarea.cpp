@@ -46,6 +46,10 @@ PainterArea::~PainterArea()
             delete myPaths[i];
             delete btnPaths[i];
         }
+    size = pathNames.size();
+    if(size > 0)
+        for(int i = 0;i < size; ++i)
+            delete pathNames[i];
 }
 
 /**
@@ -135,7 +139,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
                 //pen.setStyle(Qt::DotLine);
                 k = 0.6;
             }
-            // 辅助线：蓝色
+            // 辅助线：青色
             pen.setColor(Qt::cyan);
             pen.setWidthF(0.5 / scalingMulti * k);
             painter.setPen(pen);
@@ -149,7 +153,10 @@ void PainterArea::paintEvent(QPaintEvent *event)
             pen.setColor(Qt::red);
             pen.setWidthF(0);
             painter.setPen(pen);
-            painter.drawPath(myPainter.drawByPathData(myPaths[i], 2));
+            QList<QPointF> posNames;
+            QList<QString> names;
+            painter.drawPath(myPainter.drawByPathData(myPaths[i], 2, &posNames, &names));
+            drawPathNames(posNames, names);
             // 轮廓线：棕色（dark orange）
             pen.setColor(QColor(205,102,0));
             pen.setWidthF(1.8 / scalingMulti * k);
@@ -164,6 +171,7 @@ void PainterArea::paintEvent(QPaintEvent *event)
             painter.setBrush(brushEmpty);
         }
 
+    pen.setWidthF(0);
     pen.setColor(Qt::yellow);
     painter.setPen(pen);
     painter.drawPath(yellowPath);
@@ -385,6 +393,24 @@ bool PainterArea::isCurvePath(QPainterPath *path)
             return true;
     }
     return false;
+}
+
+/**
+ * @brief 画样板的名称，其实就设置 pathNames 标签数组
+ * @param posList
+ * @param names
+ */
+void PainterArea::drawPathNames(QList<QPointF> posList, QList<QString> names)
+{
+    int size = posList.size();
+    if(size <= 0)
+        return;
+    for(int i = 0; i < size; ++i){
+        QLabel *label = new QLabel(names[i], this);
+        label->move(posList[i].x(), posList[i].y());
+        pathNames.append(label);
+        label->show();
+    }
 }
 
 /**

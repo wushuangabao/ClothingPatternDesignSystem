@@ -19,6 +19,7 @@ struct Path{
     MyRule *rule;
     QString str;
     int astmTag; // 0-3: 轮廓线、内部线、经线、辅助线（棕、白、绿、红）
+    QString name;
 };
 
 struct Curve{

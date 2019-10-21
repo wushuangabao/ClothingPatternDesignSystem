@@ -29,7 +29,9 @@ private:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
+
     bool isCurvePath(QPainterPath* path);
+    void drawPathNames(QList<QPointF> posList, QList<QString> names);
 
 public:
     explicit PainterArea(QWidget *parent = nullptr);
@@ -37,6 +39,7 @@ public:
 
     QList<MyPathData*> myPaths; /**< 纸样数据 */
     QList<QPushButton*> btnPaths; /**< 纸样数据对应的按钮 */
+    QList<QLabel*> pathNames; /**< 纸样名称（标签）数组 */
     QPainterPath auxiliaryLines; /**< 辅助线 */
     QPainterPath yellowPath; /**< 黄线 */
     QPainterPath greenPath; /**< 绿线 */

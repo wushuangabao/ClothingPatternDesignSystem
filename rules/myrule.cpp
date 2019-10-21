@@ -1363,7 +1363,23 @@ Path MyRule::path(QString value, bool* ok)
                 return Path{
                     pathEn.rule,
                     pathEn.str,
-                    astmId(enIn)
+                    astmId(enIn),
+                    pathEn.name
+                };
+            }
+        }
+        // case: 命名
+        else if(ruleName.contains(".命名")){
+            int posDot = ruleName.indexOf('.');
+            QString pathName = ruleName.left(posDot);
+            it = paths.find(pathName);
+            if(it != paths.end()){
+                Path pathEn = *it;
+                return Path{
+                    pathEn.rule,
+                    pathEn.str,
+                    pathEn.astmTag,
+                    enIn
                 };
             }
         }
@@ -1393,7 +1409,8 @@ Path MyRule::path(QString value, bool* ok)
     return Path{
         this,
         value,
-        0
+        0,
+        ""
     };
 }
 
