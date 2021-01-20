@@ -122,7 +122,7 @@ bool MyRule::setInput(QString type, QString name)
 }
 
 /**
- * @brief 找到同文件下的ruleName对应的路径
+ * @brief 找到ruleName对应的路径
  * @param ruleName 规则文件名（不含后缀）
  * @return 失败返回""
  */
@@ -416,8 +416,6 @@ QPointF MyRule::endPoint(QPointF p1, QPointF p2, QString s, bool* ok)
  */
 MyRule::MyRule(QString f)
 {
-    types << "参数" << "点" << "直线" << "路径" << "曲线";
-    pFuncs << "求偏移" << "方向向量" << "求垂足" << "等分点" << "求交点" << "逆时针转";
     file = f;
     parentRule = nullptr;
 }
@@ -568,7 +566,7 @@ QPointF MyRule::foot(QPointF p1, Curve c, bool *ok)
 {
     MyPainter mp = MyPainter();
     mp.curve(c.points, c.p1, c.p2);
-
+    // todo
 }
 
 /**

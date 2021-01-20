@@ -34,20 +34,20 @@ struct Curve{
 class MyRule
 {
 private:
-    QStringList types;      /**< 实体类型表 */
-    QStringList pFuncs;     /**< 点的方法名称表 */
+    const QStringList types = {"参数", "点", "直线", "路径", "曲线"}; /**< 实体类型表 */
+    const QStringList pFuncs = {"求偏移", "方向向量", "求垂足", "等分点", "求交点", "逆时针转"};  /**< 点的方法名称表 */
+
     QString file;           /**< 规则文件路径 */
     QStringList entitiesOut;/**< 输出实体名 */
     QStringList entitiesIn; /**< 输入实体值的队列 */
     MyRule *parentRule;     /**< 本规则的调用者 */
 
+    // 转astm字符串为ID
     int astmId(QString strTag);
+    // 输入某实体的值（目前有bug）
     bool setInput(QString type, QString name);
+    // 找到某规则的文件路径
     QString findRulePath(QString ruleName);
-    void getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p = nullptr);
-    void movePointF(QPointF &p, qreal dx, qreal dy);
-    qreal lengthOfCurve(Curve c);
-    qreal lengthOfLine(Line l);
 
 public:
     MyRule(QString file);
@@ -55,51 +55,74 @@ public:
     void info(QString info);
 
     // 基本约束方法
-    QPointF pFunc(QString func, int idFunc = -1, bool* ok = nullptr); // 求点的方法集合
-    QPointF offset(QPointF p1, qreal distance, QPointF direction);
-    QPointF direction(QPointF p1, QPointF p2, bool* ok = nullptr);
-    QPointF foot(QPointF p1, Line l1, bool* ok = nullptr);
-    QPointF foot(QPointF p1, Curve c, bool* ok = nullptr);
-    QPointF divide(QPointF p1, QPointF p2, qreal proprtion);
-    QPointF divide(QPointF p, Curve c, qreal proprtion, bool* ok = nullptr);
-    QPointF cross(Line l1, Line l2, bool* ok = nullptr);
-    QPointF cross(Line l, Curve c, bool* ok = nullptr);
-    QPointF cross(Curve c1, Curve c2, bool* ok = nullptr);
-    QPointF rotate(QPointF o, qreal cos, QPointF p, bool* ok = nullptr);
+    QPointF pFunc(QString func, int idFunc = -1, bool* ok = nullptr); //求点的方法集合
+    QPointF offset(QPointF p1, qreal distance, QPointF direction); //求偏移点
+    QPointF direction(QPointF p1, QPointF p2, bool* ok = nullptr); //求方向向量
+    QPointF foot(QPointF p1, Line l1, bool* ok = nullptr); //求垂足
+    QPointF foot(QPointF p1, Curve c, bool* ok = nullptr); //求垂足 todo
+    QPointF divide(QPointF p1, QPointF p2, qreal proprtion); //求等分点
+    QPointF divide(QPointF p, Curve c, qreal proprtion, bool* ok = nullptr); //求等分点
+    QPointF cross(Line l1, Line l2, bool* ok = nullptr); //求交点
+    QPointF cross(Line l, Curve c, bool* ok = nullptr); //求交点
+    QPointF cross(Curve c1, Curve c2, bool* ok = nullptr); //求交点
+    QPointF rotate(QPointF o, qreal cos, QPointF p, bool* ok = nullptr); //求逆时针转后的某点
+
+    // 平移路径(Path)
     Path movePath(Path &path, QString value, QList<QString> &nameList, bool* ok = nullptr);
+    // 求直线
     Line line(QPointF p1, QPointF p2);
+    // 求曲线
     Curve curve(QList<QPointF> points, bool* ok = nullptr);
 
     // 所有实体的表：
     QMap<QString,QString> params; /**< 参数型实体 */
     QMap<QString,QPointF> points; /**< 点类型实体 */
     QMap<QString,Line> lines;     /**< 直线型实体 */
-    QMap<QString,Path> paths;  /**< 路径型实体 */
+    QMap<QString,Path> paths;     /**< 路径型实体 */
     QMap<QString,Curve> curves;   /**< 曲线型实体 */
 
-    // 规则代码解析：
+    // 解析单句代码
     bool parseCode(QString code);
-    QString pretreat(QString code);
-    QStringList getEntityNames(QString code);
-    QString getEntityType(QString code);
+    // 在实体表中查询某个实体的类型
     QString getTypeOf(QString name);
-    QString getValue(QString code);
-    void defineEntity(int typeId, QString name);
-    void defineEntity(QString type, QStringList names);
-    int assignEntity(QString name, QString value, MyRule* r = nullptr);
-    void assignEntity(QStringList names, QString values, MyRule* r = nullptr);
+    // 将字符串解析为（特定类型的）实体：
     qreal param(QString value, bool* ok = nullptr);
     QPointF point(QString value, bool* ok = nullptr);
     Line line(QString value, bool* ok = nullptr);
     Path path(QString value, bool* ok = nullptr);
     Curve curve(QString value, bool* ok = nullptr);
 
+private:
+    // 找出两组线段中哪两条线段相交
+    void getCrossLines(const QList<Line> &lineList1, const QList<Line> &lineList2, int &numOfLine1, int &numOfLine2, QPointF *p = nullptr);
+    // 移动某点的坐标
+    void movePointF(QPointF &p, qreal dx, qreal dy);
+    // 求曲线长度
+    qreal lengthOfCurve(Curve c);
+    // 求直线长度
+    qreal lengthOfLine(Line l);
+    // 预处理单句代码
+    QString pretreat(QString code);
+    // 读取单句代码中的所有实体名称（用字母、数字、下划线组成，且以字母开头）
+    QStringList getEntityNames(QString code);
+    // 获取单句代码中出现的实体类型
+    QString getEntityType(QString code);
+    // 获取单句代码中=后面的字符串
+    QString getValue(QString code);
+    // 定义实体：
+    void defineEntity(int typeId, QString name);
+    void defineEntity(QString type, QStringList names);
+    // 给实体赋值：
+    int assignEntity(QString name, QString value, MyRule* r = nullptr);
+    void assignEntity(QStringList names, QString values, MyRule* r = nullptr);
+
+public:
     // 使用自定义规则：
-    QString callRule(QString f, QString in = "", MyRule* parent = nullptr);
-    qreal paramByRule(QString f, QString in, bool* ok = nullptr);
-    QPointF pointByRule(QString f, QString in, bool* ok = nullptr);
-    Line lineByRule(QString f, QString in, bool* ok = nullptr);
-    Curve curveByRule(QString f, QString in, bool* ok = nullptr);
+    QString callRule(QString f, QString in = "", MyRule* parent = nullptr); //返回实体名称
+    qreal paramByRule(QString f, QString in, bool* ok = nullptr); //返回参数值
+    QPointF pointByRule(QString f, QString in, bool* ok = nullptr); //返回点
+    Line lineByRule(QString f, QString in, bool* ok = nullptr); //返回直线段
+    Curve curveByRule(QString f, QString in, bool* ok = nullptr); //返回曲线段
     // Path pathByRule() // todo
 
     // 生成绘图路径：
