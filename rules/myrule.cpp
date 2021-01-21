@@ -975,13 +975,13 @@ bool MyRule::parseCode(QString code)
                 QString type = getEntityType(items[0]);
                 // case: 单纯的赋值语句
                 if(type == ""){
-                    assignEntity(namesLeft,value);
+                    assignEntities(namesLeft,value);
                     return true;
                 }
                 // case: 初始化赋值语句
                 else{
                     defineEntity(type,namesLeft);
-                    assignEntity(namesLeft,value);
+                    assignEntities(namesLeft,value);
                     return true;
                 }
             }
@@ -1151,33 +1151,36 @@ int MyRule::assignEntity(QString name, QString value, MyRule* r)
  * @param values
  * @param rule
  */
-void MyRule::assignEntity(QStringList names, QString values, MyRule* rule)
+void MyRule::assignEntities(QStringList names, QString values, MyRule* rule)
 {
     if(rule == nullptr) rule = this;
     int sizeNames = names.size();
-    // case: 用‘&’分割赋值字符串
+    // 用‘&’分割赋值字符串
     QStringList strValues = values.simplified().remove(' ').split('&');
     int sizeValues = strValues.size();
     if(sizeNames == sizeValues){
         bool hasPath = false;
+        // 一一对应地赋值
         for(int i = 0; i < sizeNames; ++i)
            if(assignEntity(names[i], strValues[i], rule) == 3)
                hasPath = true;
-        if(!hasPath && rule != this)
-            delete rule; // 若没有 Path 类型的实体，释放 rule 的内存
+        // 若没有 Path 类型的实体，释放 rule 的内存
+        // 因为 Path 会引用 rule，所以有 Path 时不能释放 rule
+        if(!hasPath && rule != this && rule != nullptr)
+            delete rule;
     }else{
-        // case: 调用自定义规则
+        // 调用自定义规则赋值
         if(values.contains("(") && values.contains(")")){
             int i1 = values.indexOf('('), i2 = values.lastIndexOf(')');
             QString ruleName = values.left(i1),
                     enIn = values.mid(i1+1,i2-i1-1).simplified(),
                     f = findRulePath(ruleName);
             MyRule* r = new MyRule(f);
-            QString results = r->callRule(f, enIn, this);
+            QString results = r->getEntityByRule(f, enIn, this);
             if(results != "")
                 // 调用规则之后再次赋值
                 // todo: delete r; 目前暂时规定必须输出Path实体，这样可以保证释放内存。
-                assignEntity(names, results, r);
+                assignEntities(names, results, r);
             else info("赋值语句的规则错误");
         }else info("赋值语句的数目出错");
     }
@@ -1242,7 +1245,7 @@ qreal MyRule::param(QString value, bool *ok)
         QString ruleName = eList[0], enIn = eList[1];
         if(ruleName == "sqrt")
             return sqrt(param(enIn));
-        return paramByRule(ruleName, enIn, ok);
+        return getParamByRule(ruleName, enIn, ok);
     }
     // case: 值为单个数值
     else{
@@ -1284,7 +1287,7 @@ QPointF MyRule::point(QString value, bool *ok)
                     int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
                     QString ruleName = numbers[0],
                             enIn = value.mid(i1+1,i2-i1-1).simplified();
-                    return pointByRule(ruleName, enIn, ok);
+                    return getPointByRule(ruleName, enIn, ok);
                 }
             }
             // case: 调用基本约束方法 赋值
@@ -1322,7 +1325,7 @@ Line MyRule::line(QString value, bool *ok)
             int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
             QString ruleName = value.left(i1),
                     enIn = value.mid(i1+1,i2-i1-1).simplified();
-            return lineByRule(ruleName, enIn, ok);
+            return getLineByRule(ruleName, enIn, ok);
         }
         info("直线值"+value+"解析出错");
         if(ok != nullptr)
@@ -1393,7 +1396,7 @@ Path MyRule::path(QString value, bool* ok)
         else{
             QString f = findRulePath(ruleName);
             MyRule* r = new MyRule(f);
-            QString name = r->callRule(f, enIn, this);
+            QString name = r->getEntityByRule(f, enIn, this);
             if(name != ""){
                 QString type = r->getTypeOf(name);
                 if(type == types[3])
@@ -1431,7 +1434,7 @@ Curve MyRule::curve(QString value, bool *ok)
             int i1 = value.indexOf('('), i2 = value.lastIndexOf(')');
             QString ruleName = value.left(i1),
                     enIn = value.mid(i1+1,i2-i1-1).simplified();
-            return curveByRule(ruleName, enIn, ok);
+            return getCurveByRule(ruleName, enIn, ok);
         }
         info("曲线值"+value+"解析出错");
         if(ok != nullptr)
@@ -1485,13 +1488,13 @@ QString MyRule::getTypeOf(QString name)
 }
 
 /**
- * @brief 调用自定义规则，会弹框要求用户赋值输入实体
+ * @brief 调用（call）自定义规则
  * @param f 规则文件的路径
  * @param in 输入实体的代码
  * @param parent 发起call的MyRule对象指针
  * @return 输出实体的名称。 ""表示失败
  */
-QString MyRule::callRule(QString f, QString in, MyRule* parent)
+QString MyRule::getEntityByRule(QString f, QString in, MyRule* parent)
 {
     // 解析输入实体
     if(in != "" && parent != nullptr){
@@ -1533,13 +1536,13 @@ QString MyRule::callRule(QString f, QString in, MyRule* parent)
  * @param ok 失败时赋值为false
  * @return
  */
-qreal MyRule::paramByRule(QString f, QString in, bool *ok)
+qreal MyRule::getParamByRule(QString f, QString in, bool *ok)
 {
     qreal r = 0.0;
     QString type = "";
     f = findRulePath(f);
     MyRule *rule = new MyRule(f);
-    QString name = rule->callRule(f, in, this);
+    QString name = rule->getEntityByRule(f, in, this);
     if(name != ""){
         type = rule->getTypeOf(name);
         if(type == types[0])
@@ -1558,13 +1561,13 @@ qreal MyRule::paramByRule(QString f, QString in, bool *ok)
  * @param ok 失败时赋值为false
  * @return
  */
-QPointF MyRule::pointByRule(QString f, QString in, bool *ok)
+QPointF MyRule::getPointByRule(QString f, QString in, bool *ok)
 {
     QPointF p = QPointF(0,0);
     QString type = "";
     f = findRulePath(f);
     MyRule *rule = new MyRule(f);
-    QString name = rule->callRule(f, in, this);
+    QString name = rule->getEntityByRule(f, in, this);
     if(name != ""){
         type = rule->getTypeOf(name);
         if(type == types[1])
@@ -1583,13 +1586,13 @@ QPointF MyRule::pointByRule(QString f, QString in, bool *ok)
  * @param ok 失败时赋值为false
  * @return
  */
-Line MyRule::lineByRule(QString f, QString in, bool *ok)
+Line MyRule::getLineByRule(QString f, QString in, bool *ok)
 {
     Line l = { QPointF(0,0), QPointF(0,0) };
     QString type = "";
     f = findRulePath(f);
     MyRule *rule = new MyRule(f);
-    QString name = rule->callRule(f, in, this);
+    QString name = rule->getEntityByRule(f, in, this);
     if(name != ""){
         type = rule->getTypeOf(name);
         if(type == types[2])
@@ -1608,7 +1611,7 @@ Line MyRule::lineByRule(QString f, QString in, bool *ok)
  * @param ok 失败时赋值为false
  * @return
  */
-Curve MyRule::curveByRule(QString f, QString in, bool *ok)
+Curve MyRule::getCurveByRule(QString f, QString in, bool *ok)
 {
     QList<QPointF> points;
     QPointF point = QPointF(0,0);
@@ -1617,7 +1620,7 @@ Curve MyRule::curveByRule(QString f, QString in, bool *ok)
     QString type = "";
     f = findRulePath(f);
     MyRule *rule = new MyRule(f);
-    QString name = rule->callRule(f, in, this);
+    QString name = rule->getEntityByRule(f, in, this);
     if(name != ""){
         type = rule->getTypeOf(name);
         if(type == types[4])
@@ -1635,7 +1638,7 @@ Curve MyRule::curveByRule(QString f, QString in, bool *ok)
  */
 MyPainter MyRule::drawPath()
 {
-    return drawPath(callRule(file));
+    return drawPath(getEntityByRule(file));
 }
 
 /**
@@ -1645,7 +1648,7 @@ MyPainter MyRule::drawPath()
  */
 MyPainter MyRule::drawPathWith(QString entitiesIn)
 {
-    return drawPath(callRule(file, entitiesIn, this));
+    return drawPath(getEntityByRule(file, entitiesIn, this));
 }
 
 /**

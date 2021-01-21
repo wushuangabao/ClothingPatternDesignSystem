@@ -114,15 +114,15 @@ private:
     void defineEntity(QString type, QStringList names);
     // 给实体赋值：
     int assignEntity(QString name, QString value, MyRule* r = nullptr);
-    void assignEntity(QStringList names, QString values, MyRule* r = nullptr);
+    void assignEntities(QStringList names, QString values, MyRule* r = nullptr);
 
 public:
-    // 使用自定义规则：
-    QString callRule(QString f, QString in = "", MyRule* parent = nullptr); //返回实体名称
-    qreal paramByRule(QString f, QString in, bool* ok = nullptr); //返回参数值
-    QPointF pointByRule(QString f, QString in, bool* ok = nullptr); //返回点
-    Line lineByRule(QString f, QString in, bool* ok = nullptr); //返回直线段
-    Curve curveByRule(QString f, QString in, bool* ok = nullptr); //返回曲线段
+    // 使用自定义规则（f表示规则文件的路径）：
+    QString getEntityByRule(QString f, QString in = "", MyRule* parent = nullptr); //返回实体名称
+    qreal getParamByRule(QString f, QString in, bool* ok = nullptr); //返回参数值
+    QPointF getPointByRule(QString f, QString in, bool* ok = nullptr); //返回点
+    Line getLineByRule(QString f, QString in, bool* ok = nullptr); //返回直线段
+    Curve getCurveByRule(QString f, QString in, bool* ok = nullptr); //返回曲线段
     // Path pathByRule() // todo
 
     // 生成绘图路径：

@@ -39,11 +39,13 @@ void MyPainter::parsePathCode(Path path)
     myData->pathName = path.name;
     // 去除pathCode中的所有空格
     QString pathCode = path.str.remove(' ');
+
     if(pathCode.contains("以及")){
         // 将pathCode根据"以及"操作符，拆分成几段
         QStringList sl = pathCode.split("以及");
+        // 递归解析这些子路径
         foreach(const QString &code, sl){
-            // todo: 这段 sonPath 赋值的代码应该有问题
+            // todo: 这段 sonPath 赋值的代码似乎有问题
             Path sonPath = {
                 path.rule,
                 code,
@@ -54,9 +56,11 @@ void MyPainter::parsePathCode(Path path)
         }
         return;
     }
+
     int n = 1;
     QList<QPointF> points;
-    QString type = connectType(pathCode);
+    QString type = getConnectType(pathCode); //寻找“连接”或“圆顺”关键字
+    // 如果没找到“连接”或“圆顺”关键字：
     if(type == ""){
         // case: pathCode 本身表示一条直线
         if(path.rule->getTypeOf(pathCode) == "直线"){
@@ -95,7 +99,7 @@ void MyPainter::parsePathCode(Path path)
     if(!addPointByRule(&points, path.rule, &pathCode))
         return;
     while(pathCode.length()>0){
-        QString nextType = connectType(pathCode);
+        QString nextType = getConnectType(pathCode);
         // case: 进行绘图操作
         if(nextType != type && nextType != ""){
             if(!addPointByRule(&points, path.rule, &pathCode))
@@ -180,7 +184,7 @@ void MyPainter::curve(QList<QPointF> points, QPointF firstCtrlPoint, QPointF las
  * @param code
  * @return 返回""表示找不到新的连接了
  */
-QString MyPainter::connectType(QString code)
+QString MyPainter::getConnectType(QString code)
 {
     int id = code.indexOf(QRegExp("连接|圆顺"));
     if(id != -1)
@@ -239,16 +243,15 @@ void MyPainter::brokenLineThrough(QPainterPath brokenLine)
 void MyPainter::curveThrough(QList<QPointF> points,QPointF firstCtrlPoint,QPointF lastCtrlPoint)
 {
     curve(points,firstCtrlPoint,lastCtrlPoint);
-    MyPainter path;
-    path.curve(points,firstCtrlPoint,lastCtrlPoint);
     myData->addCurve(points,firstCtrlPoint,lastCtrlPoint);
 }
 
 /**
  * @brief 根据MyPathData画QPainterPath
- * @param pathData
- * @param astmTag
- * @param pos 用于输出显示样片名称的位置
+ * @param data 画图所需的数据
+ * @param astmTag 只画具有该标记的路径
+ * @param posList 可选参数，会将经向线的中点加入该队列
+ * @param nameList 可选参数，会将经向线的名字加入该队列
  * @return
  */
 QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag, QList<QPointF>* posList, QList<QString>* nameList)
@@ -296,7 +299,7 @@ QPainterPath MyPainter::drawByPathData(MyPathData *data, int astmTag, QList<QPoi
 /**
  * @brief 根据MyPathData画点
  * @param pathData
- * @return
+ * @return 若干个圆形的QPainterPath路径
  */
 QPainterPath MyPainter::drawPointsByData(MyPathData *data)
 {
@@ -307,7 +310,7 @@ QPainterPath MyPainter::drawPointsByData(MyPathData *data)
         QPointF center = data->pointData[i];
         path->addEllipse(center.x()-1, center.y()-1, 2, 2);
     }
-    return *path;
+    return *path; //怀疑有内存泄漏？
 }
 
 /**
@@ -337,14 +340,15 @@ QPointF MyPainter::getSymmetryPoint(QPointF point, QPointF center)
 }
 
 /**
- * @brief 将MyRule中点的坐标值放大10倍
- * @param pFromRule
- * @return
+ * @brief 将点的坐标值放大10倍（目前程序中用来移动MyRule中的点）
+ * @param pFromRule 点
+ * @param n 放大倍数，默认为10
+ * @return 放大坐标值后的点
  */
-QPointF MyPainter::convertPoint(QPointF pFromRule)
+QPointF MyPainter::convertPoint(QPointF pFromRule, int n)
 {
-    qreal x = pFromRule.x() * 10,
-          y = pFromRule.y() * 10;
+    qreal x = pFromRule.x() * n,
+          y = pFromRule.y() * n;
     return QPointF(x, y);
 }
 
@@ -371,7 +375,7 @@ bool MyPainter::addPointByRule(QList<QPointF> *points, MyRule *rule, QString* pa
 {
     int id;
     bool ok = true;
-    QString type = connectType(*pathCode);
+    QString type = getConnectType(*pathCode);
     if(type == ""){
         rule->info(*pathCode+"无法解析");
         return false;
@@ -433,7 +437,7 @@ void MyPainter::addPointData(QPointF point, QString name)
 bool MyPainter::equal(qreal v1, qreal v2)
 {
     qreal d = v1-v2;
-    if(d>-minUnit && d<minUnit)
+    if(d>-g_minUnit && d<g_minUnit)
         return true;
     else
         return false;
